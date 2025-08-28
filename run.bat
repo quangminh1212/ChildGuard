@@ -50,11 +50,29 @@ if /I "%~1"=="--tests" set "RUN_TESTS=1" & shift & goto :parse_args
 if /I "%~1"=="--ui" (
   if "%~2"=="" ( echo [WARN] Missing value for --ui, using default: modern ) else ( set "UI=%~2" )
   shift & shift & goto :parse_args
+REM Prepare logs dir early
+set "LOG_DIR=%cd%\logs"
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >NUL 2>&1
+set "UI_LOG=%LOG_DIR%\ui.log"
+set "AGENT_LOG=%LOG_DIR%\agent.log"
+set "SERVICE_LOG=%LOG_DIR%\service.log"
+
+echo [INFO] Logs:
+  echo   UI     : "%UI_LOG%"
+  echo   Agent  : "%AGENT_LOG%"
+  echo   Service: "%SERVICE_LOG%"
+
 )
 if /I "%~1"=="--open" (
   if "%~2"=="" ( echo [WARN] Missing value for --open, ignored ) else ( set "OPEN=%~2" )
   shift & shift & goto :parse_args
 )
+
+REM Echo final parsed args
+set "UI_ARGS="
+if not "%UI%"=="" set "UI_ARGS=!UI_ARGS! --ui %UI%"
+if not "%OPEN%"=="" set "UI_ARGS=!UI_ARGS! --open %OPEN%"
+echo [INFO] UI_ARGS: !UI_ARGS!
 REM Unknown arg -> ignore
 shift
 goto :parse_args
@@ -94,10 +112,6 @@ if not "%UI_EXE%"=="" (
     start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
   )
 ) else (
-REM Logging: capture output to logs folder when not in diagnose mode
-set "LOG_DIR=%cd%\logs"
-if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >NUL 2>&1
-
 
   if "%DIAGNOSE%"=="1" (
     echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
