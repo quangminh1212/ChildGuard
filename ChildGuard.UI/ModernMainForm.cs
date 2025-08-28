@@ -62,6 +62,26 @@ namespace ChildGuard.UI
             SetupEventHandlers();
             ApplyTheme();
         }
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            try
+            {
+                updateTimer?.Stop();
+                animationTimer?.Stop();
+                if (_running)
+                {
+                    try { _protectionManager.Stop(); } catch { }
+                    _running = false;
+                }
+                _protectionManager.OnActivity -= OnActivity;
+                _protectionManager.OnStatisticsUpdated -= OnStatisticsUpdated;
+                updateTimer?.Dispose();
+                animationTimer?.Dispose();
+            }
+            catch { }
+            base.OnFormClosing(e);
+        }
+
 
         private void InitializeForm()
         {
@@ -726,7 +746,13 @@ namespace ChildGuard.UI
 
         private void LoadConfiguration()
         {
-            _config = ConfigManager.Load(out _);
+            // Load config and ensure DataDirectory is valid
+            _config = ConfigManager.Load(out var cfgPath);
+            if (string.IsNullOrWhiteSpace(_config.DataDirectory))
+            {
+                try { _config.DataDirectory = Path.GetDirectoryName(cfgPath) ?? ConfigManager.GetLocalAppDataDir(); }
+                catch { _config.DataDirectory = ConfigManager.GetLocalAppDataDir(); }
+            }
             UIStrings.SetLanguage(_config.UILanguage);
         }
 
