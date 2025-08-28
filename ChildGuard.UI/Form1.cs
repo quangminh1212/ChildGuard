@@ -14,6 +14,7 @@ public partial class Form1 : Form
     private readonly AdvancedProtectionManager _protectionManager = new();
     private long _lastKeys;
     private long _lastMouse;
+#pragma warning disable CS0414, CS0169
     private long _threatsDetected;
     private volatile bool _running;
     private AppConfig _cfg = new();
@@ -21,6 +22,7 @@ public partial class Form1 : Form
     private Panel _threatPanel = default!;
     private ListBox _activityLog = default!;
     private Label _statusLabel = default!;
+#pragma warning restore CS0414, CS0169
 
 public Form1()
 {
@@ -68,13 +70,13 @@ InitializeComponent();
         }
     }
 
-private void uiTimer_Tick(object sender, EventArgs e)
+private void uiTimer_Tick(object? sender, EventArgs e)
 {
     lblKeys.Text = _lastKeys.ToString();
     lblMouse.Text = _lastMouse.ToString();
 }
 
-    private void btnStart_Click(object sender, EventArgs e)
+    private void btnStart_Click(object? sender, EventArgs e)
     {
         if (_running) return;
         var cfg = new AppConfig { EnableInputMonitoring = chkEnableInput.Checked };
@@ -82,7 +84,7 @@ private void uiTimer_Tick(object sender, EventArgs e)
         _running = true;
     }
 
-    private void btnStop_Click(object sender, EventArgs e)
+    private void btnStop_Click(object? sender, EventArgs e)
     {
         if (!_running) return;
         _protectionManager.Stop();

@@ -98,8 +98,8 @@ InitializeComponent();
         _config.EnableInputMonitoring = chkInput.Checked;
         _config.EnableActiveWindowTracking = chkActiveWindow.Checked;
         // Language and Theme
-        _config.UILanguage = (cmbLanguage.SelectedIndex == 1) ? "vi" : "en";
-        _config.Theme = cmbTheme.SelectedIndex switch { 1 => "Light", 2 => "Dark", _ => "System" };
+        _config.UILanguage = (cmbLanguage?.SelectedIndex == 1) ? "vi" : "en";
+        _config.Theme = (cmbTheme?.SelectedIndex ?? 0) switch { 1 => "Light", 2 => "Dark", _ => "System" };
         // Blocked list
         var lines = (txtBlocked.Text ?? string.Empty)
             .Split(new[]{"\r\n","\n"}, StringSplitOptions.RemoveEmptyEntries)
@@ -205,7 +205,7 @@ InitializeComponent();
     private void RebuildLayoutModern(ThemeMode mode)
     {
         // Keep menu/title; rebuild client area layout
-        var margin = 10;
+
         var root = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
