@@ -222,18 +222,18 @@ public class UrlSafetyChecker
 
 public class UrlCheckResult
 {
-    public string Url { get; set; }
+    public string Url { get; set; } = string.Empty;
     public bool IsSafe { get; set; }
-    public string Reason { get; set; }
-    public RiskLevel RiskLevel { get; set; }
-    public UrlThreatLevel ThreatLevel { get; set; }
+    public string Reason { get; set; } = string.Empty;
+    public RiskLevel RiskLevel { get; set; } = RiskLevel.None;
+    public UrlThreatLevel ThreatLevel { get; set; } = UrlThreatLevel.Low;
     public List<string> Categories { get; set; } = new List<string>();
-    
+
     public string GetSummary()
     {
         if (IsSafe)
             return $"URL an toàn: {Reason}";
-        
+
         return $"URL nguy hiểm - {RiskLevel}: {Reason}";
     }
 }
