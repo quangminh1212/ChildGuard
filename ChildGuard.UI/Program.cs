@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace ChildGuard.UI;
 
 static class Program
@@ -8,8 +10,23 @@ static class Program
     [STAThread]
     static void Main()
     {
+<<<<<<< HEAD
         ApplicationConfiguration.Initialize();
         bool openSettings = false, openReports = false; string ui = "modern";
+=======
+        // Enable high DPI support (Per-Monitor V2)
+        Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+        Application.EnableVisualStyles();
+        Application.SetCompatibleTextRenderingDefault(false);
+        
+        // Setup global exception handlers
+        Application.ThreadException += Application_ThreadException;
+        Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        
+        // Parse command line arguments
+        bool openSettings = false, openReports = false;
+>>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
@@ -26,7 +43,16 @@ static class Program
                 i++;
             }
         }
+<<<<<<< HEAD
         if (ui == "classic")
+=======
+        
+        // Use ModernMainForm as the main application shell
+        var mainForm = new ModernMainForm();
+        
+        // Handle command line navigation after form is shown
+        mainForm.Shown += (s, e) =>
+>>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
         {
             var f = new Form1();
             Application.Run(f);
@@ -36,6 +62,7 @@ static class Program
             var f = new ModernMainForm();
             f.Shown += (s, e) =>
             {
+<<<<<<< HEAD
                 try
                 {
                     if (openSettings) f.NavigateTo("Settings");
@@ -46,4 +73,74 @@ static class Program
             Application.Run(f);
         }
     }    
+=======
+                try 
+                { 
+                    // Prefer in-shell navigation if available
+                    mainForm.NavigateTo("Settings");
+                } 
+                catch 
+                { 
+                    // Fallback: open standalone form
+                    try { new SettingsForm().Show(mainForm); } catch (Exception ex) { Debug.WriteLine($"Error opening settings: {ex.Message}"); }
+                }
+            }
+            if (openReports)
+            {
+                try 
+                { 
+                    mainForm.NavigateTo("Reports");
+                } 
+                catch 
+                { 
+                    try { new ReportsForm().Show(mainForm); } catch (Exception ex) { Debug.WriteLine($"Error opening reports: {ex.Message}"); }
+                }
+            }
+        };
+        
+        // Run the application
+        Application.Run(mainForm);
+    }
+    
+    private static void Application_ThreadException(object? sender, System.Threading.ThreadExceptionEventArgs e)
+    {
+        LogException("Thread Exception", e.Exception);
+    }
+    
+    private static void CurrentDomain_UnhandledException(object? sender, UnhandledExceptionEventArgs e)
+    {
+        if (e.ExceptionObject is Exception ex)
+        {
+            LogException("Unhandled Domain Exception", ex);
+        }
+    }
+    
+    private static void LogException(string source, Exception exception)
+    {
+        try
+        {
+            // Log to debug output
+            Debug.WriteLine($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {source}: {exception}");
+            
+            // TODO: In production, log to file or event log
+            // For now, we'll just write to debug output
+            // string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ChildGuard", "error.log");
+            // File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {source}: {exception}\n\n");
+            
+            // Optionally show error dialog in debug builds
+            #if DEBUG
+            MessageBox.Show(
+                $"An error occurred:\n\n{exception.Message}\n\nSource: {source}", 
+                "ChildGuard - Error", 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Error
+            );
+            #endif
+        }
+        catch
+        {
+            // If we can't log, at least don't crash the error handler
+        }
+    }
+>>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
 }
