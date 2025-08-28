@@ -24,20 +24,20 @@ public partial class EnhancedForm1 : Form
     private readonly ConcurrentQueue<ThreatNotification> _threatQueue = new();
     
     // UI Elements
-    private Panel _mainPanel;
-    private Panel _threatPanel;
-    private ListBox _activityLog;
-    private Label _statusLabel;
-    private Label _keyValueLabel;
-    private Label _mouseValueLabel;
-    private Label _threatCountLabel;
-    private Button _startButton;
-    private Button _stopButton;
-    private CheckBox _audioCheckBox;
-    private CheckBox _urlCheckBox;
-    private CheckBox _contentCheckBox;
-    private System.Windows.Forms.Timer _uiUpdateTimer;
-    private MenuStrip _menuStrip;
+    private Panel _mainPanel = default!;
+    private Panel _threatPanel = default!;
+    private ListBox _activityLog = default!;
+    private Label _statusLabel = default!;
+    private Label _keyValueLabel = default!;
+    private Label _mouseValueLabel = default!;
+    private Label _threatCountLabel = default!;
+    private Button _startButton = default!;
+    private Button _stopButton = default!;
+    private CheckBox _audioCheckBox = default!;
+    private CheckBox _urlCheckBox = default!;
+    private CheckBox _contentCheckBox = default!;
+    private System.Windows.Forms.Timer _uiUpdateTimer = default!;
+    private MenuStrip _menuStrip = default!;
     
     public EnhancedForm1()
     {
@@ -640,8 +640,8 @@ public partial class EnhancedForm1 : Form
 public class ThreatNotification
 {
     public DateTime Timestamp { get; set; }
-    public string Type { get; set; }
-    public string Description { get; set; }
+    public string Type { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     public ThreatLevel Level { get; set; }
-    public string Content { get; set; }
+    public string? Content { get; set; }
 }

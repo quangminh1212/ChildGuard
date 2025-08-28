@@ -14,7 +14,7 @@ namespace ChildGuard.UI.Controls
     {
         private bool isHovered = false;
         private bool isPressed = false;
-        private System.Windows.Forms.Timer animationTimer;
+        private System.Windows.Forms.Timer animationTimer = default!;
         private int animationStep = 0;
         private ButtonStyle buttonStyle = ButtonStyle.Primary;
         private int cornerRadius = 8;
@@ -299,7 +299,7 @@ namespace ChildGuard.UI.Controls
             Invalidate();
         }
 
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
             animationStep++;
             

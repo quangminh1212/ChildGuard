@@ -270,7 +270,7 @@ namespace ChildGuard.UI.Controls
             }
         }
 
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
             if (isHovered && animationStep < 10)
             {

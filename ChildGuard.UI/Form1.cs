@@ -18,9 +18,9 @@ public partial class Form1 : Form
     private volatile bool _running;
     private AppConfig _cfg = new();
     private readonly ConcurrentQueue<ThreatNotification> _threatQueue = new();
-    private Panel _threatPanel;
-    private ListBox _activityLog;
-    private Label _statusLabel;
+    private Panel _threatPanel = default!;
+    private ListBox _activityLog = default!;
+    private Label _statusLabel = default!;
 
 public Form1()
 {
@@ -68,13 +68,13 @@ InitializeComponent();
         }
     }
 
-private void uiTimer_Tick(object? sender, EventArgs e)
+private void uiTimer_Tick(object sender, EventArgs e)
 {
     lblKeys.Text = _lastKeys.ToString();
     lblMouse.Text = _lastMouse.ToString();
 }
 
-    private void btnStart_Click(object? sender, EventArgs e)
+    private void btnStart_Click(object sender, EventArgs e)
     {
         if (_running) return;
         var cfg = new AppConfig { EnableInputMonitoring = chkEnableInput.Checked };
@@ -82,7 +82,7 @@ private void uiTimer_Tick(object? sender, EventArgs e)
         _running = true;
     }
 
-    private void btnStop_Click(object? sender, EventArgs e)
+    private void btnStop_Click(object sender, EventArgs e)
     {
         if (!_running) return;
         _protectionManager.Stop();

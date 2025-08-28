@@ -12,11 +12,11 @@ namespace ChildGuard.UI.Controls
     /// </summary>
     public class ModernTextBox : UserControl
     {
-        private TextBox textBox;
-        private Label placeholderLabel;
-        private Label titleLabel;
-        private Panel underlinePanel;
-        private System.Windows.Forms.Timer animationTimer;
+        private TextBox textBox = default!;
+        private Label placeholderLabel = default!;
+        private Label titleLabel = default!;
+        private Panel underlinePanel = default!;
+        private System.Windows.Forms.Timer animationTimer = default!;
         private bool isFocused = false;
         private int animationStep = 0;
         private string placeholderText = "Enter text...";

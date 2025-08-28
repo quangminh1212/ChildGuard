@@ -45,7 +45,7 @@ public static void Apply(Form form, ThemeMode mode)
                     var accent = ThemeHelper.GetAccentColor();
                     foreach (ToolStripItem it in ms.Items)
                     {
-                        if (it is ToolStripMenuItem mi)
+                        if (it is ToolStripMenuItem mi && mi.Text != null)
                         {
                             char g = mi.Text.Contains("Settings", StringComparison.OrdinalIgnoreCase) ? GlyphIcons.Settings :
                                      mi.Text.Contains("Reports", StringComparison.OrdinalIgnoreCase) ? GlyphIcons.Reports :

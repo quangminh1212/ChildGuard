@@ -771,7 +771,7 @@ namespace ChildGuard.UI
             catch { }
         }
         
-        private void ProfileButton_Click(object sender, EventArgs e)
+        private void ProfileButton_Click(object? sender, EventArgs e)
         {
             // Show profile menu
             var menu = new ContextMenuStrip();
@@ -782,7 +782,7 @@ namespace ChildGuard.UI
             menu.Show(profileButton, new Point(0, profileButton.Height));
         }
         
-        private void UpdateTimer_Tick(object sender, EventArgs e)
+        private void UpdateTimer_Tick(object? sender, EventArgs e)
         {
             // Update monitoring values
             var keyLabel = contentPanel.Controls.Find("keyValueLabel", true).FirstOrDefault() as Label;
@@ -820,7 +820,7 @@ namespace ChildGuard.UI
             }
         }
         
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
             // Handle animations
         }
@@ -879,7 +879,7 @@ namespace ChildGuard.UI
         private bool isHovered;
         public string Icon { get; set; } = string.Empty;
         public int Index { get; set; }
-        public new string Text { get; set; }
+        public new string Text { get; set; } = string.Empty;
         
         public bool IsActive
         {
