@@ -138,10 +138,10 @@ namespace ChildGuard.UI
 
         private void InitializeComponents()
         {
-            // Create main layout panels
+            // Create main layout panels (content before sidebar because sidebar selects default section)
             CreateHeaderPanel();
-            CreateSidebarPanel();
             CreateContentPanel();
+            CreateSidebarPanel();
 
             // Initialize timers
             updateTimer = new System.Windows.Forms.Timer();
