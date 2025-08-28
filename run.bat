@@ -4,6 +4,14 @@ setlocal EnableExtensions EnableDelayedExpansion
 REM Change to repo root (folder of this script)
 cd /d "%~dp0"
 
+REM Auto-elevate to Administrator if not already
+net session >NUL 2>&1
+if %errorlevel% NEQ 0 (
+  echo [INFO] Elevating privileges (UAC)...
+  powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
+  exit /b
+)
+
 REM Check dotnet
 where dotnet >NUL 2>&1
 if errorlevel 1 (
@@ -77,24 +85,39 @@ if not "%UI_EXE%"=="" (
     start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
   )
 ) else (
+REM Logging: capture output to logs folder when not in diagnose mode
+set "LOG_DIR=%cd%\logs"
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >NUL 2>&1
+
+
   if "%DIAGNOSE%"=="1" (
     echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
     cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
   ) else (
-    start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS!"
+    echo [INFO] (logging) dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%LOG_DIR%\ui.log" 2>&1
+    start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS! 1>""%LOG_DIR%\ui.log"" 2>&1"
   )
 )
 
-REM Optionally start Agent
+REM Start Agent/Service with logs (if requested)
 if "%RUN_AGENT%"=="1" (
   echo [INFO] Starting Agent (ChildGuard.Agent)...
-  start "" cmd /c "dotnet run --project ChildGuard.Agent"
+  if "%DIAGNOSE%"=="1" (
+    dotnet run --project ChildGuard.Agent
+  ) else (
+    echo [INFO] (logging) Agent -> "%LOG_DIR%\agent.log"
+    start "ChildGuard.Agent" cmd /c "dotnet run --project ChildGuard.Agent 1>""%LOG_DIR%\agent.log"" 2>&1"
+  )
 )
 
-REM Optionally start Service (as console if supported)
 if "%RUN_SERVICE%"=="1" (
   echo [INFO] Starting Service (ChildGuard.Service)...
-  start "" cmd /c "dotnet run --project ChildGuard.Service"
+  if "%DIAGNOSE%"=="1" (
+    dotnet run --project ChildGuard.Service
+  ) else (
+    echo [INFO] (logging) Service -> "%LOG_DIR%\service.log"
+    start "ChildGuard.Service" cmd /c "dotnet run --project ChildGuard.Service 1>""%LOG_DIR%\service.log"" 2>&1"
+  )
 )
 
 REM Optionally run tests
