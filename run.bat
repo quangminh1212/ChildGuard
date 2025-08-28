@@ -59,10 +59,31 @@ REM Compose UI args
 set "UI_ARGS="
 if not "%UI%"=="" set "UI_ARGS=!UI_ARGS! --ui %UI%"
 if not "%OPEN%"=="" set "UI_ARGS=!UI_ARGS! --open %OPEN%"
+REM Prefer running built EXE if available (faster UI startup and reliable window)
+set "UI_EXE=ChildGuard.UI\bin\Debug\net8.0-windows\ChildGuard.UI.exe"
+if not exist "%UI_EXE%" set "UI_EXE="
+
+
+REM Diagnostic mode to run UI inline without start, to show logs
+if /I "%~1"=="--diagnose" set "DIAGNOSE=1"
 
 REM Start UI (recommended entry point)
 echo [INFO] Starting UI (ChildGuard.UI)...
-start "" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS!"
+if not "%UI_EXE%"=="" (
+  if "%DIAGNOSE%"=="1" (
+    echo [DIAG] "%UI_EXE%" !UI_ARGS!
+    "%UI_EXE%" !UI_ARGS!
+  ) else (
+    start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
+  )
+) else (
+  if "%DIAGNOSE%"=="1" (
+    echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
+    cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
+  ) else (
+    start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS!"
+  )
+)
 
 REM Optionally start Agent
 if "%RUN_AGENT%"=="1" (
