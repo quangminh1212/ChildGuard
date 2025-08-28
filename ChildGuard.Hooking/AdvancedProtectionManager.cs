@@ -215,7 +215,7 @@ public class AdvancedProtectionManager : IDisposable
         {
             LogActivity("Screenshot attempted", ActivityType.Screenshot);
             
-            if (_config.BlockScreenshots)
+            if (_config != null && _config.BlockScreenshots)
             {
                 // In production, would block the screenshot
                 RaiseThreat(ThreatType.Screenshot, "Screenshot attempt detected", 
@@ -411,7 +411,7 @@ public class AdvancedProtectionManager : IDisposable
             Type = type,
             Description = description,
             Level = level,
-            Content = content,
+            Content = content ?? string.Empty,
             Source = DetermineSource(type)
         };
         

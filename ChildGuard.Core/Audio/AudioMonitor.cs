@@ -130,6 +130,8 @@ public class AudioMonitor
             };
             
             _ffmpegProcess = Process.Start(startInfo);
+            if (_ffmpegProcess == null)
+                return string.Empty;
             _ffmpegProcess.WaitForExit(durationSeconds * 1000 + 5000); // Add 5 sec buffer
             
             if (_ffmpegProcess != null && _ffmpegProcess.ExitCode == 0 && File.Exists(outputFile))
