@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using ChildGuard.UI.Theming;
 
+using System.Diagnostics.CodeAnalysis;
 namespace ChildGuard.UI.Controls
 {
     /// <summary>
@@ -102,12 +103,13 @@ namespace ChildGuard.UI.Controls
             }
         }
 
+        [AllowNull]
         public override string Text
         {
             get => textBox.Text;
             set
             {
-                textBox.Text = value;
+                textBox.Text = value ?? string.Empty;
                 UpdatePlaceholderVisibility();
             }
         }
@@ -324,13 +326,13 @@ namespace ChildGuard.UI.Controls
             return path;
         }
 
-        private void TextBox_TextChanged(object sender, EventArgs e)
+        private void TextBox_TextChanged(object? sender, EventArgs e)
         {
             UpdatePlaceholderVisibility();
             OnTextChanged(e);
         }
 
-        private void TextBox_Enter(object sender, EventArgs e)
+        private void TextBox_Enter(object? sender, EventArgs e)
         {
             isFocused = true;
             animationStep = 0;
@@ -345,7 +347,7 @@ namespace ChildGuard.UI.Controls
             Invalidate();
         }
 
-        private void TextBox_Leave(object sender, EventArgs e)
+        private void TextBox_Leave(object? sender, EventArgs e)
         {
             isFocused = false;
             UpdatePlaceholderVisibility();
@@ -358,7 +360,7 @@ namespace ChildGuard.UI.Controls
             Invalidate();
         }
 
-        private void AnimationTimer_Tick(object sender, EventArgs e)
+        private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
             animationStep++;
             

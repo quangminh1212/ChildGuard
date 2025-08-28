@@ -414,7 +414,7 @@ public partial class EnhancedForm1 : Form
         }
     }
     
-    private void StartProtection(object sender, EventArgs e)
+    private void StartProtection(object? sender, EventArgs e)
     {
         if (_running) return;
         
@@ -435,7 +435,7 @@ public partial class EnhancedForm1 : Form
         LogActivity("Protection started");
     }
     
-    private void StopProtection(object sender, EventArgs e)
+    private void StopProtection(object? sender, EventArgs e)
     {
         if (!_running) return;
         
@@ -451,7 +451,7 @@ public partial class EnhancedForm1 : Form
         LogActivity("Protection stopped");
     }
     
-    private void OnThreatDetected(object sender, ThreatDetectedEventArgs e)
+    private void OnThreatDetected(object? sender, ThreatDetectedEventArgs e)
     {
         _threatsDetected++;
         
@@ -473,13 +473,13 @@ public partial class EnhancedForm1 : Form
         LogActivity($"THREAT: {e.Type} - {e.Description}");
     }
     
-    private void OnStatisticsUpdated(object sender, StatisticsUpdatedEventArgs e)
+    private void OnStatisticsUpdated(object? sender, StatisticsUpdatedEventArgs e)
     {
         Interlocked.Exchange(ref _totalKeys, e.TotalKeysPressed);
         Interlocked.Exchange(ref _totalMouse, e.TotalMouseClicks);
     }
     
-    private void OnActivityDetected(object sender, ActivityEvent e)
+    private void OnActivityDetected(object? sender, ActivityEvent e)
     {
         // ActivityEvent is a record with Type and Data properties
         LogActivity($"{e.Type}: {e.Data}");
@@ -501,7 +501,7 @@ public partial class EnhancedForm1 : Form
             _activityLog.Items.RemoveAt(_activityLog.Items.Count - 1);
     }
     
-    private void UpdateUI(object sender, EventArgs e)
+    private void UpdateUI(object? sender, EventArgs e)
     {
         _keyValueLabel.Text = _totalKeys.ToString("N0");
         _mouseValueLabel.Text = _totalMouse.ToString("N0");
