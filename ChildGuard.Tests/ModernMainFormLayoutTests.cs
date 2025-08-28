@@ -8,12 +8,27 @@ namespace ChildGuard.Tests
 {
     public class ModernMainFormLayoutTests
     {
+        private static volatile bool _winformsInitialized = false;
+        private static readonly object _initLock = new();
+        private static void EnsureWinFormsInitialized()
+        {
+            if (_winformsInitialized) return;
+            lock (_initLock)
+            {
+                if (_winformsInitialized) return;
+                try { Application.SetHighDpiMode(HighDpiMode.SystemAware); } catch { }
+                try { Application.EnableVisualStyles(); } catch { }
+                try { Application.SetCompatibleTextRenderingDefault(false); } catch { }
+                _winformsInitialized = true;
+            }
+        }
+
         private void RunInSta(Action action)
         {
             Exception? ex = null;
             var t = new Thread(() =>
             {
-                try { action(); }
+                try { EnsureWinFormsInitialized(); action(); }
                 catch (Exception e) { ex = e; }
             });
             t.SetApartmentState(ApartmentState.STA);

@@ -14,6 +14,8 @@ using ChildGuard.UI.Localization;
 using ChildGuard.UI.Theming;
 using System.ComponentModel;
 
+using System.IO;
+
 namespace ChildGuard.UI
 {
     /// <summary>
@@ -62,6 +64,14 @@ namespace ChildGuard.UI
             SetupEventHandlers();
             ApplyTheme();
         }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // Normalize and ensure DataDirectory exists after config is loaded
+            NormalizeDataDirectory();
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             try
@@ -80,6 +90,32 @@ namespace ChildGuard.UI
             }
             catch { }
             base.OnFormClosing(e);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                try
+                {
+                    updateTimer?.Stop();
+                    animationTimer?.Stop();
+                    _protectionManager.OnActivity -= OnActivity;
+                    _protectionManager.OnStatisticsUpdated -= OnStatisticsUpdated;
+                    updateTimer?.Dispose();
+                    animationTimer?.Dispose();
+                    activityListBox?.Dispose();
+                    logoImage?.Image?.Dispose();
+                    logoImage?.Dispose();
+                    profileButton?.Dispose();
+                    titleLabel?.Dispose();
+                    headerPanel?.Dispose();
+                    sidebarPanel?.Dispose();
+                    contentPanel?.Dispose();
+                }
+                catch { }
+            }
+            base.Dispose(disposing);
         }
 
 
@@ -743,6 +779,25 @@ namespace ChildGuard.UI
 
             contentPanel.Controls.Add(settingsPanel);
         }
+
+        private void NormalizeDataDirectory()
+        {
+            try
+            {
+                var dir = _config.DataDirectory ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(dir))
+                {
+                    dir = ConfigManager.GetLocalAppDataDir();
+                }
+                try { dir = Environment.ExpandEnvironmentVariables(dir); } catch { }
+                try { dir = Path.GetFullPath(dir); } catch { }
+                try { Directory.CreateDirectory(dir); } catch { }
+                // Trim trailing separators for consistency
+                _config.DataDirectory = dir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            }
+            catch { }
+        }
+
 
         private void LoadConfiguration()
         {
