@@ -1,15 +1,23 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
+REM Pre-scan args for --no-elevate to allow headless/CI environments
+set "NO_ELEVATE="
+for %%A in (%*) do (
+  if /I "%%~A"=="--no-elevate" set "NO_ELEVATE=1"
+)
+
 REM Change to repo root (folder of this script)
 cd /d "%~dp0"
 
-REM Auto-elevate to Administrator if not already
-net session >NUL 2>&1
-if %errorlevel% NEQ 0 (
-  echo [INFO] Elevating privileges (UAC)...
-  powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
-  exit /b
+REM Auto-elevate to Administrator if not already (unless --no-elevate)
+if not "%NO_ELEVATE%"=="1" (
+  net session >NUL 2>&1
+  if %errorlevel% NEQ 0 (
+    echo [INFO] Elevating privileges (UAC)...
+    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
+    exit /b
+  )
 )
 
 REM Check dotnet
@@ -94,7 +102,7 @@ if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >NUL 2>&1
     echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
     cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
   ) else (
-    echo [INFO] (logging) dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%LOG_DIR%\ui.log" 2>&1
+    echo [INFO] logging: dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%LOG_DIR%\ui.log" 2>&1
     start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS! 1>""%LOG_DIR%\ui.log"" 2>&1"
   )
 )
