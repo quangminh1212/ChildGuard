@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Concurrent;
 using ChildGuard.Core.Configuration;
 using ChildGuard.Core.Models;
 using ChildGuard.Hooking;
@@ -46,6 +47,10 @@ namespace ChildGuard.UI
         // Timers
         private System.Windows.Forms.Timer updateTimer;
         private System.Windows.Forms.Timer animationTimer;
+
+        // Activity log
+        private ListBox? activityListBox;
+        private readonly ConcurrentQueue<string> _logQueue = new();
         
         public ModernMainForm()
         {
@@ -524,12 +529,14 @@ namespace ChildGuard.UI
             
             var logListBox = new ListBox
             {
+                Name = "activityListBox",
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
                 Font = new Font("Consolas", 9),
                 BackColor = ColorScheme.Modern.Surface,
                 ForeColor = ColorScheme.Modern.TextPrimary
             };
+            activityListBox = logListBox;
             logCard.Controls.Add(logListBox);
             
             monitoringPanel.Controls.Add(logCard);
@@ -706,7 +713,17 @@ namespace ChildGuard.UI
 
         private void OnActivity(object? sender, ActivityEvent evt)
         {
-            // Optionally: handle activity messages for log UI later
+            try
+            {
+                string msg = evt.Data switch
+                {
+                    string s => s,
+                    _ => evt.Type + (evt.Data != null ? $": {evt.Data}" : string.Empty)
+                };
+                var ts = evt.Timestamp.ToLocalTime().ToString("HH:mm:ss");
+                _logQueue.Enqueue($"[{ts}] {msg}");
+            }
+            catch { }
         }
 
         private void OnStatisticsUpdated(object? sender, StatisticsUpdatedEventArgs e)
@@ -758,10 +775,36 @@ namespace ChildGuard.UI
             var keyLabel = contentPanel.Controls.Find("keyValueLabel", true).FirstOrDefault() as Label;
             if (keyLabel != null)
                 keyLabel.Text = _lastKeys.ToString("N0");
-            
+
             var mouseLabel = contentPanel.Controls.Find("mouseValueLabel", true).FirstOrDefault() as Label;
             if (mouseLabel != null)
                 mouseLabel.Text = _lastMouse.ToString("N0");
+
+            // Flush queued activity logs in batches to reduce UI thrash
+            if (activityListBox != null && !activityListBox.IsDisposed)
+            {
+                int maxItems = 500;
+                if (!_logQueue.IsEmpty)
+                {
+                    activityListBox.BeginUpdate();
+                    try
+                    {
+                        while (_logQueue.TryDequeue(out var line))
+                        {
+                            // Insert newest on top
+                            activityListBox.Items.Insert(0, line);
+                        }
+                        while (activityListBox.Items.Count > maxItems)
+                        {
+                            activityListBox.Items.RemoveAt(activityListBox.Items.Count - 1);
+                        }
+                    }
+                    finally
+                    {
+                        activityListBox.EndUpdate();
+                    }
+                }
+            }
         }
         
         private void AnimationTimer_Tick(object sender, EventArgs e)
