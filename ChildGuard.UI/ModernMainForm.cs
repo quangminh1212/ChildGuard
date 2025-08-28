@@ -44,8 +44,8 @@ namespace ChildGuard.UI
         private long _threatsDetected;
         
         // Timers
-        private Timer updateTimer;
-        private Timer animationTimer;
+        private System.Windows.Forms.Timer updateTimer;
+        private System.Windows.Forms.Timer animationTimer;
         
         public ModernMainForm()
         {
@@ -80,12 +80,12 @@ namespace ChildGuard.UI
             CreateContentPanel();
             
             // Initialize timers
-            updateTimer = new Timer();
+            updateTimer = new System.Windows.Forms.Timer();
             updateTimer.Interval = 1000;
             updateTimer.Tick += UpdateTimer_Tick;
             updateTimer.Start();
             
-            animationTimer = new Timer();
+            animationTimer = new System.Windows.Forms.Timer();
             animationTimer.Interval = 10;
             animationTimer.Tick += AnimationTimer_Tick;
         }
@@ -175,11 +175,11 @@ namespace ChildGuard.UI
             // Create sidebar items
             sidebarItems = new List<SidebarItem>();
             
-            var dashboardItem = CreateSidebarItem("Dashboard", '🏠', 0);
-            var monitoringItem = CreateSidebarItem("Monitoring", '👁', 1);
-            var protectionItem = CreateSidebarItem("Protection", '🛡', 2);
-            var reportsItem = CreateSidebarItem("Reports", '📊', 3);
-            var settingsItem = CreateSidebarItem("Settings", '⚙', 4);
+            var dashboardItem = CreateSidebarItem("Dashboard", "🏠", 0);
+            var monitoringItem = CreateSidebarItem("Monitoring", "👁", 1);
+            var protectionItem = CreateSidebarItem("Protection", "🛡", 2);
+            var reportsItem = CreateSidebarItem("Reports", "📊", 3);
+            var settingsItem = CreateSidebarItem("Settings", "⚙", 4);
             
             // Set dashboard as active by default
             SetActiveSidebarItem(dashboardItem);
@@ -187,7 +187,7 @@ namespace ChildGuard.UI
             this.Controls.Add(sidebarPanel);
         }
         
-        private SidebarItem CreateSidebarItem(string text, char icon, int index)
+        private SidebarItem CreateSidebarItem(string text, string icon, int index)
         {
             var item = new SidebarItem
             {
@@ -212,12 +212,29 @@ namespace ChildGuard.UI
             {
                 activeSidebarItem.IsActive = false;
             }
-            
+
             item.IsActive = true;
             activeSidebarItem = item;
-            
+
             // Load corresponding content
             LoadContent(item.Text);
+            // Update header title
+            titleLabel.Text = $"ChildGuard • {item.Text}";
+        }
+
+        // Navigate to a section from outside (e.g., Program args)
+        public void NavigateTo(string section)
+        {
+            if (string.IsNullOrWhiteSpace(section)) return;
+            var target = sidebarItems?.FirstOrDefault(i => string.Equals(i.Text, section, StringComparison.OrdinalIgnoreCase));
+            if (target != null)
+            {
+                SetActiveSidebarItem(target);
+            }
+            else
+            {
+                LoadContent(section);
+            }
         }
         
         private void CreateContentPanel()
@@ -234,26 +251,40 @@ namespace ChildGuard.UI
         
         private void LoadContent(string section)
         {
-            // Clear current content
-            contentPanel.Controls.Clear();
-            
-            switch (section)
+            contentPanel.SuspendLayout();
+            try
             {
-                case "Dashboard":
-                    LoadDashboardContent();
-                    break;
-                case "Monitoring":
-                    LoadMonitoringContent();
-                    break;
-                case "Protection":
-                    LoadProtectionContent();
-                    break;
-                case "Reports":
-                    LoadReportsContent();
-                    break;
-                case "Settings":
-                    LoadSettingsContent();
-                    break;
+                // Clear current content
+                contentPanel.Controls.Clear();
+
+                switch (section)
+                {
+                    case "Dashboard":
+                        LoadDashboardContent();
+                        break;
+                    case "Monitoring":
+                        LoadMonitoringContent();
+                        break;
+                    case "Protection":
+                        LoadProtectionContent();
+                        break;
+                    case "Reports":
+                        LoadReportsContent();
+                        break;
+                    case "Settings":
+                        LoadSettingsContent();
+                        break;
+                }
+            }
+            finally
+            {
+                contentPanel.ResumeLayout(true);
+            }
+
+            // Also update header title if sidebar not used (external navigate)
+            if (!string.IsNullOrWhiteSpace(section))
+            {
+                titleLabel.Text = $"ChildGuard • {section}";
             }
         }
         
@@ -406,7 +437,7 @@ namespace ChildGuard.UI
                 Size = new Size(48, 48),
                 Location = new Point(20, 20),
                 SizeMode = PictureBoxSizeMode.Zoom,
-                Image = CreateIcon('⌨', 40, ColorScheme.Modern.Primary)
+                Image = CreateIcon("⌨", 40, ColorScheme.Modern.Primary)
             };
             keyboardCard.Controls.Add(keyIcon);
             
@@ -445,7 +476,7 @@ namespace ChildGuard.UI
                 Size = new Size(48, 48),
                 Location = new Point(20, 20),
                 SizeMode = PictureBoxSizeMode.Zoom,
-                Image = CreateIcon('🖱', 40, ColorScheme.Modern.Success)
+                Image = CreateIcon("🖱", 40, ColorScheme.Modern.Success)
             };
             mouseCard.Controls.Add(mouseIcon);
             
@@ -635,7 +666,7 @@ namespace ChildGuard.UI
         {
             var isDark = ParseTheme(_config.Theme) == ThemeMode.Dark ||
                         (ParseTheme(_config.Theme) == ThemeMode.System && ThemeHelper.IsSystemDark());
-            
+
             if (isDark)
             {
                 // Apply dark theme colors
@@ -644,6 +675,17 @@ namespace ChildGuard.UI
                 sidebarPanel.BackColor = ColorScheme.Windows11Dark.Surface;
                 contentPanel.BackColor = ColorScheme.Windows11Dark.Background;
             }
+            else
+            {
+                // Apply light theme colors (Modern scheme)
+                this.BackColor = ColorScheme.Modern.Background;
+                headerPanel.BackColor = ColorScheme.Modern.Surface;
+                sidebarPanel.BackColor = ColorScheme.Modern.Surface;
+                contentPanel.BackColor = ColorScheme.Modern.Background;
+            }
+
+            // Apply broader modern style (fonts, menu, etc.)
+            ModernStyle.Apply(this, ParseTheme(_config.Theme));
         }
         
         private static ThemeMode ParseTheme(string? s)
@@ -658,16 +700,20 @@ namespace ChildGuard.UI
         
         private void SetupEventHandlers()
         {
-            _protectionManager.ActivityReceived += OnActivity;
+            _protectionManager.OnActivity += OnActivity;
+            _protectionManager.OnStatisticsUpdated += OnStatisticsUpdated;
         }
-        
-        private void OnActivity(ActivityEvent evt)
+
+        private void OnActivity(object? sender, ActivityEvent evt)
         {
-            if (evt.Data is InputActivitySummary s)
-            {
-                Interlocked.Exchange(ref _lastKeys, s.KeyPressCount);
-                Interlocked.Exchange(ref _lastMouse, s.MouseEventCount);
-            }
+            // Optionally: handle activity messages for log UI later
+        }
+
+        private void OnStatisticsUpdated(object? sender, StatisticsUpdatedEventArgs e)
+        {
+            Interlocked.Exchange(ref _lastKeys, e.TotalKeysPressed);
+            Interlocked.Exchange(ref _lastMouse, e.TotalMouseClicks);
+            Interlocked.Exchange(ref _threatsDetected, e.ThreatsDetected);
         }
         
         private void StartProtection()
@@ -748,18 +794,18 @@ namespace ChildGuard.UI
             return bitmap;
         }
         
-        private Image CreateIcon(char icon, int size, Color color)
+        private Image CreateIcon(string icon, int size, Color color)
         {
             var bitmap = new Bitmap(size, size);
             using (var g = Graphics.FromImage(bitmap))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.Clear(Color.Transparent);
-                
+
                 using (var font = new Font("Segoe UI Emoji", size * 0.7f))
                 using (var brush = new SolidBrush(color))
                 {
-                    var text = icon.ToString();
+                    var text = icon;
                     var measured = g.MeasureString(text, font);
                     g.DrawString(text, font, brush, (size - measured.Width) / 2, (size - measured.Height) / 2);
                 }
@@ -775,7 +821,7 @@ namespace ChildGuard.UI
     {
         private bool isActive;
         private bool isHovered;
-        public char Icon { get; set; }
+        public string Icon { get; set; } = string.Empty;
         public int Index { get; set; }
         public new string Text { get; set; }
         
@@ -830,7 +876,7 @@ namespace ChildGuard.UI
             using (var font = new Font("Segoe UI Emoji", 16))
             using (var brush = new SolidBrush(isActive ? ColorScheme.Modern.Primary : ColorScheme.Modern.TextSecondary))
             {
-                g.DrawString(Icon.ToString(), font, brush, 20, 12);
+                g.DrawString(Icon, font, brush, 20, 12);
             }
             
             // Text

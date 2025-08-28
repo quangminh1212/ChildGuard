@@ -9,7 +9,7 @@ static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
-        bool openSettings = false, openReports = false;
+        bool openSettings = false, openReports = false; string ui = "modern";
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
@@ -20,19 +20,30 @@ static class Program
                 if (v == "reports") openReports = true;
                 i++;
             }
+            else if (string.Equals(args[i], "--ui", StringComparison.OrdinalIgnoreCase) && i+1 < args.Length)
+            {
+                ui = args[i+1].ToLowerInvariant();
+                i++;
+            }
         }
-        var f = new Form1();
-        f.Shown += (s, e) =>
+        if (ui == "classic")
         {
-            if (openSettings)
+            var f = new Form1();
+            Application.Run(f);
+        }
+        else
+        {
+            var f = new ModernMainForm();
+            f.Shown += (s, e) =>
             {
-                try { new SettingsForm().Show(f); } catch { }
-            }
-            if (openReports)
-            {
-                try { new ReportsForm().Show(f); } catch { }
-            }
-        };
-        Application.Run(f);
+                try
+                {
+                    if (openSettings) f.NavigateTo("Settings");
+                    else if (openReports) f.NavigateTo("Reports");
+                }
+                catch { }
+            };
+            Application.Run(f);
+        }
     }    
 }
