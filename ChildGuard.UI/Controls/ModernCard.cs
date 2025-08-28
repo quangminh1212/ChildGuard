@@ -357,24 +357,43 @@ namespace ChildGuard.UI.Controls
 
         private void InitializeHeader()
         {
-            // Header panel
+            // Header panel auto-size to content to avoid overlaps
             headerPanel = new Panel
             {
-                Height = 60,
                 Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
                 BackColor = Color.Transparent
             };
             Controls.Add(headerPanel);
+
+            // Layout inside header: icon + text (title/subtitle) using TableLayoutPanel
+            var headerLayout = new TableLayoutPanel
+            {
+                Name = "headerLayout",
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 2,
+                RowCount = 2,
+                Padding = new Padding(12, 8, 12, 8)
+            };
+            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+            headerLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            headerLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            headerPanel.Controls.Add(headerLayout);
 
             // Icon
             iconPicture = new PictureBox
             {
                 Size = new Size(40, 40),
-                Location = new Point(16, 10),
+                Margin = new Padding(4, 4, 8, 4),
                 SizeMode = PictureBoxSizeMode.Zoom,
                 Visible = false
             };
-            headerPanel.Controls.Add(iconPicture);
+            headerLayout.Controls.Add(iconPicture, 0, 0);
+            headerLayout.SetRowSpan(iconPicture, 2);
 
             // Title
             titleLabel = new Label
@@ -382,9 +401,9 @@ namespace ChildGuard.UI.Controls
                 Font = new Font("Segoe UI", 12f, FontStyle.Bold),
                 ForeColor = ColorScheme.Modern.TextPrimary,
                 AutoSize = true,
-                Location = new Point(16, 12)
+                Margin = new Padding(0, 2, 0, 0)
             };
-            headerPanel.Controls.Add(titleLabel);
+            headerLayout.Controls.Add(titleLabel, 1, 0);
 
             // Subtitle
             subtitleLabel = new Label
@@ -392,19 +411,23 @@ namespace ChildGuard.UI.Controls
                 Font = new Font("Segoe UI", 9f),
                 ForeColor = ColorScheme.Modern.TextSecondary,
                 AutoSize = true,
-                Location = new Point(16, 34),
-                Visible = false
+                Visible = false,
+                Margin = new Padding(0, 2, 0, 4)
             };
-            headerPanel.Controls.Add(subtitleLabel);
+            headerLayout.Controls.Add(subtitleLabel, 1, 1);
 
             UpdateHeaderLayout();
         }
 
         private void UpdateHeaderLayout()
         {
-            int textX = iconPicture.Visible ? iconPicture.Right + 12 : 16;
-            titleLabel.Location = new Point(textX, 12);
-            subtitleLabel.Location = new Point(textX, 34);
+            // No absolute positioning: just toggle visibility, TableLayoutPanel handles layout
+            var layout = headerPanel.Controls.OfType<TableLayoutPanel>().FirstOrDefault(l => l.Name == "headerLayout");
+            if (layout == null) return;
+            // Ensure first column (icon) collapses when icon hidden
+            layout.ColumnStyles[0].SizeType = iconPicture.Visible ? SizeType.AutoSize : SizeType.Absolute;
+            layout.ColumnStyles[0].Width = iconPicture.Visible ? 1f : 0f;
+            layout.PerformLayout();
         }
     }
 }
