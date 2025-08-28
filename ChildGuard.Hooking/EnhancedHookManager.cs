@@ -19,8 +19,8 @@ public class EnhancedHookManager : IDisposable
     private readonly List<string> _recentUrls;
     private IntPtr _keyboardHook;
     private IntPtr _mouseHook;
-    private LowLevelKeyboardProc _keyboardProc;
-    private LowLevelMouseProc _mouseProc;
+    private LowLevelKeyboardProc? _keyboardProc;
+    private LowLevelMouseProc? _mouseProc;
     private bool _isRunning;
     
     public event EventHandler<ContentDetectionEventArgs>? OnContentDetected;
@@ -45,10 +45,11 @@ public class EnhancedHookManager : IDisposable
         using (var curProcess = Process.GetCurrentProcess())
         using (var curModule = curProcess.MainModule)
         {
-            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
-            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
+            var moduleName = curModule?.ModuleName ?? string.Empty;
+            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc!,
+                GetModuleHandle(moduleName), 0);
+            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc!,
+                GetModuleHandle(moduleName), 0);
         }
         
         _isRunning = true;

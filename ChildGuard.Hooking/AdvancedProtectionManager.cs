@@ -76,7 +76,7 @@ public class AdvancedProtectionManager : IDisposable
         using (var curProcess = Process.GetCurrentProcess())
         using (var curModule = curProcess.MainModule)
         {
-            var moduleName = curModule?.ModuleName;
+            var moduleName = curModule?.ModuleName ?? string.Empty;
             _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc!,
                 GetModuleHandle(moduleName), 0);
             _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc!,
@@ -84,7 +84,7 @@ public class AdvancedProtectionManager : IDisposable
         }
         
         // Start audio monitoring if enabled
-        if (_config.EnableAudioMonitoring)
+        if (_config != null && _config.EnableAudioMonitoring)
         {
             _audioMonitor.Start();
         }
