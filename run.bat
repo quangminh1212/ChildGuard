@@ -35,6 +35,7 @@ set "RUN_SERVICE=0"
 set "RUN_TESTS=0"
 set "UI=modern"
 set "OPEN="
+set "DIAGNOSE=0"
 
 if "%~1"=="" goto :after_parse
 
