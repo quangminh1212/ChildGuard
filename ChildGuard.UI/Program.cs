@@ -9,15 +9,21 @@ static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
-        bool openSettings = false, openReports = false; string ui = "modern";
+        string ui = "modern"; string? openSection = null;
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
             if (string.Equals(args[i], "--open", StringComparison.OrdinalIgnoreCase) && i+1 < args.Length)
             {
                 var v = args[i+1].ToLowerInvariant();
-                if (v == "settings") openSettings = true;
-                if (v == "reports") openReports = true;
+                openSection = v switch {
+                    "settings" => "Settings",
+                    "reports" => "Reports",
+                    "dashboard" => "Dashboard",
+                    "monitoring" => "Monitoring",
+                    "protection" => "Protection",
+                    _ => openSection
+                };
                 i++;
             }
             else if (string.Equals(args[i], "--ui", StringComparison.OrdinalIgnoreCase) && i+1 < args.Length)
@@ -38,8 +44,7 @@ static class Program
             {
                 try
                 {
-                    if (openSettings) f.NavigateTo("Settings");
-                    else if (openReports) f.NavigateTo("Reports");
+                    if (!string.IsNullOrWhiteSpace(openSection)) f.NavigateTo(openSection);
                 }
                 catch { }
             };
