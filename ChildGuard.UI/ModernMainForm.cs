@@ -444,6 +444,7 @@ namespace ChildGuard.UI
                 AutoScroll = true
             };
 
+            // Prepare header (will add LAST so it stays at top when Dock=Top stacks)
             var hdr = new Label
             {
                 Text = "Dashboard",
@@ -453,9 +454,8 @@ namespace ChildGuard.UI
                 AutoSize = false,
                 Height = 40
             };
-            dashboardPanel.Controls.Add(hdr);
 
-            // Cards with responsive grid (TableLayoutPanel when wide, reflow on resize)
+            // Build cards and actions under the header
             var statusCard = new ModernHeaderCard
             {
                 Title = "Protection Status",
@@ -478,8 +478,6 @@ namespace ChildGuard.UI
                 Margin = new Padding(0, 0, 20, 10)
             };
             var dashboardCards = new List<Control> { statusCard, threatsCard, activityCard };
-            BuildResponsiveCardGrid(dashboardPanel, dashboardCards, maxColumns: 3, cardSize: new Size(250, 100), hSpacing: 20, vSpacing: 10);
-            dashboardPanel.Resize += (s, e) => BuildResponsiveCardGrid(dashboardPanel, dashboardCards, 3, new Size(250, 100), 20, 10);
 
             var actionsLabel = new Label
             {
@@ -490,7 +488,6 @@ namespace ChildGuard.UI
                 AutoSize = false,
                 Height = 30
             };
-            dashboardPanel.Controls.Add(actionsLabel);
 
             var actionsPanel = new FlowLayoutPanel
             {
@@ -530,7 +527,13 @@ namespace ChildGuard.UI
             };
             actionsPanel.Controls.Add(scanButton);
 
+            // Add in reverse order for DockStyle.Top stacking:
+            // actionsPanel (bottom) -> actionsLabel -> grid -> header (top)
             dashboardPanel.Controls.Add(actionsPanel);
+            dashboardPanel.Controls.Add(actionsLabel);
+            BuildResponsiveCardGrid(dashboardPanel, dashboardCards, maxColumns: 3, cardSize: new Size(250, 100), hSpacing: 20, vSpacing: 10);
+            dashboardPanel.Resize += (s, e) => BuildResponsiveCardGrid(dashboardPanel, dashboardCards, 3, new Size(250, 100), 20, 10);
+            dashboardPanel.Controls.Add(hdr);
 
             contentPanel.Controls.Add(dashboardPanel);
         }
