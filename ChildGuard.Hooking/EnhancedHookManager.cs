@@ -23,9 +23,9 @@ public class EnhancedHookManager : IDisposable
     private LowLevelMouseProc _mouseProc;
     private bool _isRunning;
     
-    public event EventHandler<ContentDetectionEventArgs> OnContentDetected;
-    public event EventHandler<UrlDetectionEventArgs> OnUrlDetected;
-    public event EventHandler<ChildGuard.Core.Models.ActivityEvent> OnActivity;
+    public event EventHandler<ContentDetectionEventArgs>? OnContentDetected;
+    public event EventHandler<UrlDetectionEventArgs>? OnUrlDetected;
+    public event EventHandler<ChildGuard.Core.Models.ActivityEvent>? OnActivity;
     
     public EnhancedHookManager()
     {

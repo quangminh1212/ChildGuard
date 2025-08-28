@@ -16,9 +16,9 @@ public class AudioMonitor
     private CancellationTokenSource? _cancellationTokenSource;
     private bool _isMonitoring;
     
-    public event EventHandler<AudioDetectionEventArgs> OnDetection;
-    public event EventHandler<SpeechDetectedEventArgs> OnSpeechDetected;
-    public event EventHandler<AudioLevelEventArgs> OnLoudNoiseDetected;
+    public event EventHandler<AudioDetectionEventArgs>? OnDetection;
+    public event EventHandler<SpeechDetectedEventArgs>? OnSpeechDetected;
+    public event EventHandler<AudioLevelEventArgs>? OnLoudNoiseDetected;
     
     public AudioMonitor(string ffmpegPath = "ffmpeg.exe")
     {
@@ -54,7 +54,7 @@ public class AudioMonitor
         _isMonitoring = false;
         _cancellationTokenSource?.Cancel();
         
-        if (_ffmpegProcess != null && !_ffmpegProcess.HasExited)
+        if (_ffmpegProcess is { HasExited: false })
         {
             _ffmpegProcess.Kill();
             _ffmpegProcess.Dispose();

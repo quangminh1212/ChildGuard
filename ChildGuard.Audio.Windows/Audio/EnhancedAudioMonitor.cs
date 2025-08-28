@@ -43,7 +43,7 @@ public class EnhancedAudioMonitor : IDisposable
     public int AudioBufferSeconds { get; set; } = 30;
     public float VolumeThreshold { get; set; } = 0.3f;
 
-    public EnhancedAudioMonitor(string ffmpegPath = null)
+    public EnhancedAudioMonitor(string? ffmpegPath = null)
     {
         _detector = new BadWordsDetector();
         _ffmpegPath = ffmpegPath ?? FindFFmpeg();
@@ -281,6 +281,10 @@ public class EnhancedAudioMonitor : IDisposable
 
             using (var process = Process.Start(startInfo))
             {
+                if (process == null)
+                {
+                    return string.Empty;
+                }
                 await process.WaitForExitAsync();
 
                 if (process.ExitCode == 0 && File.Exists(outputFile))

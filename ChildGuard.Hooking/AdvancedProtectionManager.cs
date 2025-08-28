@@ -41,9 +41,9 @@ public class AdvancedProtectionManager : IDisposable
     private int _threatsDetected;
     private int _urlsChecked;
     
-    public event EventHandler<ThreatDetectedEventArgs> OnThreatDetected;
-    public event EventHandler<ChildGuard.Core.Models.ActivityEvent> OnActivity;
-    public event EventHandler<StatisticsUpdatedEventArgs> OnStatisticsUpdated;
+    public event EventHandler<ThreatDetectedEventArgs>? OnThreatDetected;
+    public event EventHandler<ChildGuard.Core.Models.ActivityEvent>? OnActivity;
+    public event EventHandler<StatisticsUpdatedEventArgs>? OnStatisticsUpdated;
     
     public AdvancedProtectionManager()
     {
@@ -354,7 +354,7 @@ public class AdvancedProtectionManager : IDisposable
         return Task.FromResult(string.Empty);
     }
     
-    private void HandleSpeechDetected(object sender, SpeechDetectedEventArgs e)
+    private void HandleSpeechDetected(object? sender, SpeechDetectedEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Text))
         {
@@ -371,7 +371,7 @@ public class AdvancedProtectionManager : IDisposable
         }
     }
     
-    private void HandleLoudNoise(object sender, AudioLevelEventArgs e)
+    private void HandleLoudNoise(object? sender, AudioLevelEventArgs e)
     {
         if (e.Level > 0.9)
         {
@@ -380,7 +380,7 @@ public class AdvancedProtectionManager : IDisposable
         }
     }
     
-    private void PeriodicAnalysis(object state)
+    private void PeriodicAnalysis(object? state)
     {
         // Analyze recent activity patterns
         if (_recentTexts.Count > 10)
