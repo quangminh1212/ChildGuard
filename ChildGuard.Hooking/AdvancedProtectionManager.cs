@@ -30,10 +30,10 @@ public class AdvancedProtectionManager : IDisposable
     
     private IntPtr _keyboardHook;
     private IntPtr _mouseHook;
-    private LowLevelKeyboardProc _keyboardProc;
-    private LowLevelMouseProc _mouseProc;
+    private LowLevelKeyboardProc? _keyboardProc;
+    private LowLevelMouseProc? _mouseProc;
     private bool _isRunning;
-    private AppConfig _config;
+    private AppConfig? _config;
     
     // Statistics
     private int _totalKeysPressed;
@@ -76,10 +76,11 @@ public class AdvancedProtectionManager : IDisposable
         using (var curProcess = Process.GetCurrentProcess())
         using (var curModule = curProcess.MainModule)
         {
-            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
-            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
+            var moduleName = curModule?.ModuleName;
+            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc!,
+                GetModuleHandle(moduleName), 0);
+            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc!,
+                GetModuleHandle(moduleName), 0);
         }
         
         // Start audio monitoring if enabled
@@ -399,8 +400,8 @@ public class AdvancedProtectionManager : IDisposable
         UpdateStatistics();
     }
     
-    private void RaiseThreat(ThreatType type, string description, 
-        ThreatLevel level, string content = null)
+    private void RaiseThreat(ThreatType type, string description,
+        ThreatLevel level, string? content = null)
     {
         _threatsDetected++;
         
@@ -595,10 +596,10 @@ public class ThreatDetectedEventArgs : EventArgs
 {
     public DateTime Timestamp { get; set; }
     public ThreatType Type { get; set; }
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
     public ThreatLevel Level { get; set; }
-    public string Content { get; set; }
-    public string Source { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public string Source { get; set; } = string.Empty;
 }
 
 public class StatisticsUpdatedEventArgs : EventArgs

@@ -305,14 +305,14 @@ public class EnhancedHookManager : IDisposable
 public class ContentDetectionEventArgs : EventArgs
 {
     public DateTime Timestamp { get; set; }
-    public string Content { get; set; }
-    public DetectionResult DetectionResult { get; set; }
-    public string Source { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public DetectionResult DetectionResult { get; set; } = new();
+    public string Source { get; set; } = string.Empty;
 }
 
 public class UrlDetectionEventArgs : EventArgs
 {
     public DateTime Timestamp { get; set; }
-    public string Url { get; set; }
-    public UrlCheckResult CheckResult { get; set; }
+    public string Url { get; set; } = string.Empty;
+    public UrlCheckResult CheckResult { get; set; } = new();
 }
