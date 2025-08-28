@@ -20,19 +20,19 @@ namespace ChildGuard.UI
     public partial class ModernMainForm : Form
     {
         // Panels
-        private Panel sidebarPanel;
-        private Panel headerPanel;
-        private Panel contentPanel;
-        private Panel currentContentPanel;
-        
+        private Panel sidebarPanel = default!;
+        private Panel headerPanel = default!;
+        private Panel contentPanel = default!;
+        private Panel currentContentPanel = default!;
+
         // Header controls
-        private Label titleLabel;
-        private PictureBox logoImage;
-        private ModernButton profileButton;
-        
+        private Label titleLabel = default!;
+        private PictureBox logoImage = default!;
+        private ModernButton profileButton = default!;
+
         // Sidebar items
-        private List<SidebarItem> sidebarItems;
-        private SidebarItem activeSidebarItem;
+        private List<SidebarItem> sidebarItems = default!;
+        private SidebarItem? activeSidebarItem;
         
         // Protection
         private readonly AdvancedProtectionManager _protectionManager = new();
@@ -45,8 +45,8 @@ namespace ChildGuard.UI
         private long _threatsDetected;
         
         // Timers
-        private System.Windows.Forms.Timer updateTimer;
-        private System.Windows.Forms.Timer animationTimer;
+        private System.Windows.Forms.Timer updateTimer = default!;
+        private System.Windows.Forms.Timer animationTimer = default!;
 
         // Activity log
         private ListBox? activityListBox;
@@ -756,10 +756,19 @@ namespace ChildGuard.UI
         private void UpdateStatus()
         {
             // Update UI based on protection status
-            this.BeginInvoke(new Action(() =>
+            try
             {
-                LoadContent(activeSidebarItem?.Text ?? "Dashboard");
-            }));
+                if (!IsHandleCreated)
+                {
+                    // Ensure handle exists to avoid invalid operation during startup
+                    CreateHandle();
+                }
+                this.BeginInvoke(new Action(() =>
+                {
+                    LoadContent(activeSidebarItem?.Text ?? "Dashboard");
+                }));
+            }
+            catch { }
         }
         
         private void ProfileButton_Click(object sender, EventArgs e)

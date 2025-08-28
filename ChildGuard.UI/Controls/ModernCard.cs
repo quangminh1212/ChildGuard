@@ -17,7 +17,7 @@ namespace ChildGuard.UI.Controls
         private bool showShadow = true;
         private Color shadowColor = ColorScheme.Modern.ShadowLight;
         private bool isHovered = false;
-        private System.Windows.Forms.Timer animationTimer;
+        private System.Windows.Forms.Timer animationTimer = default!;
         private int animationStep = 0;
 
         [Category("Modern Style")]
@@ -304,10 +304,10 @@ namespace ChildGuard.UI.Controls
     /// </summary>
     public class ModernHeaderCard : ModernCard
     {
-        private Panel headerPanel;
-        private Label titleLabel;
-        private Label subtitleLabel;
-        private PictureBox iconPicture;
+        private Panel headerPanel = default!;
+        private Label titleLabel = default!;
+        private Label subtitleLabel = default!;
+        private PictureBox iconPicture = default!;
 
         [Category("Header")]
         [Description("Tiêu đề card")]
