@@ -108,6 +108,27 @@ if not "%UI_EXE%"=="" (
   if "%DIAGNOSE%"=="1" (
     echo [DIAG] "%UI_EXE%" !UI_ARGS!
     "%UI_EXE%" !UI_ARGS!
+    if errorlevel 1 echo [ERR] UI exited with code %errorlevel% && exit /b %errorlevel%
+  ) else (
+    start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
+  )
+) else (
+  if "%DIAGNOSE%"=="1" (
+    echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
+    cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
+    if errorlevel 1 echo [ERR] UI exited with code %errorlevel% && exit /b %errorlevel%
+  ) else (
+    echo [INFO] logging: dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%UI_LOG%" 2>&1
+    start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS! 1>""%UI_LOG%"" 2>&1"
+  )
+)
+
+
+echo [INFO] Starting UI (ChildGuard.UI)...
+if not "%UI_EXE%"=="" (
+  if "%DIAGNOSE%"=="1" (
+    echo [DIAG] "%UI_EXE%" !UI_ARGS!
+    "%UI_EXE%" !UI_ARGS!
   ) else (
     start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
   )
