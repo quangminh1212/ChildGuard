@@ -4,16 +4,11 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using ChildGuard.Core.Configuration;
 using ChildGuard.Core.Models;
-using ChildGuard.Core.Services;
-using ChildGuard.Core.Events;
 using ChildGuard.Hooking;
 using ChildGuard.UI.Controls;
 using ChildGuard.UI.Localization;
-using ChildGuard.UI.Services;
 using ChildGuard.UI.Theming;
 
 namespace ChildGuard.UI
@@ -27,6 +22,7 @@ namespace ChildGuard.UI
         private Panel sidebarPanel;
         private Panel headerPanel;
         private Panel contentPanel;
+        private Panel currentContentPanel;
         
         // Header controls
         private Label titleLabel;
@@ -42,17 +38,10 @@ namespace ChildGuard.UI
         private volatile bool _running;
         private AppConfig _config = new();
         
-        // Services
-        private readonly ServiceManager _serviceManager;
-        private KeyboardMouseMonitor? _keyboardMouseMonitor;
-        private NotificationService? _notificationService;
-        
         // Stats
         private long _lastKeys;
         private long _lastMouse;
         private long _threatsDetected;
-        private int _keystrokeCount;
-        private int _mouseClickCount;
         
         // Timers
         private System.Windows.Forms.Timer updateTimer;
@@ -60,13 +49,11 @@ namespace ChildGuard.UI
         
         public ModernMainForm()
         {
-            _serviceManager = ServiceManager.Instance;
             InitializeForm();
             InitializeComponents();
             LoadConfiguration();
             SetupEventHandlers();
             ApplyTheme();
-            InitializeServicesAsync();
         }
         
         private void InitializeForm()
@@ -87,15 +74,10 @@ namespace ChildGuard.UI
         
         private void InitializeComponents()
         {
-            // IMPORTANT: Create panels in correct order for proper layout
-            // 1. First create content panel (will fill remaining space)
-            CreateContentPanel();
-            
-            // 2. Then create sidebar (will dock to left)
-            CreateSidebarPanel();
-            
-            // 3. Finally create header (will dock to top)
+            // Create main layout panels
             CreateHeaderPanel();
+            CreateSidebarPanel();
+            CreateContentPanel();
             
             // Initialize timers
             updateTimer = new System.Windows.Forms.Timer();
@@ -112,13 +94,12 @@ namespace ChildGuard.UI
         {
             headerPanel = new Panel
             {
-                Name = "HeaderPanel",
                 Height = 60,
                 Dock = DockStyle.Top,
                 BackColor = ColorScheme.Modern.Surface
             };
-
-            // Add shadow at bottom of header
+            
+            // Add shadow
             headerPanel.Paint += (s, e) =>
             {
                 var g = e.Graphics;
@@ -131,57 +112,43 @@ namespace ChildGuard.UI
                     g.FillRectangle(shadowBrush, 0, headerPanel.Height - 4, headerPanel.Width, 4);
                 }
             };
-
-            // Layout: [logo][title.............][profile]
-            var headerLayout = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 3,
-                RowCount = 1,
-                Padding = new Padding(15, 10, 15, 10),
-            };
-            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));      // logo
-            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); // title expands
-            headerLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));      // profile button
-
+            
             // Logo
             logoImage = new PictureBox
             {
                 Size = new Size(40, 40),
-                Margin = new Padding(0, 0, 10, 0),
+                Location = new Point(15, 10),
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.Transparent
             };
+            // Tạo logo tạm thời
             logoImage.Image = CreateLogo();
-
+            headerPanel.Controls.Add(logoImage);
+            
             // Title
             titleLabel = new Label
             {
                 Text = "ChildGuard Protection",
                 Font = new Font("Segoe UI", 14, FontStyle.Bold),
                 ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Fill,
-                AutoEllipsis = true,
-                TextAlign = ContentAlignment.MiddleLeft,
+                Location = new Point(65, 18),
+                AutoSize = true,
                 BackColor = Color.Transparent
             };
-
+            headerPanel.Controls.Add(titleLabel);
+            
             // Profile button (right side)
             profileButton = new ModernButton
             {
                 Text = "Admin",
                 Size = new Size(100, 36),
+                Location = new Point(headerPanel.Width - 120, 12),
                 Style = ModernButton.ButtonStyle.Ghost,
-                Dock = DockStyle.Fill,
-                Margin = new Padding(0)
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
             profileButton.Click += ProfileButton_Click;
-
-            headerLayout.Controls.Add(logoImage, 0, 0);
-            headerLayout.Controls.Add(titleLabel, 1, 0);
-            headerLayout.Controls.Add(profileButton, 2, 0);
-            headerPanel.Controls.Add(headerLayout);
-
+            headerPanel.Controls.Add(profileButton);
+            
             this.Controls.Add(headerPanel);
         }
         
@@ -192,8 +159,7 @@ namespace ChildGuard.UI
                 Width = 240,
                 Dock = DockStyle.Left,
                 BackColor = ColorScheme.Modern.Surface,
-                Padding = new Padding(0, 10, 0, 10),
-                AutoScroll = true
+                Padding = new Padding(0, 10, 0, 10)
             };
             
             // Add separator line
@@ -209,20 +175,11 @@ namespace ChildGuard.UI
             // Create sidebar items
             sidebarItems = new List<SidebarItem>();
             
-<<<<<<< HEAD
             var dashboardItem = CreateSidebarItem("Dashboard", "🏠", 0);
             var monitoringItem = CreateSidebarItem("Monitoring", "👁", 1);
             var protectionItem = CreateSidebarItem("Protection", "🛡", 2);
             var reportsItem = CreateSidebarItem("Reports", "📊", 3);
             var settingsItem = CreateSidebarItem("Settings", "⚙", 4);
-=======
-            var dashboardItem = CreateSidebarItem("Dashboard", "\uE80F", 0); // Home icon
-            var monitoringItem = CreateSidebarItem("Monitoring", "\uE7B3", 1); // Eye icon
-            var protectionItem = CreateSidebarItem("Protection", "\uEA18", 2); // Shield icon
-            var attachmentsItem = CreateSidebarItem("Attachments", "\uE896", 3); // Attachment icon
-            var reportsItem = CreateSidebarItem("Reports", "\uE9D9", 4); // Chart icon
-            var settingsItem = CreateSidebarItem("Settings", "\uE713", 5); // Settings icon
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             
             // Set dashboard as active by default
             SetActiveSidebarItem(dashboardItem);
@@ -294,7 +251,6 @@ namespace ChildGuard.UI
         
         private void LoadContent(string section)
         {
-<<<<<<< HEAD
             contentPanel.SuspendLayout();
             try
             {
@@ -329,56 +285,119 @@ namespace ChildGuard.UI
             if (!string.IsNullOrWhiteSpace(section))
             {
                 titleLabel.Text = $"ChildGuard • {section}";
-=======
-            // Check if contentPanel is initialized
-            if (contentPanel == null)
-                return;
-                
-            // Clear current content
-            contentPanel.Controls.Clear();
-            
-            switch (section)
-            {
-                case "Dashboard":
-                    LoadDashboardContent();
-                    break;
-                case "Monitoring":
-                    LoadMonitoringContent();
-                    break;
-                case "Protection":
-                    LoadProtectionContent();
-                    break;
-                case "Attachments":
-                    LoadAttachmentsContent();
-                    break;
-                case "Reports":
-                    LoadReportsContent();
-                    break;
-                case "Settings":
-                    LoadSettingsContent();
-                    break;
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             }
         }
         
         private void LoadDashboardContent()
         {
-            // Use the new DashboardControl
-            var dashboardControl = new DashboardControl
+            var dashboardPanel = new Panel
             {
-                Dock = DockStyle.Fill
+                Dock = DockStyle.Fill,
+                AutoScroll = true
             };
             
-            // Update protection status
-            dashboardControl.UpdateProtectionStatus(_running);
-            
-            contentPanel.Controls.Add(dashboardControl);
-            
-            // Refresh data asynchronously
-            Task.Run(async () =>
+            // Title
+            var titleLabel = new Label
             {
-                await dashboardControl.RefreshDataAsync();
-            });
+                Text = "Dashboard",
+                Font = new Font("Segoe UI", 24, FontStyle.Bold),
+                ForeColor = ColorScheme.Modern.TextPrimary,
+                Location = new Point(0, 0),
+                AutoSize = true
+            };
+            dashboardPanel.Controls.Add(titleLabel);
+            
+            // Status cards
+            var cardsPanel = new FlowLayoutPanel
+            {
+                Location = new Point(0, 60),
+                Size = new Size(800, 120),
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true
+            };
+            
+            // Protection Status Card
+            var statusCard = new ModernHeaderCard
+            {
+                Title = "Protection Status",
+                Subtitle = _running ? "Active" : "Inactive",
+                Size = new Size(250, 100),
+                Margin = new Padding(0, 0, 20, 0)
+            };
+            cardsPanel.Controls.Add(statusCard);
+            
+            // Threats Detected Card
+            var threatsCard = new ModernHeaderCard
+            {
+                Title = "Threats Detected",
+                Subtitle = _threatsDetected.ToString(),
+                Size = new Size(250, 100),
+                Margin = new Padding(0, 0, 20, 0)
+            };
+            cardsPanel.Controls.Add(threatsCard);
+            
+            // Activity Card
+            var activityCard = new ModernHeaderCard
+            {
+                Title = "System Activity",
+                Subtitle = "Normal",
+                Size = new Size(250, 100),
+                Margin = new Padding(0, 0, 20, 0)
+            };
+            cardsPanel.Controls.Add(activityCard);
+            
+            dashboardPanel.Controls.Add(cardsPanel);
+            
+            // Quick Actions
+            var actionsLabel = new Label
+            {
+                Text = "Quick Actions",
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                ForeColor = ColorScheme.Modern.TextPrimary,
+                Location = new Point(0, 200),
+                AutoSize = true
+            };
+            dashboardPanel.Controls.Add(actionsLabel);
+            
+            var actionsPanel = new FlowLayoutPanel
+            {
+                Location = new Point(0, 240),
+                Size = new Size(800, 60),
+                FlowDirection = FlowDirection.LeftToRight
+            };
+            
+            var startButton = new ModernButton
+            {
+                Text = "Start Protection",
+                Size = new Size(150, 40),
+                Style = ModernButton.ButtonStyle.Primary,
+                Margin = new Padding(0, 0, 10, 0)
+            };
+            startButton.Click += (s, e) => StartProtection();
+            actionsPanel.Controls.Add(startButton);
+            
+            var stopButton = new ModernButton
+            {
+                Text = "Stop Protection",
+                Size = new Size(150, 40),
+                Style = ModernButton.ButtonStyle.Danger,
+                Margin = new Padding(0, 0, 10, 0)
+            };
+            stopButton.Click += (s, e) => StopProtection();
+            actionsPanel.Controls.Add(stopButton);
+            
+            var scanButton = new ModernButton
+            {
+                Text = "Quick Scan",
+                Size = new Size(150, 40),
+                Style = ModernButton.ButtonStyle.Secondary,
+                Margin = new Padding(0, 0, 10, 0)
+            };
+            actionsPanel.Controls.Add(scanButton);
+            
+            dashboardPanel.Controls.Add(actionsPanel);
+            
+            contentPanel.Controls.Add(dashboardPanel);
         }
         
         private void LoadMonitoringContent()
@@ -403,11 +422,7 @@ namespace ChildGuard.UI
             {
                 Location = new Point(0, 60),
                 Size = new Size(800, 150),
-                FlowDirection = FlowDirection.LeftToRight,
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                WrapContents = true,
-                AutoScroll = false
+                FlowDirection = FlowDirection.LeftToRight
             };
             
             // Keyboard activity
@@ -422,11 +437,7 @@ namespace ChildGuard.UI
                 Size = new Size(48, 48),
                 Location = new Point(20, 20),
                 SizeMode = PictureBoxSizeMode.Zoom,
-<<<<<<< HEAD
                 Image = CreateIcon("⌨", 40, ColorScheme.Modern.Primary)
-=======
-                Image = CreateIcon("\uE765", 40, ColorScheme.Modern.Primary) // Keyboard icon
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             };
             keyboardCard.Controls.Add(keyIcon);
             
@@ -465,11 +476,7 @@ namespace ChildGuard.UI
                 Size = new Size(48, 48),
                 Location = new Point(20, 20),
                 SizeMode = PictureBoxSizeMode.Zoom,
-<<<<<<< HEAD
                 Image = CreateIcon("🖱", 40, ColorScheme.Modern.Success)
-=======
-                Image = CreateIcon("\uE962", 40, ColorScheme.Modern.Success) // Mouse icon
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             };
             mouseCard.Controls.Add(mouseIcon);
             
@@ -512,13 +519,11 @@ namespace ChildGuard.UI
             var logCard = new ModernCard
             {
                 Location = new Point(0, 270),
-                Size = new Size(500, 200),
-                Dock = DockStyle.Fill
+                Size = new Size(500, 200)
             };
             
             var logListBox = new ListBox
             {
-                Name = "activityLog",
                 Dock = DockStyle.Fill,
                 BorderStyle = BorderStyle.None,
                 Font = new Font("Consolas", 9),
@@ -553,9 +558,7 @@ namespace ChildGuard.UI
             var optionsCard = new ModernCard
             {
                 Location = new Point(0, 60),
-                Size = new Size(600, 400),
-                Dock = DockStyle.Top,
-                AutoSize = true
+                Size = new Size(600, 400)
             };
             
             // Options list
@@ -574,9 +577,7 @@ namespace ChildGuard.UI
                 var optionPanel = new Panel
                 {
                     Location = new Point(20, y),
-                    Size = new Size(560, 60),
-                    Dock = DockStyle.Top,
-                    Margin = new Padding(0, 0, 0, 10)
+                    Size = new Size(560, 60)
                 };
                 
                 var toggle = new ToggleSwitch
@@ -590,8 +591,8 @@ namespace ChildGuard.UI
                 {
                     Text = title,
                     Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                    Location = new Point(80, 10),  // Moved right from 70 to 80
-                    Size = new Size(450, 20),  // Set fixed width instead of AutoSize
+                    Location = new Point(70, 10),
+                    AutoSize = true,
                     ForeColor = ColorScheme.Modern.TextPrimary
                 };
                 optionPanel.Controls.Add(titleLbl);
@@ -600,8 +601,8 @@ namespace ChildGuard.UI
                 {
                     Text = description,
                     Font = new Font("Segoe UI", 9),
-                    Location = new Point(80, 32),  // Moved right from 70 to 80
-                    Size = new Size(450, 20),  // Set fixed width instead of AutoSize
+                    Location = new Point(70, 32),
+                    AutoSize = true,
                     ForeColor = ColorScheme.Modern.TextSecondary
                 };
                 optionPanel.Controls.Add(descLbl);
@@ -613,17 +614,6 @@ namespace ChildGuard.UI
             protectionPanel.Controls.Add(optionsCard);
             
             contentPanel.Controls.Add(protectionPanel);
-        }
-        
-        private void LoadAttachmentsContent()
-        {
-            // Use the new AttachmentsManager control
-            var attachmentsManager = new AttachmentsManager()
-            {
-                Dock = DockStyle.Fill
-            };
-            
-            contentPanel.Controls.Add(attachmentsManager);
         }
         
         private void LoadReportsContent()
@@ -648,34 +638,22 @@ namespace ChildGuard.UI
         
         private void LoadSettingsContent()
         {
-            // Use the new SettingsControl
-            var settingsControl = new SettingsControl
+            var settingsPanel = new Panel
             {
                 Dock = DockStyle.Fill
             };
             
-            // Handle settings change event
-            settingsControl.OnSettingsChanged += (settings) =>
+            var titleLabel = new Label
             {
-                // Apply new settings to protection manager
-                _config.EnableInputMonitoring = settings.ContainsKey("EnableKeyboard") && (bool)settings["EnableKeyboard"];
-                _config.EnableAudioMonitoring = settings.ContainsKey("EnableAudio") && (bool)settings["EnableAudio"];
-                _config.BlockScreenshots = settings.ContainsKey("BlockScreenshots") && (bool)settings["BlockScreenshots"];
-                _config.CheckUrls = settings.ContainsKey("EnableUrlCheck") && (bool)settings["EnableUrlCheck"];
-                _config.BlockInappropriateContent = settings.ContainsKey("EnableBadWords") && (bool)settings["EnableBadWords"];
-                
-                // Save configuration
-                ConfigManager.Save(_config, out _);
-                
-                // Restart protection if running to apply new settings
-                if (_running)
-                {
-                    StopProtection();
-                    StartProtection();
-                }
+                Text = "Settings",
+                Font = new Font("Segoe UI", 24, FontStyle.Bold),
+                ForeColor = ColorScheme.Modern.TextPrimary,
+                Location = new Point(0, 0),
+                AutoSize = true
             };
+            settingsPanel.Controls.Add(titleLabel);
             
-            contentPanel.Controls.Add(settingsControl);
+            contentPanel.Controls.Add(settingsPanel);
         }
         
         private void LoadConfiguration()
@@ -693,12 +671,9 @@ namespace ChildGuard.UI
             {
                 // Apply dark theme colors
                 this.BackColor = ColorScheme.Windows11Dark.Background;
-                if (headerPanel != null)
-                    headerPanel.BackColor = ColorScheme.Windows11Dark.Surface;
-                if (sidebarPanel != null)
-                    sidebarPanel.BackColor = ColorScheme.Windows11Dark.Surface;
-                if (contentPanel != null)
-                    contentPanel.BackColor = ColorScheme.Windows11Dark.Background;
+                headerPanel.BackColor = ColorScheme.Windows11Dark.Surface;
+                sidebarPanel.BackColor = ColorScheme.Windows11Dark.Surface;
+                contentPanel.BackColor = ColorScheme.Windows11Dark.Background;
             }
             else
             {
@@ -726,14 +701,9 @@ namespace ChildGuard.UI
         private void SetupEventHandlers()
         {
             _protectionManager.OnActivity += OnActivity;
-<<<<<<< HEAD
             _protectionManager.OnStatisticsUpdated += OnStatisticsUpdated;
         }
 
-=======
-        }
-        
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
         private void OnActivity(object? sender, ActivityEvent evt)
         {
             // Optionally: handle activity messages for log UI later
@@ -765,17 +735,10 @@ namespace ChildGuard.UI
         private void UpdateStatus()
         {
             // Update UI based on protection status
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke(new Action(() =>
-                {
-                    LoadContent(activeSidebarItem?.Text ?? "Dashboard");
-                }));
-            }
-            else
+            this.BeginInvoke(new Action(() =>
             {
                 LoadContent(activeSidebarItem?.Text ?? "Dashboard");
-            }
+            }));
         }
         
         private void ProfileButton_Click(object sender, EventArgs e)
@@ -794,16 +757,11 @@ namespace ChildGuard.UI
             // Update monitoring values
             var keyLabel = contentPanel.Controls.Find("keyValueLabel", true).FirstOrDefault() as Label;
             if (keyLabel != null)
-                keyLabel.Text = _keystrokeCount.ToString("N0");
+                keyLabel.Text = _lastKeys.ToString("N0");
             
             var mouseLabel = contentPanel.Controls.Find("mouseValueLabel", true).FirstOrDefault() as Label;
             if (mouseLabel != null)
-                mouseLabel.Text = _mouseClickCount.ToString("N0");
-            
-            // Update threat counter
-            var threatLabel = contentPanel.Controls.Find("threatValueLabel", true).FirstOrDefault() as Label;
-            if (threatLabel != null)
-                threatLabel.Text = _threatsDetected.ToString("N0");
+                mouseLabel.Text = _lastMouse.ToString("N0");
         }
         
         private void AnimationTimer_Tick(object sender, EventArgs e)
@@ -843,7 +801,6 @@ namespace ChildGuard.UI
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.Clear(Color.Transparent);
-<<<<<<< HEAD
 
                 using (var font = new Font("Segoe UI Emoji", size * 0.7f))
                 using (var brush = new SolidBrush(color))
@@ -851,171 +808,9 @@ namespace ChildGuard.UI
                     var text = icon;
                     var measured = g.MeasureString(text, font);
                     g.DrawString(text, font, brush, (size - measured.Width) / 2, (size - measured.Height) / 2);
-=======
-                
-                using (var font = new Font("Segoe MDL2 Assets", size * 0.5f))
-                using (var brush = new SolidBrush(color))
-                {
-                    var measured = g.MeasureString(icon, font);
-                    g.DrawString(icon, font, brush, (size - measured.Width) / 2, (size - measured.Height) / 2);
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
                 }
             }
             return bitmap;
-        }
-        
-        private async void InitializeServicesAsync()
-        {
-            try
-            {
-                // Initialize ServiceManager
-                await _serviceManager.InitializeAsync();
-                
-                // Initialize KeyboardMouseMonitor
-                _keyboardMouseMonitor = new KeyboardMouseMonitor();
-                _keyboardMouseMonitor.KeystrokeDetected += OnKeystrokeDetected;
-                _keyboardMouseMonitor.MouseActivityDetected += OnMouseActivityDetected;
-                _serviceManager.RegisterService(_keyboardMouseMonitor);
-                
-                // Initialize NotificationService
-                if (_notificationService == null)
-                {
-                    _notificationService = new NotificationService();
-                    _notificationService.Initialize(this);
-                    _serviceManager.RegisterService(_notificationService);
-                }
-                
-                // Subscribe to events from EventDispatcher
-                SubscribeToEvents();
-                
-                // Start monitoring by default (can be configured later)
-                _keyboardMouseMonitor.StartMonitoring();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Failed to initialize services: {ex.Message}", 
-                    "Initialization Error", 
-                    MessageBoxButtons.OK, 
-                    MessageBoxIcon.Error
-                );
-            }
-        }
-        
-        private void SubscribeToEvents()
-        {
-            // Subscribe to threat events
-            _serviceManager.EventDispatcher.Subscribe<BadWordDetectedEvent>((evt) =>
-            {
-                _threatsDetected++;
-                BeginInvoke(new Action(() =>
-                {
-                    // Show system tray notification
-                    _notificationService?.ShowTrayNotification(
-                        "Threat Detected",
-                        $"Bad word detected: {evt.Word}",
-                        NotificationType.Warning
-                    );
-                }));
-            });
-            
-            _serviceManager.EventDispatcher.Subscribe<UrlDetectedEvent>((evt) =>
-            {
-                if (!evt.IsSafe)
-                {
-                    _threatsDetected++;
-                    BeginInvoke(new Action(() =>
-                    {
-                        // Show system tray notification
-                        _notificationService?.ShowTrayNotification(
-                            "Dangerous URL",
-                            $"Blocked access to: {evt.Url}",
-                            NotificationType.Error
-                        );
-                    }));
-                }
-            });
-            
-            _serviceManager.EventDispatcher.Subscribe<ProcessBlockedEvent>((evt) =>
-            {
-                _threatsDetected++;
-                BeginInvoke(new Action(() =>
-                {
-                    // Show system tray notification
-                    _notificationService?.ShowTrayNotification(
-                        "Process Blocked",
-                        $"Blocked: {evt.ProcessName}",
-                        NotificationType.Warning
-                    );
-                }));
-            });
-        }
-        
-        private void OnKeystrokeDetected(object? sender, KeystrokeEventArgs e)
-        {
-            // Update keystroke counter
-            _keystrokeCount += e.Text.Length;
-            
-            // Log to activity list if monitoring panel is active
-            if (activeSidebarItem?.Text == "Monitoring")
-            {
-                BeginInvoke(new Action(() =>
-                {
-                    var logList = contentPanel.Controls.Find("activityLog", true).FirstOrDefault() as ListBox;
-                    if (logList != null)
-                    {
-                        logList.Items.Insert(0, $"[{DateTime.Now:HH:mm:ss}] Keystroke: {e.Text.Length} chars");
-                        if (logList.Items.Count > 100) 
-                            logList.Items.RemoveAt(logList.Items.Count - 1);
-                    }
-                }));
-            }
-        }
-        
-        private void OnMouseActivityDetected(object? sender, MouseActivityEventArgs e)
-        {
-            // Update mouse counter
-            if (e.Action == "Click")
-            {
-                _mouseClickCount++;
-            }
-            
-            // Log significant events
-            if (e.Action == "Click" && activeSidebarItem?.Text == "Monitoring")
-            {
-                BeginInvoke(new Action(() =>
-                {
-                    var logList = contentPanel.Controls.Find("activityLog", true).FirstOrDefault() as ListBox;
-                    if (logList != null)
-                    {
-                        logList.Items.Insert(0, $"[{DateTime.Now:HH:mm:ss}] Mouse {e.Action}: {e.Button} at ({e.Location.X},{e.Location.Y})");
-                        if (logList.Items.Count > 100)
-                            logList.Items.RemoveAt(logList.Items.Count - 1);
-                    }
-                }));
-            }
-        }
-        
-        public void NavigateTo(string section)
-        {
-            if (sidebarItems == null) return;
-            var item = sidebarItems.FirstOrDefault(x => string.Equals(x.Text, section, StringComparison.OrdinalIgnoreCase));
-            if (item != null) SetActiveSidebarItem(item);
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            base.OnFormClosing(e);
-            
-            // Stop monitoring
-            _keyboardMouseMonitor?.StopMonitoring();
-            
-            // Shutdown services
-            _serviceManager.ShutdownAsync().GetAwaiter().GetResult();
-            
-            // Dispose services
-            _keyboardMouseMonitor?.Dispose();
-            _notificationService?.Dispose();
         }
     }
     
@@ -1078,15 +873,10 @@ namespace ChildGuard.UI
             }
             
             // Icon
-            using (var font = new Font("Segoe MDL2 Assets", 14))
+            using (var font = new Font("Segoe UI Emoji", 16))
             using (var brush = new SolidBrush(isActive ? ColorScheme.Modern.Primary : ColorScheme.Modern.TextSecondary))
             {
-<<<<<<< HEAD
                 g.DrawString(Icon, font, brush, 20, 12);
-=======
-                if (!string.IsNullOrEmpty(Icon))
-                    g.DrawString(Icon, font, brush, 20, 14);
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             }
             
             // Text

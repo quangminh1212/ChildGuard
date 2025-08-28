@@ -14,11 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChildGuard.Agent")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05c0c7f02af9bfee64a750c730b33f5af38f4747")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42d84bd936b2fe8caae07c2a4876f476b29909c6")]
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
 [assembly: System.Reflection.AssemblyProductAttribute("ChildGuard.Agent")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChildGuard.Agent")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -22,15 +22,15 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net8.0-windows"
+          "net8.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0-windows7.0": {
-            "targetAlias": "net8.0-windows",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -47,35 +47,9 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-<<<<<<< HEAD
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-=======
-        "net8.0-windows7.0": {
-          "targetAlias": "net8.0-windows",
-          "dependencies": {
-            "AhoCorasick": {
-              "target": "Package",
-              "version": "[2.0.279, )"
-            },
-            "Dapper": {
-              "target": "Package",
-              "version": "[2.1.66, )"
-            },
-            "Microsoft.Data.Sqlite": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
-            "Microsoft.EntityFrameworkCore.Sqlite": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
-            "Microsoft.Extensions.Logging": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             "NAudio": {
               "target": "Package",
               "version": "[2.2.1, )"
@@ -84,17 +58,6 @@
               "target": "Package",
               "version": "[13.0.3, )"
             },
-<<<<<<< HEAD
-=======
-            "System.Drawing.Common": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
-            "System.Management": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
->>>>>>> 5168ead9634273c79b3e43999639f6382ce985dd
             "System.Speech": {
               "target": "Package",
               "version": "[8.0.0, )"
@@ -114,9 +77,6 @@
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
-            },
-            "Microsoft.WindowsDesktop.App.WindowsForms": {
-              "privateAssets": "none"
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
@@ -141,15 +101,15 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net8.0-windows"
+          "net8.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0-windows7.0": {
-            "targetAlias": "net8.0-windows",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {
               "C:\\VF\\ChildGuard\\ChildGuard.Core\\ChildGuard.Core.csproj": {
                 "projectPath": "C:\\VF\\ChildGuard\\ChildGuard.Core\\ChildGuard.Core.csproj"
@@ -170,8 +130,8 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net8.0-windows7.0": {
-          "targetAlias": "net8.0-windows",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
