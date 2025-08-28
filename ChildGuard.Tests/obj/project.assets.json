@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {
+    "net8.0-windows7.0": {
       "coverlet.collector/6.0.4": {
         "type": "package",
         "build": {
@@ -444,6 +444,39 @@
         "runtime": {
           "bin/placeholder/ChildGuard.Core.dll": {}
         }
+      },
+      "ChildGuard.Hooking/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "ChildGuard.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ChildGuard.Hooking.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ChildGuard.Hooking.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.WindowsDesktop.App.WindowsForms"
+        ]
+      },
+      "ChildGuard.UI/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "ChildGuard.Core": "1.0.0",
+          "ChildGuard.Hooking": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ChildGuard.UI.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ChildGuard.UI.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.WindowsDesktop.App.WindowsForms"
+        ]
       }
     }
   },
@@ -1019,11 +1052,22 @@
       "type": "project",
       "path": "../ChildGuard.Core/ChildGuard.Core.csproj",
       "msbuildProject": "../ChildGuard.Core/ChildGuard.Core.csproj"
+    },
+    "ChildGuard.Hooking/1.0.0": {
+      "type": "project",
+      "path": "../ChildGuard.Hooking/ChildGuard.Hooking.csproj",
+      "msbuildProject": "../ChildGuard.Hooking/ChildGuard.Hooking.csproj"
+    },
+    "ChildGuard.UI/1.0.0": {
+      "type": "project",
+      "path": "../ChildGuard.UI/ChildGuard.UI.csproj",
+      "msbuildProject": "../ChildGuard.UI/ChildGuard.UI.csproj"
     }
   },
   "projectFileDependencyGroups": {
-    "net8.0": [
+    "net8.0-windows7.0": [
       "ChildGuard.Core >= 1.0.0",
+      "ChildGuard.UI >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 17.14.1",
       "coverlet.collector >= 6.0.4",
       "xunit >= 2.9.3",
@@ -1052,18 +1096,21 @@
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net8.0"
+        "net8.0-windows"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net8.0-windows7.0": {
+          "targetAlias": "net8.0-windows",
           "projectReferences": {
             "C:\\VF\\ChildGuard\\ChildGuard.Core\\ChildGuard.Core.csproj": {
               "projectPath": "C:\\VF\\ChildGuard\\ChildGuard.Core\\ChildGuard.Core.csproj"
+            },
+            "C:\\VF\\ChildGuard\\ChildGuard.UI\\ChildGuard.UI.csproj": {
+              "projectPath": "C:\\VF\\ChildGuard\\ChildGuard.UI\\ChildGuard.UI.csproj"
             }
           }
         }
@@ -1081,8 +1128,8 @@
       "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
-      "net8.0": {
-        "targetAlias": "net8.0",
+      "net8.0-windows7.0": {
+        "targetAlias": "net8.0-windows",
         "dependencies": {
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
@@ -1119,6 +1166,9 @@
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
+          },
+          "Microsoft.WindowsDesktop.App.WindowsForms": {
+            "privateAssets": "none"
           }
         },
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"

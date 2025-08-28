@@ -1,34 +1,179 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TestRun id="6151a3ef-8692-44a7-8ec7-acad87bfa068" name="Quang Minh@MINH 2025-08-26 18:10:12" runUser="MINH\Quang Minh" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
-  <Times creation="2025-08-26T18:10:12.2820132+07:00" queuing="2025-08-26T18:10:12.2820135+07:00" start="2025-08-26T18:10:11.5846712+07:00" finish="2025-08-26T18:10:12.2872972+07:00" />
-  <TestSettings name="default" id="aebf3b6b-8a0b-4104-9e9c-ccb4066473f5">
-    <Deployment runDeploymentRoot="Quang_Minh_MINH_2025-08-26_18_10_12" />
+<TestRun id="1a28708b-f8da-4a3a-af73-edfc3e1e2a22" name="GHC@GH 2025-08-28 23:37:58" runUser="GH\GHC" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-08-28T23:37:58.6476157+07:00" queuing="2025-08-28T23:37:58.6476161+07:00" start="2025-08-28T23:37:56.5944491+07:00" finish="2025-08-28T23:37:58.9839660+07:00" />
+  <TestSettings name="default" id="eb7fac54-4287-4130-b833-10ffcf6ddb7c">
+    <Deployment runDeploymentRoot="GHC_GH_2025-08-28_23_37_58" />
   </TestSettings>
   <Results>
-    <UnitTestResult executionId="bf4476d9-81c1-499d-956f-df626d27dc11" testId="d649e8b9-ab99-f59c-1ff0-5c1838543a85" testName="ChildGuard.Tests.CoreModelsTests.JsonlSink_Writes_Line" computerName="MINH" duration="00:00:00.0486836" startTime="2025-08-26T18:10:12.1817611+07:00" endTime="2025-08-26T18:10:12.1817863+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bf4476d9-81c1-499d-956f-df626d27dc11" />
+    <UnitTestResult executionId="f2cb06c8-18e8-476f-878b-c95b1ca2b658" testId="ee211033-af04-9b5c-4929-e204b1f56278" testName="ChildGuard.Tests.ModernMainFormLayoutTests.Monitoring_NoOverlap" computerName="GH" duration="00:00:00.0095412" startTime="2025-08-28T23:37:57.5289764+07:00" endTime="2025-08-28T23:37:57.5291672+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f2cb06c8-18e8-476f-878b-c95b1ca2b658">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action) in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 22&#xD;
+   at ChildGuard.Tests.ModernMainFormLayoutTests.Monitoring_NoOverlap() in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 78&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3a948800-6d4c-47d7-a098-f4eeae4d6e6d" testId="3022d27b-ab5b-6ca7-70d0-ed5ef9621a57" testName="ChildGuard.Tests.ModernMainFormLayoutTests.Dashboard_NoOverlap" computerName="GH" duration="00:00:00.0026428" startTime="2025-08-28T23:37:57.5319661+07:00" endTime="2025-08-28T23:37:57.5320831+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a948800-6d4c-47d7-a098-f4eeae4d6e6d">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action) in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 22&#xD;
+   at ChildGuard.Tests.ModernMainFormLayoutTests.Dashboard_NoOverlap() in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 60&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1fcb86ee-c191-4bb2-8440-bd8f85a19cb4" testId="7d94c213-f21d-cfe4-d215-829e636173c4" testName="ChildGuard.Tests.UrlSafetyCheckerTests.SafeUrl_ReturnsSafe" computerName="GH" duration="00:00:00.7960465" startTime="2025-08-28T23:37:58.0502024+07:00" endTime="2025-08-28T23:37:58.8463486+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1fcb86ee-c191-4bb2-8440-bd8f85a19cb4" />
+    <UnitTestResult executionId="1f6e2e07-0553-4b68-adc3-f03c8b69cfdd" testId="bd892dbd-4a09-63a3-ab8c-f89a6427f5de" testName="ChildGuard.Tests.UrlSafetyCheckerTests.SuspiciousUrl_ReturnsUnsafe" computerName="GH" duration="00:00:00.0153295" startTime="2025-08-28T23:37:58.8467772+07:00" endTime="2025-08-28T23:37:58.8620494+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1f6e2e07-0553-4b68-adc3-f03c8b69cfdd" />
+    <UnitTestResult executionId="2a9f891f-b96b-46e5-b0c7-39117608203a" testId="0bfdbdd0-a3d4-9f39-4a35-d61a5df39f6b" testName="ChildGuard.Tests.ModernMainFormLayoutTests.Settings_NoOverlap" computerName="GH" duration="00:00:00.0088331" startTime="2025-08-28T23:37:57.5344614+07:00" endTime="2025-08-28T23:37:57.5345611+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2a9f891f-b96b-46e5-b0c7-39117608203a">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action) in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 22&#xD;
+   at ChildGuard.Tests.ModernMainFormLayoutTests.Settings_NoOverlap() in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 129&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="492cb76b-7038-4a14-96eb-faf6aa7d4350" testId="97d1982a-a2a9-85d5-9ea4-416137a0a425" testName="ChildGuard.Tests.ModernMainFormLayoutTests.Protection_NoOverlap" computerName="GH" duration="00:00:00.1160933" startTime="2025-08-28T23:37:57.3770833+07:00" endTime="2025-08-28T23:37:57.5170736+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="492cb76b-7038-4a14-96eb-faf6aa7d4350">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action) in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 22&#xD;
+   at ChildGuard.Tests.ModernMainFormLayoutTests.Protection_NoOverlap() in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 95&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="b39ba2f9-cbfc-4a6c-95bd-4726bd54ff77" testId="6321e28b-01e3-aa90-3eb6-f86ce8e6ff93" testName="ChildGuard.Tests.UrlSafetyCheckerTests.UrlWithKeywords_ReturnsUnsafe" computerName="GH" duration="00:00:00.6685664" startTime="2025-08-28T23:37:57.3770033+07:00" endTime="2025-08-28T23:37:58.0497998+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b39ba2f9-cbfc-4a6c-95bd-4726bd54ff77" />
+    <UnitTestResult executionId="2c2db5e3-1540-4353-8808-945f630a8dee" testId="9e6c0405-b27c-751d-2101-433343ec0d5d" testName="ChildGuard.Tests.CoreModelsTests.JsonlSink_Writes_Line" computerName="GH" duration="00:00:00.1054596" startTime="2025-08-28T23:37:57.3744676+07:00" endTime="2025-08-28T23:37:57.4973076+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2c2db5e3-1540-4353-8808-945f630a8dee" />
+    <UnitTestResult executionId="12d7c2e7-f312-44cd-986f-f3d99e44c746" testId="1cdf7651-5df4-140b-ab87-f8cba290fabd" testName="ChildGuard.Tests.ModernMainFormLayoutTests.Reports_NoOverlap" computerName="GH" duration="00:00:00.0028744" startTime="2025-08-28T23:37:57.5333508+07:00" endTime="2025-08-28T23:37:57.5334039+07:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="12d7c2e7-f312-44cd-986f-f3d99e44c746">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action) in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 22&#xD;
+   at ChildGuard.Tests.ModernMainFormLayoutTests.Reports_NoOverlap() in C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs:line 112&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
   </Results>
   <TestDefinitions>
-    <UnitTest name="ChildGuard.Tests.CoreModelsTests.JsonlSink_Writes_Line" storage="c:\vf\childguard\childguard.tests\bin\release\net8.0\childguard.tests.dll" id="d649e8b9-ab99-f59c-1ff0-5c1838543a85">
-      <Execution id="bf4476d9-81c1-499d-956f-df626d27dc11" />
-      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="ChildGuard.Tests.CoreModelsTests" name="JsonlSink_Writes_Line" />
+    <UnitTest name="ChildGuard.Tests.ModernMainFormLayoutTests.Protection_NoOverlap" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="97d1982a-a2a9-85d5-9ea4-416137a0a425">
+      <Execution id="492cb76b-7038-4a14-96eb-faf6aa7d4350" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.ModernMainFormLayoutTests" name="Protection_NoOverlap" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.ModernMainFormLayoutTests.Settings_NoOverlap" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="0bfdbdd0-a3d4-9f39-4a35-d61a5df39f6b">
+      <Execution id="2a9f891f-b96b-46e5-b0c7-39117608203a" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.ModernMainFormLayoutTests" name="Settings_NoOverlap" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.UrlSafetyCheckerTests.UrlWithKeywords_ReturnsUnsafe" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="6321e28b-01e3-aa90-3eb6-f86ce8e6ff93">
+      <Execution id="b39ba2f9-cbfc-4a6c-95bd-4726bd54ff77" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.UrlSafetyCheckerTests" name="UrlWithKeywords_ReturnsUnsafe" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.ModernMainFormLayoutTests.Monitoring_NoOverlap" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="ee211033-af04-9b5c-4929-e204b1f56278">
+      <Execution id="f2cb06c8-18e8-476f-878b-c95b1ca2b658" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.ModernMainFormLayoutTests" name="Monitoring_NoOverlap" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.CoreModelsTests.JsonlSink_Writes_Line" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="9e6c0405-b27c-751d-2101-433343ec0d5d">
+      <Execution id="2c2db5e3-1540-4353-8808-945f630a8dee" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.CoreModelsTests" name="JsonlSink_Writes_Line" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.UrlSafetyCheckerTests.SafeUrl_ReturnsSafe" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="7d94c213-f21d-cfe4-d215-829e636173c4">
+      <Execution id="1fcb86ee-c191-4bb2-8440-bd8f85a19cb4" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.UrlSafetyCheckerTests" name="SafeUrl_ReturnsSafe" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.ModernMainFormLayoutTests.Dashboard_NoOverlap" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="3022d27b-ab5b-6ca7-70d0-ed5ef9621a57">
+      <Execution id="3a948800-6d4c-47d7-a098-f4eeae4d6e6d" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.ModernMainFormLayoutTests" name="Dashboard_NoOverlap" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.UrlSafetyCheckerTests.SuspiciousUrl_ReturnsUnsafe" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="bd892dbd-4a09-63a3-ab8c-f89a6427f5de">
+      <Execution id="1f6e2e07-0553-4b68-adc3-f03c8b69cfdd" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.UrlSafetyCheckerTests" name="SuspiciousUrl_ReturnsUnsafe" />
+    </UnitTest>
+    <UnitTest name="ChildGuard.Tests.ModernMainFormLayoutTests.Reports_NoOverlap" storage="c:\vf\childguard\childguard.tests\bin\debug\net8.0-windows\childguard.tests.dll" id="1cdf7651-5df4-140b-ab87-f8cba290fabd">
+      <Execution id="12d7c2e7-f312-44cd-986f-f3d99e44c746" />
+      <TestMethod codeBase="C:\VF\ChildGuard\ChildGuard.Tests\bin\Debug\net8.0-windows\ChildGuard.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="ChildGuard.Tests.ModernMainFormLayoutTests" name="Reports_NoOverlap" />
     </UnitTest>
   </TestDefinitions>
   <TestEntries>
-    <TestEntry testId="d649e8b9-ab99-f59c-1ff0-5c1838543a85" executionId="bf4476d9-81c1-499d-956f-df626d27dc11" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ee211033-af04-9b5c-4929-e204b1f56278" executionId="f2cb06c8-18e8-476f-878b-c95b1ca2b658" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3022d27b-ab5b-6ca7-70d0-ed5ef9621a57" executionId="3a948800-6d4c-47d7-a098-f4eeae4d6e6d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7d94c213-f21d-cfe4-d215-829e636173c4" executionId="1fcb86ee-c191-4bb2-8440-bd8f85a19cb4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd892dbd-4a09-63a3-ab8c-f89a6427f5de" executionId="1f6e2e07-0553-4b68-adc3-f03c8b69cfdd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0bfdbdd0-a3d4-9f39-4a35-d61a5df39f6b" executionId="2a9f891f-b96b-46e5-b0c7-39117608203a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="97d1982a-a2a9-85d5-9ea4-416137a0a425" executionId="492cb76b-7038-4a14-96eb-faf6aa7d4350" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6321e28b-01e3-aa90-3eb6-f86ce8e6ff93" executionId="b39ba2f9-cbfc-4a6c-95bd-4726bd54ff77" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9e6c0405-b27c-751d-2101-433343ec0d5d" executionId="2c2db5e3-1540-4353-8808-945f630a8dee" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1cdf7651-5df4-140b-ab87-f8cba290fabd" executionId="12d7c2e7-f312-44cd-986f-f3d99e44c746" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
   </TestEntries>
   <TestLists>
     <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
     <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
   </TestLists>
-  <ResultSummary outcome="Completed">
-    <Counters total="1" executed="1" passed="1" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+  <ResultSummary outcome="Failed">
+    <Counters total="9" executed="9" passed="4" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
     <Output>
-      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.6)&#xD;
-[xUnit.net 00:00:00.08]   Discovering: ChildGuard.Tests&#xD;
-[xUnit.net 00:00:00.11]   Discovered:  ChildGuard.Tests&#xD;
-[xUnit.net 00:00:00.11]   Starting:    ChildGuard.Tests&#xD;
-[xUnit.net 00:00:00.21]   Finished:    ChildGuard.Tests&#xD;
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.4+50e68bbb8b (64-bit .NET 8.0.19)&#xD;
+[xUnit.net 00:00:00.12]   Discovering: ChildGuard.Tests&#xD;
+[xUnit.net 00:00:00.18]   Discovered:  ChildGuard.Tests&#xD;
+[xUnit.net 00:00:00.21]   Starting:    ChildGuard.Tests&#xD;
+[xUnit.net 00:00:00.38]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.38]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.39]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(22,0): at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action)&#xD;
+[xUnit.net 00:00:00.39]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(95,0): at ChildGuard.Tests.ModernMainFormLayoutTests.Protection_NoOverlap()&#xD;
+[xUnit.net 00:00:00.39]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+[xUnit.net 00:00:00.39]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.39]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.39]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.39]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(22,0): at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action)&#xD;
+[xUnit.net 00:00:00.39]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(78,0): at ChildGuard.Tests.ModernMainFormLayoutTests.Monitoring_NoOverlap()&#xD;
+[xUnit.net 00:00:00.39]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+[xUnit.net 00:00:00.39]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(22,0): at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action)&#xD;
+[xUnit.net 00:00:00.40]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(60,0): at ChildGuard.Tests.ModernMainFormLayoutTests.Dashboard_NoOverlap()&#xD;
+[xUnit.net 00:00:00.40]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(22,0): at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action)&#xD;
+[xUnit.net 00:00:00.40]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(112,0): at ChildGuard.Tests.ModernMainFormLayoutTests.Reports_NoOverlap()&#xD;
+[xUnit.net 00:00:00.40]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:00.40]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:00.40]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.40]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(22,0): at ChildGuard.Tests.ModernMainFormLayoutTests.RunInSta(Action action)&#xD;
+[xUnit.net 00:00:00.40]         C:\VF\ChildGuard\ChildGuard.Tests\ModernMainFormLayoutTests.cs(129,0): at ChildGuard.Tests.ModernMainFormLayoutTests.Settings_NoOverlap()&#xD;
+[xUnit.net 00:00:00.40]            at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+[xUnit.net 00:00:00.40]            at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)&#xD;
+[xUnit.net 00:00:01.73]   Finished:    ChildGuard.Tests&#xD;
 </StdOut>
     </Output>
+    <RunInfos>
+      <RunInfo computerName="GH" outcome="Error" timestamp="2025-08-28T23:37:57.5196890+07:00">
+        <Text>[xUnit.net 00:00:00.38]     ChildGuard.Tests.ModernMainFormLayoutTests.Protection_NoOverlap [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GH" outcome="Error" timestamp="2025-08-28T23:37:57.5298898+07:00">
+        <Text>[xUnit.net 00:00:00.39]     ChildGuard.Tests.ModernMainFormLayoutTests.Monitoring_NoOverlap [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GH" outcome="Error" timestamp="2025-08-28T23:37:57.5327729+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ChildGuard.Tests.ModernMainFormLayoutTests.Dashboard_NoOverlap [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GH" outcome="Error" timestamp="2025-08-28T23:37:57.5338533+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ChildGuard.Tests.ModernMainFormLayoutTests.Reports_NoOverlap [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GH" outcome="Error" timestamp="2025-08-28T23:37:57.5351165+07:00">
+        <Text>[xUnit.net 00:00:00.40]     ChildGuard.Tests.ModernMainFormLayoutTests.Settings_NoOverlap [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
   </ResultSummary>
 </TestRun>
