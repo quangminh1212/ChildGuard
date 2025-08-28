@@ -295,7 +295,7 @@ public class EnhancedAudioMonitor : IDisposable
             OnStatusChanged?.Invoke(this, $"FFmpeg capture error: {ex.Message}");
         }
 
-        return null;
+        return string.Empty;
     }
 
     private string GetFFmpegCaptureArgs(string outputFile, int duration)
@@ -347,7 +347,7 @@ public class EnhancedAudioMonitor : IDisposable
         }
 
         // Stop FFmpeg
-        if (_ffmpegProcess != null && !_ffmpegProcess.HasExited)
+        if (_ffmpegProcess is { HasExited: false })
         {
             _ffmpegProcess.Kill();
             _ffmpegProcess.Dispose();

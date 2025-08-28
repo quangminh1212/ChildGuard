@@ -333,7 +333,7 @@ public class AdvancedProtectionManager : IDisposable
         catch { }
     }
     
-    private async Task<string> GetClickedUrl()
+    private Task<string> GetClickedUrl()
     {
         // This would use UI Automation in production
         // For now, check if we're in a browser
@@ -345,13 +345,13 @@ public class AdvancedProtectionManager : IDisposable
             if (IsBrowserWindow(className))
             {
                 // In production, extract URL from browser
-                // For demo, return empty
-                return string.Empty;
+                // For demo, return Task.FromResult(string.Empty)
+                return Task.FromResult(string.Empty);
             }
         }
         catch { }
         
-        return string.Empty;
+        return Task.FromResult(string.Empty);
     }
     
     private void HandleSpeechDetected(object sender, SpeechDetectedEventArgs e)
