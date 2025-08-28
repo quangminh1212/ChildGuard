@@ -47,10 +47,17 @@ if /I "%~1"=="--no-build" set "NO_BUILD=1" & shift & goto :parse_args
 if /I "%~1"=="--with-agent" set "RUN_AGENT=1" & shift & goto :parse_args
 if /I "%~1"=="--with-service" set "RUN_SERVICE=1" & shift & goto :parse_args
 if /I "%~1"=="--tests" set "RUN_TESTS=1" & shift & goto :parse_args
+if /I "%~1"=="--diagnose" set "DIAGNOSE=1" & shift & goto :parse_args
 if /I "%~1"=="--ui" (
   if "%~2"=="" ( echo [WARN] Missing value for --ui, using default: modern ) else ( set "UI=%~2" )
   shift & shift & goto :parse_args
-REM Prepare logs dir early
+)
+if /I "%~1"=="--open" (
+  if "%~2"=="" ( echo [WARN] Missing value for --open, ignored ) else ( set "OPEN=%~2" )
+  shift & shift & goto :parse_args
+)
+
+REM Prepare logs dir early (after args parsed)
 set "LOG_DIR=%cd%\logs"
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%" >NUL 2>&1
 set "UI_LOG=%LOG_DIR%\ui.log"
@@ -58,21 +65,11 @@ set "AGENT_LOG=%LOG_DIR%\agent.log"
 set "SERVICE_LOG=%LOG_DIR%\service.log"
 
 echo [INFO] Logs:
-  echo   UI     : "%UI_LOG%"
-  echo   Agent  : "%AGENT_LOG%"
-  echo   Service: "%SERVICE_LOG%"
+echo   UI     : "%UI_LOG%"
+echo   Agent  : "%AGENT_LOG%"
+echo   Service: "%SERVICE_LOG%"
 
-)
-if /I "%~1"=="--open" (
-  if "%~2"=="" ( echo [WARN] Missing value for --open, ignored ) else ( set "OPEN=%~2" )
-  shift & shift & goto :parse_args
-)
 
-REM Echo final parsed args
-set "UI_ARGS="
-if not "%UI%"=="" set "UI_ARGS=!UI_ARGS! --ui %UI%"
-if not "%OPEN%"=="" set "UI_ARGS=!UI_ARGS! --open %OPEN%"
-echo [INFO] UI_ARGS: !UI_ARGS!
 REM Unknown arg -> ignore
 shift
 goto :parse_args
@@ -94,6 +91,7 @@ REM Compose UI args
 set "UI_ARGS="
 if not "%UI%"=="" set "UI_ARGS=!UI_ARGS! --ui %UI%"
 if not "%OPEN%"=="" set "UI_ARGS=!UI_ARGS! --open %OPEN%"
+echo [INFO] UI_ARGS: !UI_ARGS!
 REM Prefer running built EXE if available (faster UI startup and reliable window)
 set "UI_EXE=ChildGuard.UI\bin\Debug\net8.0-windows\ChildGuard.UI.exe"
 if not exist "%UI_EXE%" set "UI_EXE="
@@ -120,26 +118,6 @@ if not "%UI_EXE%"=="" (
   ) else (
     echo [INFO] logging: dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%UI_LOG%" 2>&1
     start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS! 1>""%UI_LOG%"" 2>&1"
-  )
-)
-
-
-echo [INFO] Starting UI (ChildGuard.UI)...
-if not "%UI_EXE%"=="" (
-  if "%DIAGNOSE%"=="1" (
-    echo [DIAG] "%UI_EXE%" !UI_ARGS!
-    "%UI_EXE%" !UI_ARGS!
-  ) else (
-    start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
-  )
-) else (
-
-  if "%DIAGNOSE%"=="1" (
-    echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
-    cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
-  ) else (
-    echo [INFO] logging: dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%LOG_DIR%\ui.log" 2>&1
-    start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS! 1>""%LOG_DIR%\ui.log"" 2>&1"
   )
 )
 
