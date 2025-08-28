@@ -13,7 +13,7 @@ namespace TestAudioMonitor;
 public class ModernAudioMonitorForm : Form
 {
     // Core components
-    private EnhancedAudioMonitor _monitor;
+    private ChildGuard.Audio.Windows.EnhancedAudioMonitor _monitor;
     private Timer _animationTimer;
     private Timer _updateTimer;
     
@@ -541,7 +541,7 @@ public class ModernAudioMonitorForm : Form
     
     private void InitializeMonitor()
     {
-        _monitor = new EnhancedAudioMonitor();
+        _monitor = new ChildGuard.Audio.Windows.EnhancedAudioMonitor();
         
         _monitor.OnStatusChanged += (s, status) =>
         {

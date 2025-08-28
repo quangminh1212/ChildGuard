@@ -12,7 +12,7 @@ namespace TestAudioMonitor;
 
 public class AudioMonitorTestForm : Form
 {
-    private EnhancedAudioMonitor _monitor;
+    private ChildGuard.Audio.Windows.EnhancedAudioMonitor _monitor;
     private TextBox _logBox;
     private TextBox _badWordsInput;
     private Button _startBtn;
@@ -216,7 +216,7 @@ public class AudioMonitorTestForm : Form
     
     private void InitializeMonitor()
     {
-        _monitor = new EnhancedAudioMonitor();
+        _monitor = new ChildGuard.Audio.Windows.EnhancedAudioMonitor();
         
         // Subscribe to events
         _monitor.OnStatusChanged += (s, status) =>
