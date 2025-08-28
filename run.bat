@@ -3,8 +3,10 @@ setlocal EnableExtensions EnableDelayedExpansion
 
 REM Pre-scan args for --no-elevate to allow headless/CI environments
 set "NO_ELEVATE="
-for %%A in (%*) do (
-  if /I "%%~A"=="--no-elevate" set "NO_ELEVATE=1"
+if not "%~1"=="" (
+  for %%A in (%*) do (
+    if /I "%%~A"=="--no-elevate" set "NO_ELEVATE=1"
+  )
 )
 
 REM Change to repo root (folder of this script)
@@ -13,8 +15,8 @@ cd /d "%~dp0"
 REM Auto-elevate to Administrator if not already (unless --no-elevate)
 if not "%NO_ELEVATE%"=="1" (
   net session >NUL 2>&1
-  if %errorlevel% NEQ 0 (
-    echo [INFO] Elevating privileges (UAC)...
+  if errorlevel 1 (
+    echo [INFO] Elevating privileges ^(UAC^)...
     powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
     exit /b
   )
@@ -127,7 +129,7 @@ if "%RUN_AGENT%"=="1" (
   if "%DIAGNOSE%"=="1" (
     dotnet run --project ChildGuard.Agent
   ) else (
-    echo [INFO] (logging) Agent -> "%LOG_DIR%\agent.log"
+    echo [INFO] ^(logging^) Agent -> "%LOG_DIR%\agent.log"
     start "ChildGuard.Agent" cmd /c "dotnet run --project ChildGuard.Agent 1>""%LOG_DIR%\agent.log"" 2>&1"
   )
 )
@@ -137,7 +139,7 @@ if "%RUN_SERVICE%"=="1" (
   if "%DIAGNOSE%"=="1" (
     dotnet run --project ChildGuard.Service
   ) else (
-    echo [INFO] (logging) Service -> "%LOG_DIR%\service.log"
+    echo [INFO] ^(logging^) Service -> "%LOG_DIR%\service.log"
     start "ChildGuard.Service" cmd /c "dotnet run --project ChildGuard.Service 1>""%LOG_DIR%\service.log"" 2>&1"
   )
 )
