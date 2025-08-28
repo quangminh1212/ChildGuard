@@ -19,13 +19,13 @@ public class EnhancedHookManager : IDisposable
     private readonly List<string> _recentUrls;
     private IntPtr _keyboardHook;
     private IntPtr _mouseHook;
-    private LowLevelKeyboardProc _keyboardProc;
-    private LowLevelMouseProc _mouseProc;
+    private LowLevelKeyboardProc? _keyboardProc;
+    private LowLevelMouseProc? _mouseProc;
     private bool _isRunning;
     
-    public event EventHandler<ContentDetectionEventArgs> OnContentDetected;
-    public event EventHandler<UrlDetectionEventArgs> OnUrlDetected;
-    public event EventHandler<ChildGuard.Core.Models.ActivityEvent> OnActivity;
+    public event EventHandler<ContentDetectionEventArgs>? OnContentDetected;
+    public event EventHandler<UrlDetectionEventArgs>? OnUrlDetected;
+    public event EventHandler<ChildGuard.Core.Models.ActivityEvent>? OnActivity;
     
     public EnhancedHookManager()
     {
@@ -45,10 +45,11 @@ public class EnhancedHookManager : IDisposable
         using (var curProcess = Process.GetCurrentProcess())
         using (var curModule = curProcess.MainModule)
         {
-            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
-            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
+            var moduleName = curModule?.ModuleName ?? string.Empty;
+            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc!,
+                GetModuleHandle(moduleName), 0);
+            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc!,
+                GetModuleHandle(moduleName), 0);
         }
         
         _isRunning = true;
@@ -305,14 +306,14 @@ public class EnhancedHookManager : IDisposable
 public class ContentDetectionEventArgs : EventArgs
 {
     public DateTime Timestamp { get; set; }
-    public string Content { get; set; }
-    public DetectionResult DetectionResult { get; set; }
-    public string Source { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public DetectionResult DetectionResult { get; set; } = new();
+    public string Source { get; set; } = string.Empty;
 }
 
 public class UrlDetectionEventArgs : EventArgs
 {
     public DateTime Timestamp { get; set; }
-    public string Url { get; set; }
-    public UrlCheckResult CheckResult { get; set; }
+    public string Url { get; set; } = string.Empty;
+    public UrlCheckResult CheckResult { get; set; } = new();
 }

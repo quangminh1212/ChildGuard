@@ -147,7 +147,8 @@ public sealed class HookManager : IDisposable
         public static uint GetCurrentThreadIdSafe(Thread? thread)
         {
             // This is a simplification; PostThreadMessage requires the target thread have a message queue
-            return thread is null ? 0 : (uint)AppDomain.GetCurrentThreadId();
+            // Use stable managed thread id instead of deprecated AppDomain.GetCurrentThreadId
+            return thread is null ? 0 : (uint)thread.ManagedThreadId;
         }
 
         public delegate IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam);

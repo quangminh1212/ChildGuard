@@ -1,9 +1,6 @@
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\CoverletSourceRootsMapping_ChildGuard.Tests
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\testhost.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\testhost.exe
-C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
-C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.runner.reporters.netcoreapp10.dll
-C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.runner.utility.netcoreapp10.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\ChildGuard.Tests.deps.json
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\ChildGuard.Tests.runtimeconfig.json
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\ChildGuard.Tests.dll
@@ -17,7 +14,6 @@ C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\Microsoft.TestPlatform.Cros
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\Microsoft.TestPlatform.Utilities.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\Microsoft.VisualStudio.TestPlatform.Common.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\Newtonsoft.Json.dll
-C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\NuGet.Frameworks.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.abstractions.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.assert.dll
 C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.core.dll
@@ -101,3 +97,5 @@ C:\VF\ChildGuard\ChildGuard.Tests\obj\Release\net8.0\refint\ChildGuard.Tests.dll
 C:\VF\ChildGuard\ChildGuard.Tests\obj\Release\net8.0\ChildGuard.Tests.pdb
 C:\VF\ChildGuard\ChildGuard.Tests\obj\Release\net8.0\ChildGuard.Tests.genruntimeconfig.cache
 C:\VF\ChildGuard\ChildGuard.Tests\obj\Release\net8.0\ref\ChildGuard.Tests.dll
+C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\.msCoverageSourceRootsMapping_ChildGuard.Tests
+C:\VF\ChildGuard\ChildGuard.Tests\bin\Release\net8.0\xunit.runner.visualstudio.testadapter.dll

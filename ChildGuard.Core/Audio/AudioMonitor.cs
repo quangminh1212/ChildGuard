@@ -9,16 +9,16 @@ namespace ChildGuard.Core.Audio;
 
 public class AudioMonitor
 {
-    private Process _ffmpegProcess;
+    private Process? _ffmpegProcess;
     private readonly BadWordsDetector _detector;
     private readonly string _ffmpegPath;
     private readonly string _outputPath;
-    private CancellationTokenSource _cancellationTokenSource;
+    private CancellationTokenSource? _cancellationTokenSource;
     private bool _isMonitoring;
     
-    public event EventHandler<AudioDetectionEventArgs> OnDetection;
-    public event EventHandler<SpeechDetectedEventArgs> OnSpeechDetected;
-    public event EventHandler<AudioLevelEventArgs> OnLoudNoiseDetected;
+    public event EventHandler<AudioDetectionEventArgs>? OnDetection;
+    public event EventHandler<SpeechDetectedEventArgs>? OnSpeechDetected;
+    public event EventHandler<AudioLevelEventArgs>? OnLoudNoiseDetected;
     
     public AudioMonitor(string ffmpegPath = "ffmpeg.exe")
     {
@@ -54,7 +54,7 @@ public class AudioMonitor
         _isMonitoring = false;
         _cancellationTokenSource?.Cancel();
         
-        if (_ffmpegProcess != null && !_ffmpegProcess.HasExited)
+        if (_ffmpegProcess is { HasExited: false })
         {
             _ffmpegProcess.Kill();
             _ffmpegProcess.Dispose();
@@ -130,9 +130,11 @@ public class AudioMonitor
             };
             
             _ffmpegProcess = Process.Start(startInfo);
+            if (_ffmpegProcess == null)
+                return string.Empty;
             _ffmpegProcess.WaitForExit(durationSeconds * 1000 + 5000); // Add 5 sec buffer
             
-            if (_ffmpegProcess.ExitCode == 0 && File.Exists(outputFile))
+            if (_ffmpegProcess != null && _ffmpegProcess.ExitCode == 0 && File.Exists(outputFile))
             {
                 return outputFile;
             }
@@ -142,7 +144,7 @@ public class AudioMonitor
             Console.WriteLine($"Audio capture error: {ex.Message}");
         }
         
-        return null;
+        return string.Empty;
     }
     
     private string ConvertAudioToText(string audioFile)
@@ -165,9 +167,11 @@ public class AudioMonitor
             
             using (var process = Process.Start(startInfo))
             {
+                if (process == null)
+                    return string.Empty;
                 var output = process.StandardError.ReadToEnd();
                 process.WaitForExit();
-                
+
                 // In production, this would return actual transcribed text
                 // For now, return a placeholder
                 return ExtractSimpleMetadata(output);

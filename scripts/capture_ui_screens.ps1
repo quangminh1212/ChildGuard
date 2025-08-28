@@ -88,15 +88,33 @@ function Capture-WindowFor($proc, $name, $titleEn) {
   Write-Host "Saved: $path"
 }
 
-# Capture Settings
-$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open settings' -PassThru
+# Capture Dashboard
+$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open dashboard' -PassThru
 Start-Sleep -Milliseconds 1000
-Capture-WindowFor $proc 'childguard_settings.png' 'ChildGuard'
+Capture-WindowFor $proc 'childguard_dashboard.png' 'ChildGuard'
+Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Capture Monitoring
+$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open monitoring' -PassThru
+Start-Sleep -Milliseconds 1000
+Capture-WindowFor $proc 'childguard_monitoring.png' 'ChildGuard'
+Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Capture Protection
+$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open protection' -PassThru
+Start-Sleep -Milliseconds 1000
+Capture-WindowFor $proc 'childguard_protection.png' 'ChildGuard'
 Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 # Capture Reports
 $proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open reports' -PassThru
 Start-Sleep -Milliseconds 1000
 Capture-WindowFor $proc 'childguard_reports.png' 'ChildGuard'
+Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Capture Settings
+$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open settings' -PassThru
+Start-Sleep -Milliseconds 1000
+Capture-WindowFor $proc 'childguard_settings.png' 'ChildGuard'
 Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 

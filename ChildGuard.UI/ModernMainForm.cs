@@ -23,7 +23,7 @@ namespace ChildGuard.UI
         private Panel sidebarPanel = default!;
         private Panel headerPanel = default!;
         private Panel contentPanel = default!;
-        private Panel currentContentPanel = default!;
+        // Removed unused currentContentPanel field to eliminate warnings
 
         // Header controls
         private Label titleLabel = default!;

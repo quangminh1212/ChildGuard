@@ -10,3 +10,4 @@ C:\VF\ChildGuard\ChildGuard.Core\obj\Release\net8.0\ChildGuard.Core.dll
 C:\VF\ChildGuard\ChildGuard.Core\obj\Release\net8.0\refint\ChildGuard.Core.dll
 C:\VF\ChildGuard\ChildGuard.Core\obj\Release\net8.0\ChildGuard.Core.pdb
 C:\VF\ChildGuard\ChildGuard.Core\obj\Release\net8.0\ref\ChildGuard.Core.dll
+C:\VF\ChildGuard\ChildGuard.Core\obj\Release\net8.0\ChildGuard.Core.csproj.AssemblyReference.cache

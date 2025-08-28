@@ -30,10 +30,10 @@ public class AdvancedProtectionManager : IDisposable
     
     private IntPtr _keyboardHook;
     private IntPtr _mouseHook;
-    private LowLevelKeyboardProc _keyboardProc;
-    private LowLevelMouseProc _mouseProc;
+    private LowLevelKeyboardProc? _keyboardProc;
+    private LowLevelMouseProc? _mouseProc;
     private bool _isRunning;
-    private AppConfig _config;
+    private AppConfig? _config;
     
     // Statistics
     private int _totalKeysPressed;
@@ -41,9 +41,9 @@ public class AdvancedProtectionManager : IDisposable
     private int _threatsDetected;
     private int _urlsChecked;
     
-    public event EventHandler<ThreatDetectedEventArgs> OnThreatDetected;
-    public event EventHandler<ChildGuard.Core.Models.ActivityEvent> OnActivity;
-    public event EventHandler<StatisticsUpdatedEventArgs> OnStatisticsUpdated;
+    public event EventHandler<ThreatDetectedEventArgs>? OnThreatDetected;
+    public event EventHandler<ChildGuard.Core.Models.ActivityEvent>? OnActivity;
+    public event EventHandler<StatisticsUpdatedEventArgs>? OnStatisticsUpdated;
     
     public AdvancedProtectionManager()
     {
@@ -76,14 +76,15 @@ public class AdvancedProtectionManager : IDisposable
         using (var curProcess = Process.GetCurrentProcess())
         using (var curModule = curProcess.MainModule)
         {
-            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
-            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, 
-                GetModuleHandle(curModule.ModuleName), 0);
+            var moduleName = curModule?.ModuleName ?? string.Empty;
+            _keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc!,
+                GetModuleHandle(moduleName), 0);
+            _mouseHook = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc!,
+                GetModuleHandle(moduleName), 0);
         }
         
         // Start audio monitoring if enabled
-        if (_config.EnableAudioMonitoring)
+        if (_config != null && _config.EnableAudioMonitoring)
         {
             _audioMonitor.Start();
         }
@@ -214,7 +215,7 @@ public class AdvancedProtectionManager : IDisposable
         {
             LogActivity("Screenshot attempted", ActivityType.Screenshot);
             
-            if (_config.BlockScreenshots)
+            if (_config != null && _config.BlockScreenshots)
             {
                 // In production, would block the screenshot
                 RaiseThreat(ThreatType.Screenshot, "Screenshot attempt detected", 
@@ -333,7 +334,7 @@ public class AdvancedProtectionManager : IDisposable
         catch { }
     }
     
-    private async Task<string> GetClickedUrl()
+    private Task<string> GetClickedUrl()
     {
         // This would use UI Automation in production
         // For now, check if we're in a browser
@@ -345,16 +346,16 @@ public class AdvancedProtectionManager : IDisposable
             if (IsBrowserWindow(className))
             {
                 // In production, extract URL from browser
-                // For demo, return empty
-                return string.Empty;
+                // For demo, return Task.FromResult(string.Empty)
+                return Task.FromResult(string.Empty);
             }
         }
         catch { }
         
-        return string.Empty;
+        return Task.FromResult(string.Empty);
     }
     
-    private void HandleSpeechDetected(object sender, SpeechDetectedEventArgs e)
+    private void HandleSpeechDetected(object? sender, SpeechDetectedEventArgs e)
     {
         if (!string.IsNullOrEmpty(e.Text))
         {
@@ -371,7 +372,7 @@ public class AdvancedProtectionManager : IDisposable
         }
     }
     
-    private void HandleLoudNoise(object sender, AudioLevelEventArgs e)
+    private void HandleLoudNoise(object? sender, AudioLevelEventArgs e)
     {
         if (e.Level > 0.9)
         {
@@ -380,7 +381,7 @@ public class AdvancedProtectionManager : IDisposable
         }
     }
     
-    private void PeriodicAnalysis(object state)
+    private void PeriodicAnalysis(object? state)
     {
         // Analyze recent activity patterns
         if (_recentTexts.Count > 10)
@@ -399,8 +400,8 @@ public class AdvancedProtectionManager : IDisposable
         UpdateStatistics();
     }
     
-    private void RaiseThreat(ThreatType type, string description, 
-        ThreatLevel level, string content = null)
+    private void RaiseThreat(ThreatType type, string description,
+        ThreatLevel level, string? content = null)
     {
         _threatsDetected++;
         
@@ -410,7 +411,7 @@ public class AdvancedProtectionManager : IDisposable
             Type = type,
             Description = description,
             Level = level,
-            Content = content,
+            Content = content ?? string.Empty,
             Source = DetermineSource(type)
         };
         
@@ -595,10 +596,10 @@ public class ThreatDetectedEventArgs : EventArgs
 {
     public DateTime Timestamp { get; set; }
     public ThreatType Type { get; set; }
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
     public ThreatLevel Level { get; set; }
-    public string Content { get; set; }
-    public string Source { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public string Source { get; set; } = string.Empty;
 }
 
 public class StatisticsUpdatedEventArgs : EventArgs
