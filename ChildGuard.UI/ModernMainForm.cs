@@ -223,8 +223,10 @@ namespace ChildGuard.UI
 
             // Load corresponding content
             LoadContent(item.Text);
-            // Update header title
-            titleLabel.Text = $"ChildGuard • {item.Text}";
+            // Update header title and window title
+            string t = $"ChildGuard • {item.Text}";
+            titleLabel.Text = t;
+            this.Text = t;
         }
 
         // Navigate to a section from outside (e.g., Program args)
@@ -289,7 +291,9 @@ namespace ChildGuard.UI
             // Also update header title if sidebar not used (external navigate)
             if (!string.IsNullOrWhiteSpace(section))
             {
-                titleLabel.Text = $"ChildGuard • {section}";
+                string t = $"ChildGuard • {section}";
+                titleLabel.Text = t;
+                this.Text = t;
             }
         }
         

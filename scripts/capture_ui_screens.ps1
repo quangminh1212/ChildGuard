@@ -45,6 +45,20 @@ public static class WinSnap {
     }, IntPtr.Zero);
     return found;
   }
+  public static IntPtr FindWindowByTitleSubstr(string titleSubstr) {
+    IntPtr found = IntPtr.Zero;
+    EnumWindows((h, l) => {
+      if (!IsWindowVisible(h)) return true;
+      int len = GetWindowTextLength(h);
+      var sb = new StringBuilder(len + 1);
+      GetWindowText(h, sb, sb.Capacity);
+      string t = sb.ToString();
+      if (!string.IsNullOrEmpty(t) && t.IndexOf(titleSubstr, StringComparison.OrdinalIgnoreCase) >= 0)
+      { found = h; return false; }
+      return true;
+    }, IntPtr.Zero);
+    return found;
+  }
   public static void SaveWindowToFile(IntPtr hWnd, string path) {
     RECT r; if (!GetWindowRect(hWnd, out r)) throw new Exception("GetWindowRect failed");
     int w = r.Right - r.Left; int h = r.Bottom - r.Top;
@@ -65,6 +79,7 @@ function Capture-WindowFor($proc, $name, $titleEn) {
   $h = [IntPtr]::Zero
   while($h -eq [IntPtr]::Zero -and [DateTime]::UtcNow -lt $timeout) {
     $h = [WinSnap]::FindWindowOfProcess($proc.Id, $titleEn)
+    if ($h -eq [IntPtr]::Zero) { $h = [WinSnap]::FindWindowByTitleSubstr($titleEn) }
     Start-Sleep -Milliseconds 200
   }
   if ($h -eq [IntPtr]::Zero) { throw "Could not find window: $name" }
@@ -74,14 +89,14 @@ function Capture-WindowFor($proc, $name, $titleEn) {
 }
 
 # Capture Settings
-$proc = Start-Process -FilePath $uiExe -ArgumentList '--open settings' -PassThru
-Start-Sleep -Milliseconds 400
-Capture-WindowFor $proc 'childguard_settings.png' 'Settings'
+$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open settings' -PassThru
+Start-Sleep -Milliseconds 1000
+Capture-WindowFor $proc 'childguard_settings.png' 'ChildGuard'
 Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
 # Capture Reports
-$proc = Start-Process -FilePath $uiExe -ArgumentList '--open reports' -PassThru
-Start-Sleep -Milliseconds 400
-Capture-WindowFor $proc 'childguard_reports.png' 'Reports'
+$proc = Start-Process -FilePath $uiExe -ArgumentList '--ui modern --open reports' -PassThru
+Start-Sleep -Milliseconds 1000
+Capture-WindowFor $proc 'childguard_reports.png' 'ChildGuard'
 Get-Process -Id $proc.Id -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
