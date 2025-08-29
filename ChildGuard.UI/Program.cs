@@ -37,7 +37,13 @@ static class Program
             }
             else if (string.Equals(args[i], "--demo", StringComparison.OrdinalIgnoreCase))
             {
-                // Show Modern UI Demo
+                // Show Fluent Design Demo
+                Application.Run(new FluentDemoForm());
+                return;
+            }
+            else if (string.Equals(args[i], "--modern-demo", StringComparison.OrdinalIgnoreCase))
+            {
+                // Show Modern UI Demo (previous version)
                 Application.Run(new ModernDemoForm());
                 return;
             }
