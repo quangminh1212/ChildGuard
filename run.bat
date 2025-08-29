@@ -106,13 +106,12 @@ REM Compose UI args
 set "UI_ARGS="
 
 REM Always stop any existing UI instance before launching to avoid conflicts/file locks
-for /f "tokens=2 delims==" %%P in ('wmic process where ^"name^='ChildGuard.UI.exe'^" get ProcessId /value ^| find "ProcessId="') do set "_UIPID=%%P"
-if not "%_UIPID%"=="" (
-  echo [INFO] Stopping existing ChildGuard.UI.exe (PID %_UIPID%)...
-  taskkill /PID %_UIPID% /F >NUL 2>&1
-  powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Milliseconds 500" >NUL 2>&1
-  set "_UIPID="
-)
+ tasklist /FI "IMAGENAME eq ChildGuard.UI.exe" | find /I "ChildGuard.UI.exe" >NUL
+ if not errorlevel 1 (
+   echo [INFO] Stopping existing ChildGuard.UI.exe...
+   taskkill /IM ChildGuard.UI.exe /F >NUL 2>&1
+   powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Milliseconds 500" >NUL 2>&1
+ )
 
 if not "%UI%"=="" set "UI_ARGS=!UI_ARGS! --ui %UI%"
 if not "%OPEN%"=="" set "UI_ARGS=!UI_ARGS! --open %OPEN%"
