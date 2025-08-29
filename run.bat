@@ -116,6 +116,7 @@ if not "%_UIPID%"=="" (
 
 if not "%UI%"=="" set "UI_ARGS=!UI_ARGS! --ui %UI%"
 if not "%OPEN%"=="" set "UI_ARGS=!UI_ARGS! --open %OPEN%"
+if "%DIAGNOSE%"=="1" set "UI_ARGS=!UI_ARGS! --debug-ui"
 echo [INFO] UI_ARGS: !UI_ARGS!
 REM Prefer running built EXE if available (faster UI startup and reliable window)
 set "UI_EXE=ChildGuard.UI\bin\Debug\net8.0-windows\ChildGuard.UI.exe"
