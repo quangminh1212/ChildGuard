@@ -136,10 +136,7 @@ if not "%UI_EXE%"=="" (
     endlocal & set ERR=%ERR%
     if not "%ERR%"=="0" echo [ERR] UI exited with code %ERR% && exit /b %ERR%
   ) else (
-    setlocal DisableDelayedExpansion
-    set "ARGS=%UI_ARGS%"
-    start "ChildGuard.UI" "%UI_EXE%" %ARGS%
-    endlocal
+    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%UI_EXE%' -ArgumentList '%UI_ARGS%' -WorkingDirectory '%cd%'"
   )
 ) else (
   if "%DIAGNOSE%"=="1" (
@@ -148,7 +145,7 @@ if not "%UI_EXE%"=="" (
     if errorlevel 1 echo [ERR] UI exited with code %errorlevel% && exit /b %errorlevel%
   ) else (
     echo [INFO] logging: dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%UI_LOG%" 2>&1
-    start "ChildGuard.UI" cmd /c "dotnet run --project ChildGuard.UI -- !UI_ARGS! 1^>\"%UI_LOG%\" 2^>^&1"
+    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath 'dotnet' -ArgumentList 'run --project ChildGuard.UI -- %UI_ARGS%' -WorkingDirectory '%cd%' -RedirectStandardOutput '%UI_LOG%' -RedirectStandardError '%UI_LOG%'"
   )
 )
 
