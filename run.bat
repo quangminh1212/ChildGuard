@@ -87,6 +87,13 @@ goto :parse_args
 REM Optionally restore/build
 if "%NO_BUILD%"=="0" (
   echo [INFO] Restoring packages and building solution...
+  REM Ensure UI is not running to avoid file locks when copying DLLs
+  tasklist /FI "IMAGENAME eq ChildGuard.UI.exe" | find /I "ChildGuard.UI.exe" >NUL
+  if not errorlevel 1 (
+    echo [INFO] Stopping running UI to avoid build file locks...
+    taskkill /IM ChildGuard.UI.exe /F >NUL 2>&1
+    powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Seconds 1" >NUL 2>&1
+  )
   dotnet restore "ChildGuard.sln"
   if errorlevel 1 ( echo [ERROR] Restore failed && pause && exit /b 1 )
   dotnet build "ChildGuard.sln" -c Debug

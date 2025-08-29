@@ -70,6 +70,12 @@ namespace ChildGuard.UI
             base.OnLoad(e);
             // Normalize and ensure DataDirectory exists after config is loaded
             NormalizeDataDirectory();
+#if DEBUG
+            ChildGuard.UI.Diagnostics.OverlapDiagnostics.Attach(contentPanel, this, msg =>
+            {
+                try { this.Text = $"ChildGuard • Dashboard  [DIAG] {msg}"; } catch { }
+            });
+#endif
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -215,6 +221,7 @@ namespace ChildGuard.UI
                 AutoSize = true,
                 BackColor = Color.Transparent
             };
+
             leftPanel.Controls.Add(titleLabel);
 
             // Shadow at bottom
@@ -926,6 +933,7 @@ namespace ChildGuard.UI
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                     ControlStyles.UserPaint |
+
                     ControlStyles.ResizeRedraw |
                     ControlStyles.OptimizedDoubleBuffer, true);
 
