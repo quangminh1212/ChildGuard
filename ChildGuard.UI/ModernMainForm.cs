@@ -444,219 +444,94 @@ namespace ChildGuard.UI
                 AutoScroll = true
             };
 
-            // Prepare header (will add LAST so it stays at top when Dock=Top stacks)
+            // Header
             var hdr = new Label
             {
                 Text = "Dashboard",
                 Font = new Font("Segoe UI", 24, FontStyle.Bold),
                 ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 40
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 8)
             };
 
-            // Build cards and actions under the header
-            var statusCard = new ModernHeaderCard
-            {
-                Title = "Protection Status",
-                Subtitle = _running ? "Active" : "Inactive",
-                Size = new Size(250, 100),
-                Margin = new Padding(0, 0, 20, 10)
-            };
-            var threatsCard = new ModernHeaderCard
-            {
-                Title = "Threats Detected",
-                Subtitle = _threatsDetected.ToString(),
-                Size = new Size(250, 100),
-                Margin = new Padding(0, 0, 20, 10)
-            };
-            var activityCard = new ModernHeaderCard
-            {
-                Title = "System Activity",
-                Subtitle = "Normal",
-                Size = new Size(250, 100),
-                Margin = new Padding(0, 0, 20, 10)
-            };
+            // Cards
+            var statusCard = new ModernHeaderCard { Title = "Protection Status", Subtitle = _running ? "Active" : "Inactive", Size = new Size(250, 100), Margin = new Padding(0, 0, 20, 10) };
+            var threatsCard = new ModernHeaderCard { Title = "Threats Detected", Subtitle = _threatsDetected.ToString(), Size = new Size(250, 100), Margin = new Padding(0, 0, 20, 10) };
+            var activityCard = new ModernHeaderCard { Title = "System Activity", Subtitle = "Normal", Size = new Size(250, 100), Margin = new Padding(0, 0, 20, 10) };
             var dashboardCards = new List<Control> { statusCard, threatsCard, activityCard };
 
-            var actionsLabel = new Label
-            {
-                Text = "Quick Actions",
-                Font = new Font("Segoe UI", 16, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 30
-            };
+            // Actions
+            var actionsLabel = new Label { Text = "Quick Actions", Font = new Font("Segoe UI", 16, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 8, 0, 4) };
+            var actionsPanel = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
+            var startButton = new ModernButton { Text = "Start Protection", Size = new Size(150, 40), Style = ModernButton.ButtonStyle.Primary, Margin = new Padding(0, 0, 10, 10) }; startButton.Click += (s, e) => StartProtection(); actionsPanel.Controls.Add(startButton);
+            var stopButton = new ModernButton  { Text = "Stop Protection",  Size = new Size(150, 40), Style = ModernButton.ButtonStyle.Danger,  Margin = new Padding(0, 0, 10, 10) }; stopButton.Click  += (s, e) => StopProtection(); actionsPanel.Controls.Add(stopButton);
+            var scanButton = new ModernButton  { Text = "Quick Scan",       Size = new Size(150, 40), Style = ModernButton.ButtonStyle.Secondary, Margin = new Padding(0, 0, 10, 10) }; actionsPanel.Controls.Add(scanButton);
 
-            var actionsPanel = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                FlowDirection = FlowDirection.LeftToRight,
-                WrapContents = true
-            };
+            // Grid host for responsive cards
+            var gridHost = new Panel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Top };
+            BuildResponsiveCardGrid(gridHost, dashboardCards, maxColumns: 3, cardSize: new Size(250, 100), hSpacing: 20, vSpacing: 10);
+            dashboardPanel.Resize += (s, e) => BuildResponsiveCardGrid(gridHost, dashboardCards, 3, new Size(250, 100), 20, 10);
 
-            var startButton = new ModernButton
-            {
-                Text = "Start Protection",
-                Size = new Size(150, 40),
-                Style = ModernButton.ButtonStyle.Primary,
-                Margin = new Padding(0, 0, 10, 10)
-            };
-            startButton.Click += (s, e) => StartProtection();
-            actionsPanel.Controls.Add(startButton);
+            // Vertical layout via TableLayoutPanel to avoid Dock stacking issues
+            var tlp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 4, Margin = new Padding(0) };
+            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // header
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // grid
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // actions label
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // actions panel
+            tlp.Controls.Add(hdr, 0, 0);
+            tlp.Controls.Add(gridHost, 0, 1);
+            tlp.Controls.Add(actionsLabel, 0, 2);
+            tlp.Controls.Add(actionsPanel, 0, 3);
 
-            var stopButton = new ModernButton
-            {
-                Text = "Stop Protection",
-                Size = new Size(150, 40),
-                Style = ModernButton.ButtonStyle.Danger,
-                Margin = new Padding(0, 0, 10, 10)
-            };
-            stopButton.Click += (s, e) => StopProtection();
-            actionsPanel.Controls.Add(stopButton);
-
-            var scanButton = new ModernButton
-            {
-                Text = "Quick Scan",
-                Size = new Size(150, 40),
-                Style = ModernButton.ButtonStyle.Secondary,
-                Margin = new Padding(0, 0, 10, 10)
-            };
-            actionsPanel.Controls.Add(scanButton);
-
-            // Add in reverse order for DockStyle.Top stacking:
-            // actionsPanel (bottom) -> actionsLabel -> grid -> header (top)
-            dashboardPanel.Controls.Add(actionsPanel);
-            dashboardPanel.Controls.Add(actionsLabel);
-            BuildResponsiveCardGrid(dashboardPanel, dashboardCards, maxColumns: 3, cardSize: new Size(250, 100), hSpacing: 20, vSpacing: 10);
-            dashboardPanel.Resize += (s, e) => BuildResponsiveCardGrid(dashboardPanel, dashboardCards, 3, new Size(250, 100), 20, 10);
-            dashboardPanel.Controls.Add(hdr);
-
+            dashboardPanel.Controls.Add(tlp);
             contentPanel.Controls.Add(dashboardPanel);
         }
 
         private void LoadMonitoringContent()
         {
-            var monitoringPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true
-            };
+            var monitoringPanel = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
 
-            // Prepare header (add last to be at top)
-            var hdr = new Label
-            {
-                Text = "Real-time Monitoring",
-                Font = new Font("Segoe UI", 24, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 40
-            };
+            // Header
+            var hdr = new Label { Text = "Real-time Monitoring", Font = new Font("Segoe UI", 24, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 0, 0, 8) };
 
             // Cards
-            var keyboardCard = new ModernCard
-            {
-                Size = new Size(240, 130),
-                Margin = new Padding(0, 0, 20, 10)
-            };
-            var keyIcon = new PictureBox
-            {
-                Size = new Size(48, 48),
-                Location = new Point(20, 20),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                Image = CreateIcon("⌨", 40, ColorScheme.Modern.Primary)
-            };
-            keyboardCard.Controls.Add(keyIcon);
-            var keyLabel = new Label
-            {
-                Text = "Keyboard",
-                Font = new Font("Segoe UI", 10),
-                ForeColor = ColorScheme.Modern.TextSecondary,
-                Location = new Point(80, 25),
-                AutoSize = true
-            };
-            keyboardCard.Controls.Add(keyLabel);
-            var keyValueLabel = new Label
-            {
-                Name = "keyValueLabel",
-                Text = _lastKeys.ToString("N0"),
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Location = new Point(80, 45),
-                AutoSize = true
-            };
-            keyboardCard.Controls.Add(keyValueLabel);
+            var keyboardCard = new ModernCard { Size = new Size(240, 130), Margin = new Padding(0, 0, 20, 10) };
+            keyboardCard.Controls.Add(new PictureBox { Size = new Size(48, 48), Location = new Point(20, 20), SizeMode = PictureBoxSizeMode.Zoom, Image = CreateIcon("⌨", 40, ColorScheme.Modern.Primary) });
+            keyboardCard.Controls.Add(new Label { Text = "Keyboard", Font = new Font("Segoe UI", 10), ForeColor = ColorScheme.Modern.TextSecondary, Location = new Point(80, 25), AutoSize = true });
+            keyboardCard.Controls.Add(new Label { Name = "keyValueLabel", Text = _lastKeys.ToString("N0"), Font = new Font("Segoe UI", 20, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, Location = new Point(80, 45), AutoSize = true });
 
-            var mouseCard = new ModernCard
-            {
-                Size = new Size(240, 130),
-                Margin = new Padding(0, 0, 20, 10)
-            };
-            var mouseIcon = new PictureBox
-            {
-                Size = new Size(48, 48),
-                Location = new Point(20, 20),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                Image = CreateIcon("🖱", 40, ColorScheme.Modern.Success)
-            };
-            mouseCard.Controls.Add(mouseIcon);
-            var mouseLabel = new Label
-            {
-                Text = "Mouse",
-                Font = new Font("Segoe UI", 10),
-                ForeColor = ColorScheme.Modern.TextSecondary,
-                Location = new Point(80, 25),
-                AutoSize = true
-            };
-            mouseCard.Controls.Add(mouseLabel);
-            var mouseValueLabel = new Label
-            {
-                Name = "mouseValueLabel",
-                Text = _lastMouse.ToString("N0"),
-                Font = new Font("Segoe UI", 20, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Location = new Point(80, 45),
-                AutoSize = true
-            };
-            mouseCard.Controls.Add(mouseValueLabel);
+            var mouseCard = new ModernCard { Size = new Size(240, 130), Margin = new Padding(0, 0, 20, 10) };
+            mouseCard.Controls.Add(new PictureBox { Size = new Size(48, 48), Location = new Point(20, 20), SizeMode = PictureBoxSizeMode.Zoom, Image = CreateIcon("🖱", 40, ColorScheme.Modern.Success) });
+            mouseCard.Controls.Add(new Label { Text = "Mouse", Font = new Font("Segoe UI", 10), ForeColor = ColorScheme.Modern.TextSecondary, Location = new Point(80, 25), AutoSize = true });
+            mouseCard.Controls.Add(new Label { Name = "mouseValueLabel", Text = _lastMouse.ToString("N0"), Font = new Font("Segoe UI", 20, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, Location = new Point(80, 45), AutoSize = true });
 
+            var tlp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, RowCount = 4, Margin = new Padding(0) };
+            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // header
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // grid
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // log label
+            tlp.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); // log fill
+
+            tlp.Controls.Add(hdr, 0, 0);
+
+            // Grid host
             var monitoringCards = new List<Control> { keyboardCard, mouseCard };
+            var gridHost = new Panel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Top };
+            BuildResponsiveCardGrid(gridHost, monitoringCards, maxColumns: 3, cardSize: new Size(240, 130), hSpacing: 20, vSpacing: 10);
+            monitoringPanel.Resize += (s, e) => BuildResponsiveCardGrid(gridHost, monitoringCards, 3, new Size(240, 130), 20, 10);
+            tlp.Controls.Add(gridHost, 0, 1);
 
-            // Log area (fill)
+            var logLabel = new Label { Text = "Activity Log", Font = new Font("Segoe UI", 16, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 8, 0, 4) };
+            tlp.Controls.Add(logLabel, 0, 2);
+
             var logCard = new ModernCard { Dock = DockStyle.Fill };
-            var logListBox = new ListBox
-            {
-                Name = "activityListBox",
-                Dock = DockStyle.Fill,
-                BorderStyle = BorderStyle.None,
-                Font = new Font("Consolas", 9),
-                BackColor = ColorScheme.Modern.Surface,
-                ForeColor = ColorScheme.Modern.TextPrimary
-            };
+            var logListBox = new ListBox { Name = "activityListBox", Dock = DockStyle.Fill, BorderStyle = BorderStyle.None, Font = new Font("Consolas", 9), BackColor = ColorScheme.Modern.Surface, ForeColor = ColorScheme.Modern.TextPrimary };
             activityListBox = logListBox;
             logCard.Controls.Add(logListBox);
+            tlp.Controls.Add(logCard, 0, 3);
 
-            var logLabel = new Label
-            {
-                Text = "Activity Log",
-                Font = new Font("Segoe UI", 16, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 30
-            };
-
-            // Add in reverse order for Dock stacking: fill -> logLabel -> grid -> header
-            monitoringPanel.Controls.Add(logCard);
-            monitoringPanel.Controls.Add(logLabel);
-            BuildResponsiveCardGrid(monitoringPanel, monitoringCards, maxColumns: 3, cardSize: new Size(240, 130), hSpacing: 20, vSpacing: 10);
-            monitoringPanel.Resize += (s, e) => BuildResponsiveCardGrid(monitoringPanel, monitoringCards, 3, new Size(240, 130), 20, 10);
-            monitoringPanel.Controls.Add(hdr);
-
+            monitoringPanel.Controls.Add(tlp);
             contentPanel.Controls.Add(monitoringPanel);
         }
 
