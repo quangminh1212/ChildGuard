@@ -123,6 +123,65 @@ namespace ChildGuard.UI.Theming
             public static readonly Color ShadowDark = Color.FromArgb(40, 0, 0, 0);
         }
 
+        // Google Material + Windows Fluent inspired theme
+        public static class MaterialFluent
+        {
+            // Primary colors (Google Blue with Windows refinement)
+            public static readonly Color Primary = ColorTranslator.FromHtml("#1A73E8");
+            public static readonly Color PrimaryHover = ColorTranslator.FromHtml("#1967D2");
+            public static readonly Color PrimaryPressed = ColorTranslator.FromHtml("#174EA6");
+            public static readonly Color PrimaryLight = ColorTranslator.FromHtml("#E8F0FE");
+            public static readonly Color PrimaryDark = ColorTranslator.FromHtml("#1557B0");
+
+            // Secondary colors
+            public static readonly Color Secondary = ColorTranslator.FromHtml("#5F6368");
+            public static readonly Color SecondaryHover = ColorTranslator.FromHtml("#505459");
+            public static readonly Color SecondaryLight = ColorTranslator.FromHtml("#F8F9FA");
+
+            // Background colors (clean and minimal)
+            public static readonly Color Background = ColorTranslator.FromHtml("#FAFBFC");
+            public static readonly Color Surface = ColorTranslator.FromHtml("#FFFFFF");
+            public static readonly Color SurfaceVariant = ColorTranslator.FromHtml("#F8F9FA");
+            public static readonly Color SurfaceElevated = ColorTranslator.FromHtml("#FFFFFF");
+            public static readonly Color SurfaceContainer = ColorTranslator.FromHtml("#F1F3F4");
+
+            // Text colors (Google Material hierarchy)
+            public static readonly Color TextPrimary = ColorTranslator.FromHtml("#202124");
+            public static readonly Color TextSecondary = ColorTranslator.FromHtml("#5F6368");
+            public static readonly Color TextDisabled = ColorTranslator.FromHtml("#9AA0A6");
+            public static readonly Color TextOnPrimary = ColorTranslator.FromHtml("#FFFFFF");
+            public static readonly Color TextOnSurface = ColorTranslator.FromHtml("#202124");
+
+            // Border and divider (subtle and clean)
+            public static readonly Color Border = ColorTranslator.FromHtml("#DADCE0");
+            public static readonly Color BorderLight = ColorTranslator.FromHtml("#E8EAED");
+            public static readonly Color Divider = ColorTranslator.FromHtml("#F1F3F4");
+            public static readonly Color Outline = ColorTranslator.FromHtml("#DADCE0");
+
+            // Status colors (Material Design 3)
+            public static readonly Color Success = ColorTranslator.FromHtml("#34A853");
+            public static readonly Color Warning = ColorTranslator.FromHtml("#FBBC04");
+            public static readonly Color Error = ColorTranslator.FromHtml("#EA4335");
+            public static readonly Color Info = ColorTranslator.FromHtml("#4285F4");
+
+            // Elevation and shadows
+            public static readonly Color Shadow1 = Color.FromArgb(8, 0, 0, 0);
+            public static readonly Color Shadow2 = Color.FromArgb(16, 0, 0, 0);
+            public static readonly Color Shadow3 = Color.FromArgb(24, 0, 0, 0);
+            public static readonly Color Shadow4 = Color.FromArgb(32, 0, 0, 0);
+
+            // Interactive states
+            public static readonly Color Hover = Color.FromArgb(8, 26, 115, 232);
+            public static readonly Color Focus = Color.FromArgb(12, 26, 115, 232);
+            public static readonly Color Pressed = Color.FromArgb(16, 26, 115, 232);
+            public static readonly Color Selected = Color.FromArgb(12, 26, 115, 232);
+
+            // Special colors
+            public static readonly Color Accent = ColorTranslator.FromHtml("#1A73E8");
+            public static readonly Color AccentLight = ColorTranslator.FromHtml("#E8F0FE");
+            public static readonly Color AccentDark = ColorTranslator.FromHtml("#1557B0");
+        }
+
         /// <summary>
         /// Lấy màu với độ trong suốt
         /// </summary>

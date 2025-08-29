@@ -513,11 +513,11 @@ namespace ChildGuard.UI
             var dashboardCards = new List<Control> { statusCard, threatsCard, activityCard };
 
             // Actions
-            var actionsLabel = new Label { Text = "Quick Actions", Font = new Font("Segoe UI", 16, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 8, 0, 4) };
+            var actionsLabel = new Label { Text = "Quick Actions", Font = new Font("Segoe UI", 16, FontStyle.Bold), ForeColor = ColorScheme.MaterialFluent.TextPrimary, AutoSize = true, Margin = new Padding(0, 8, 0, 4) };
             var actionsPanel = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
-            var startButton = new ModernButton { Text = "Start Protection", Size = new Size(150, 40), Style = ModernButton.ButtonStyle.Primary, Margin = new Padding(0, 0, 10, 10) }; startButton.Click += (s, e) => StartProtection(); actionsPanel.Controls.Add(startButton);
-            var stopButton = new ModernButton  { Text = "Stop Protection",  Size = new Size(150, 40), Style = ModernButton.ButtonStyle.Danger,  Margin = new Padding(0, 0, 10, 10) }; stopButton.Click  += (s, e) => StopProtection(); actionsPanel.Controls.Add(stopButton);
-            var scanButton = new ModernButton  { Text = "Quick Scan",       Size = new Size(150, 40), Style = ModernButton.ButtonStyle.Secondary, Margin = new Padding(0, 0, 10, 10) }; actionsPanel.Controls.Add(scanButton);
+            var startButton = new MaterialButton { Text = "Start Protection", Size = new Size(150, 40), Style = MaterialButton.ButtonStyle.Primary, Margin = new Padding(0, 0, 10, 10) }; startButton.Click += (s, e) => StartProtection(); actionsPanel.Controls.Add(startButton);
+            var stopButton = new MaterialButton  { Text = "Stop Protection",  Size = new Size(150, 40), Style = MaterialButton.ButtonStyle.Danger,  Margin = new Padding(0, 0, 10, 10) }; stopButton.Click  += (s, e) => StopProtection(); actionsPanel.Controls.Add(stopButton);
+            var scanButton = new MaterialButton  { Text = "Quick Scan",       Size = new Size(150, 40), Style = MaterialButton.ButtonStyle.Secondary, Margin = new Padding(0, 0, 10, 10) }; actionsPanel.Controls.Add(scanButton);
 
             // Grid host for responsive cards
             var gridHost = new Panel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Top };

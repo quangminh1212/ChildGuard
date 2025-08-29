@@ -5,10 +5,24 @@ public static class ModernStyle
 public static void Apply(Form form, ThemeMode mode)
     {
         bool dark = mode switch { ThemeMode.Dark => true, ThemeMode.Light => false, _ => ThemeHelper.IsSystemDark() };
-        try { form.Font = new Font("Segoe UI Variable", 10f); } catch { try { form.Font = new Font("Segoe UI", 10f); } catch { } }
+
+        // Apply Google/Windows inspired typography
+        try { form.Font = new Font("Segoe UI", 9f, FontStyle.Regular); }
+        catch { try { form.Font = new Font("Segoe UI Variable", 9f); } catch { } }
+
         form.AutoScaleMode = AutoScaleMode.Dpi;
-        form.BackColor = dark ? Color.FromArgb(30, 30, 30) : Color.White;
-        form.ForeColor = dark ? Color.FromArgb(230, 230, 230) : SystemColors.ControlText;
+
+        if (dark)
+        {
+            form.BackColor = Color.FromArgb(30, 30, 30);
+            form.ForeColor = Color.FromArgb(230, 230, 230);
+        }
+        else
+        {
+            form.BackColor = ColorScheme.MaterialFluent.Background;
+            form.ForeColor = ColorScheme.MaterialFluent.TextPrimary;
+        }
+
         form.MinimumSize = new Size(Math.Max(320, form.Width), Math.Max(200, form.Height));
 
         // Menu styling

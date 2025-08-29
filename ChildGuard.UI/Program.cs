@@ -35,6 +35,12 @@ static class Program
             {
                 debugUi = true;
             }
+            else if (string.Equals(args[i], "--demo", StringComparison.OrdinalIgnoreCase))
+            {
+                // Show Material Design Demo
+                Application.Run(new MaterialDemoForm());
+                return;
+            }
         }
         if (ui == "classic")
         {

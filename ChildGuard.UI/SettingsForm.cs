@@ -2,6 +2,7 @@ using System.Windows.Forms;
 using ChildGuard.Core.Configuration;
 using ChildGuard.UI.Localization;
 using ChildGuard.UI.Theming;
+using ChildGuard.UI.Controls;
 using System.Windows.Forms.Layout;
 
 namespace ChildGuard.UI;
@@ -259,15 +260,14 @@ InitializeComponent();
         };
         root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-        // Helper to create a rounded section with header
-        RoundedPanel MakeSection(string title)
+        // Helper to create a modern material section with header
+        MaterialCard MakeSection(string title)
         {
-            var rp = new RoundedPanel { Dock = DockStyle.Top, Padding = new Padding(12), Margin = new Padding(0, 0, 0, 12), Height = 10 };
-            rp.Dark = mode == ThemeMode.Dark || (mode == ThemeMode.System && ThemeHelper.IsSystemDark());
-            var header = new Label { Text = title, AutoSize = true, Font = new Font(this.Font, FontStyle.Bold), Margin = new Padding(0, 0, 0, 8) };
-            rp.Controls.Add(header);
+            var card = new MaterialCard { Dock = DockStyle.Top, Padding = new Padding(20), Margin = new Padding(0, 0, 0, 16), Height = 10, Elevation = 1, CornerRadius = 12 };
+            var header = new Label { Text = title, AutoSize = true, Font = new Font("Segoe UI", 14, FontStyle.Bold), Margin = new Padding(0, 0, 0, 12), ForeColor = ColorScheme.MaterialFluent.TextPrimary };
+            card.Controls.Add(header);
             header.Location = new Point(8, 8);
-            return rp;
+            return card;
         }
 
         // Clear existing layout root (except controls we will re-parent)
