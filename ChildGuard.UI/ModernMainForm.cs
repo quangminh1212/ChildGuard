@@ -546,6 +546,7 @@ namespace ChildGuard.UI
                 AutoScroll = true
             };
 
+            // Prepare header (add last to be at top)
             var hdr = new Label
             {
                 Text = "Real-time Monitoring",
@@ -555,8 +556,8 @@ namespace ChildGuard.UI
                 AutoSize = false,
                 Height = 40
             };
-            monitoringPanel.Controls.Add(hdr);
 
+            // Cards
             var keyboardCard = new ModernCard
             {
                 Size = new Size(240, 130),
@@ -624,24 +625,9 @@ namespace ChildGuard.UI
             mouseCard.Controls.Add(mouseValueLabel);
 
             var monitoringCards = new List<Control> { keyboardCard, mouseCard };
-            BuildResponsiveCardGrid(monitoringPanel, monitoringCards, maxColumns: 3, cardSize: new Size(240, 130), hSpacing: 20, vSpacing: 10);
-            monitoringPanel.Resize += (s, e) => BuildResponsiveCardGrid(monitoringPanel, monitoringCards, 3, new Size(240, 130), 20, 10);
 
-            var logLabel = new Label
-            {
-                Text = "Activity Log",
-                Font = new Font("Segoe UI", 16, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 30
-            };
-            monitoringPanel.Controls.Add(logLabel);
-
-            var logCard = new ModernCard
-            {
-                Dock = DockStyle.Fill
-            };
+            // Log area (fill)
+            var logCard = new ModernCard { Dock = DockStyle.Fill };
             var logListBox = new ListBox
             {
                 Name = "activityListBox",
@@ -653,7 +639,23 @@ namespace ChildGuard.UI
             };
             activityListBox = logListBox;
             logCard.Controls.Add(logListBox);
+
+            var logLabel = new Label
+            {
+                Text = "Activity Log",
+                Font = new Font("Segoe UI", 16, FontStyle.Bold),
+                ForeColor = ColorScheme.Modern.TextPrimary,
+                Dock = DockStyle.Top,
+                AutoSize = false,
+                Height = 30
+            };
+
+            // Add in reverse order for Dock stacking: fill -> logLabel -> grid -> header
             monitoringPanel.Controls.Add(logCard);
+            monitoringPanel.Controls.Add(logLabel);
+            BuildResponsiveCardGrid(monitoringPanel, monitoringCards, maxColumns: 3, cardSize: new Size(240, 130), hSpacing: 20, vSpacing: 10);
+            monitoringPanel.Resize += (s, e) => BuildResponsiveCardGrid(monitoringPanel, monitoringCards, 3, new Size(240, 130), 20, 10);
+            monitoringPanel.Controls.Add(hdr);
 
             contentPanel.Controls.Add(monitoringPanel);
         }
@@ -986,6 +988,11 @@ namespace ChildGuard.UI
                     var text = "C";
                     var size = g.MeasureString(text, font);
                     g.DrawString(text, font, brush, (40 - size.Width) / 2, (40 - size.Height) / 2);
+        private static Control Spacer(int height)
+        {
+            return new Panel { Dock = DockStyle.Top, Height = height, AutoSize = false };
+        }
+
                 }
             }
             return bitmap;
