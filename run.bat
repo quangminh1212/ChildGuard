@@ -41,7 +41,7 @@ set "NO_BUILD=0"
 set "RUN_AGENT=0"
 set "RUN_SERVICE=0"
 set "RUN_TESTS=0"
-set "UI=modern"
+set "UI=windows"
 set "OPEN="
 set "DIAGNOSE=0"
 

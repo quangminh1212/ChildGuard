@@ -9,7 +9,7 @@ static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
-        string ui = "modern"; string? openSection = null; bool debugUi = false;
+        string ui = "windows"; string? openSection = null; bool debugUi = false;
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
@@ -41,7 +41,7 @@ static class Program
             var f = new Form1();
             Application.Run(f);
         }
-        else
+        else if (ui == "modern")
         {
             var f = new ModernMainForm();
             f.Tag = debugUi ? "DEBUG_UI" : null;
@@ -55,5 +55,18 @@ static class Program
             };
             Application.Run(f);
         }
-    }    
+        else // windows (default)
+        {
+            var f = new WindowsMainForm();
+            f.Shown += (s, e) =>
+            {
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(openSection)) f.NavigateTo(openSection);
+                }
+                catch { }
+            };
+            Application.Run(f);
+        }
+    }
 }
