@@ -537,28 +537,11 @@ namespace ChildGuard.UI
 
         private void LoadProtectionContent()
         {
-            var protectionPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true
-            };
+            var protectionPanel = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
 
-            var hdr = new Label
-            {
-                Text = "Protection Settings",
-                Font = new Font("Segoe UI", 24, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 40
-            };
-            protectionPanel.Controls.Add(hdr);
+            var hdr = new Label { Text = "Protection Settings", Font = new Font("Segoe UI", 24, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 0, 0, 8) };
 
-            var optionsCard = new ModernCard
-            {
-                Dock = DockStyle.Top,
-                Padding = new Padding(10)
-            };
+            var optionsCard = new ModernCard { Dock = DockStyle.Top, Padding = new Padding(10) };
 
             var options = new[]
             {
@@ -572,91 +555,85 @@ namespace ChildGuard.UI
             // Calculate height based on number of options (each ~70px + padding)
             optionsCard.Height = options.Length * 70 + 40;
 
+            var tlp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, Margin = new Padding(0) };
+            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // header
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // options card
+            tlp.Controls.Add(hdr, 0, 0);
+
+            var optionsHost = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.TopDown, WrapContents = false };
+
             foreach (var (title, description) in options)
             {
-                var optionPanel = new Panel
-                {
-                    Dock = DockStyle.Top,
-                    Height = 60,
-                    Padding = new Padding(20, 0, 20, 10)
-                };
-
-                var toggle = new ToggleSwitch
-                {
-                    Location = new Point(0, 15),
-                    Checked = true
-                };
-                optionPanel.Controls.Add(toggle);
-
-                var titleLbl = new Label
-                {
-                    Text = title,
-                    Font = new Font("Segoe UI", 11, FontStyle.Bold),
-                    Location = new Point(70, 10),
-                    AutoSize = true,
-                    ForeColor = ColorScheme.Modern.TextPrimary
-                };
-                optionPanel.Controls.Add(titleLbl);
-
-                var descLbl = new Label
-                {
-                    Text = description,
-                    Font = new Font("Segoe UI", 9),
-                    Location = new Point(70, 32),
-                    AutoSize = true,
-                    ForeColor = ColorScheme.Modern.TextSecondary
-                };
-                optionPanel.Controls.Add(descLbl);
-
-                optionsCard.Controls.Add(optionPanel);
-                optionPanel.BringToFront();
+                var optionPanel = new Panel { Dock = DockStyle.Top, Height = 60, Padding = new Padding(20, 0, 20, 10) };
+                optionPanel.Controls.Add(new ToggleSwitch { Location = new Point(0, 15), Checked = true });
+                optionPanel.Controls.Add(new Label { Text = title, Font = new Font("Segoe UI", 11, FontStyle.Bold), Location = new Point(70, 10), AutoSize = true, ForeColor = ColorScheme.Modern.TextPrimary });
+                optionPanel.Controls.Add(new Label { Text = description, Font = new Font("Segoe UI", 9), Location = new Point(70, 32), AutoSize = true, ForeColor = ColorScheme.Modern.TextSecondary });
+                optionsHost.Controls.Add(optionPanel);
             }
 
-            protectionPanel.Controls.Add(optionsCard);
+            optionsCard.Controls.Add(optionsHost);
+            tlp.Controls.Add(optionsCard, 0, 1);
+
+            protectionPanel.Controls.Add(tlp);
             contentPanel.Controls.Add(protectionPanel);
         }
 
         private void LoadReportsContent()
         {
-            var reportsPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true
-            };
+            var reportsPanel = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
 
-            var hdr = new Label
-            {
-                Text = "Reports & Analytics",
-                Font = new Font("Segoe UI", 24, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 40
-            };
-            reportsPanel.Controls.Add(hdr);
+            // Header
+            var hdr = new Label { Text = "Reports & Analytics", Font = new Font("Segoe UI", 24, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 0, 0, 8) };
 
+            // Placeholder for charts/table filters
+            var filters = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
+            filters.Controls.Add(new Label { Text = "Date Range:", AutoSize = true, Margin = new Padding(0, 0, 8, 0) });
+            filters.Controls.Add(new ComboBox { Width = 160, DropDownStyle = ComboBoxStyle.DropDownList });
+
+            var chartsHost = new Panel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Top };
+
+            // Vertical TLP
+            var tlp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, Margin = new Padding(0) };
+            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // header
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // filters
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // charts
+
+            tlp.Controls.Add(hdr, 0, 0);
+            tlp.Controls.Add(filters, 0, 1);
+            tlp.Controls.Add(chartsHost, 0, 2);
+
+            reportsPanel.Controls.Add(tlp);
             contentPanel.Controls.Add(reportsPanel);
         }
 
         private void LoadSettingsContent()
         {
-            var settingsPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                AutoScroll = true
-            };
+            var settingsPanel = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
 
-            var hdr = new Label
-            {
-                Text = "Settings",
-                Font = new Font("Segoe UI", 24, FontStyle.Bold),
-                ForeColor = ColorScheme.Modern.TextPrimary,
-                Dock = DockStyle.Top,
-                AutoSize = false,
-                Height = 40
-            };
-            settingsPanel.Controls.Add(hdr);
+            // Header
+            var hdr = new Label { Text = "Settings", Font = new Font("Segoe UI", 24, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 0, 0, 8) };
 
+            // Placeholder content split
+            var general = new ModernCard { Dock = DockStyle.Top, Padding = new Padding(10), AutoSize = true };
+            general.Controls.Add(new Label { Text = "Language", AutoSize = true, Location = new Point(10, 10) });
+            general.Controls.Add(new ComboBox { Width = 160, DropDownStyle = ComboBoxStyle.DropDownList, Location = new Point(120, 8) });
+
+            var paths = new ModernCard { Dock = DockStyle.Top, Padding = new Padding(10), AutoSize = true };
+            paths.Controls.Add(new Label { Text = "Data Directory", AutoSize = true, Location = new Point(10, 10) });
+            paths.Controls.Add(new TextBox { Width = 340, Location = new Point(120, 8), ReadOnly = true, Text = _config.DataDirectory ?? string.Empty });
+
+            var tlp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, Margin = new Padding(0) };
+            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // header
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // general
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // paths
+            tlp.Controls.Add(hdr, 0, 0);
+            tlp.Controls.Add(general, 0, 1);
+            tlp.Controls.Add(paths, 0, 2);
+
+            settingsPanel.Controls.Add(tlp);
             contentPanel.Controls.Add(settingsPanel);
         }
 
