@@ -125,33 +125,37 @@ if not exist "%UI_EXE%" set "UI_EXE="
 REM Diagnostic mode to run UI inline without start, to show logs
 if /I "%~1"=="--diagnose" set "DIAGNOSE=1"
 
-REM Start UI (recommended entry point)
+REM Start UI (no nested parentheses; use labels to avoid cmd parser issues)
 echo [INFO] Starting UI (ChildGuard.UI)...
-if not "%UI_EXE%"=="" (
-  if "%DIAGNOSE%"=="1" (
-    setlocal DisableDelayedExpansion
-    echo [DIAG] "%UI_EXE%" %UI_ARGS%
-    "%UI_EXE%" %UI_ARGS%
-    set ERR=%ERRORLEVEL%
-    endlocal & set ERR=%ERR%
-    if not "%ERR%"=="0" echo [ERR] UI exited with code %ERR% && exit /b %ERR%
-  ) else (
-    setlocal DisableDelayedExpansion
-    set "ARGS=%UI_ARGS%"
-    echo [RUN] "%UI_EXE%" %ARGS%
-    "%UI_EXE%" %ARGS%
-    endlocal
-  )
+if exist "%UI_EXE%" goto run_ui_exe
+goto run_ui_dotnet
+
+:run_ui_exe
+if /I "%DIAGNOSE%"=="1" (
+  setlocal DisableDelayedExpansion
+  set "ARGS=%UI_ARGS%"
+  echo [DIAG] "%UI_EXE%" %ARGS%
+  "%UI_EXE%" %ARGS%
+  endlocal
 ) else (
-  if "%DIAGNOSE%"=="1" (
-    echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
-    cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
-    if errorlevel 1 echo [ERR] UI exited with code %errorlevel% && exit /b %errorlevel%
-  ) else (
+  powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%UI_EXE%' -ArgumentList '%UI_ARGS%' -WorkingDirectory '%cd%'"
+)
+goto after_ui
+
+:run_ui_dotnet
+if /I "%DIAGNOSE%"=="1" (
+  echo [DIAG] cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
+  cmd /c dotnet run --project ChildGuard.UI -- !UI_ARGS!
+  if errorlevel 1 echo [ERR] UI exited with code %errorlevel% && exit /b %errorlevel%
+) else (
     echo [INFO] logging: dotnet run --project ChildGuard.UI -- !UI_ARGS! >"%UI_LOG%" 2>&1
     powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath 'dotnet' -ArgumentList 'run --project ChildGuard.UI -- %UI_ARGS%' -WorkingDirectory '%cd%' -RedirectStandardOutput '%UI_LOG%' -RedirectStandardError '%UI_LOG%'"
   )
 )
+goto after_ui
+
+:after_ui
+
 
 REM Start Agent/Service with logs (if requested)
 if "%RUN_AGENT%"=="1" (
