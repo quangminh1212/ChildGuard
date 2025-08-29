@@ -122,25 +122,6 @@ namespace ChildGuard.UI
                 try
                 {
                     updateTimer?.Stop();
-#if DEBUG
-        private void CreateDebugStatusBar()
-        {
-            try
-            {
-                debugStatusStrip = new StatusStrip
-                {
-                    SizingGrip = false,
-                    Dock = DockStyle.Bottom,
-                    Visible = true
-                };
-                debugStatusLabel = new ToolStripStatusLabel { Text = "[DIAG] Ready" };
-                debugStatusStrip.Items.Add(debugStatusLabel);
-                this.Controls.Add(debugStatusStrip);
-                debugStatusStrip.BringToFront();
-            }
-            catch { }
-        }
-#endif
 
                     animationTimer?.Stop();
                     _protectionManager.OnActivity -= OnActivity;
@@ -203,6 +184,26 @@ namespace ChildGuard.UI
             animationTimer.Interval = 10;
             animationTimer.Tick += AnimationTimer_Tick;
         }
+
+#if DEBUG
+        private void CreateDebugStatusBar()
+        {
+            try
+            {
+                debugStatusStrip = new StatusStrip
+                {
+                    SizingGrip = false,
+                    Dock = DockStyle.Bottom,
+                    Visible = true
+                };
+                debugStatusLabel = new ToolStripStatusLabel { Text = "[DIAG] Ready" };
+                debugStatusStrip.Items.Add(debugStatusLabel);
+                this.Controls.Add(debugStatusStrip);
+                debugStatusStrip.BringToFront();
+            }
+            catch { }
+        }
+#endif
 
         private void CreateHeaderPanel()
         {
