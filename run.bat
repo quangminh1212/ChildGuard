@@ -13,11 +13,17 @@ REM Change to repo root (folder of this script)
 cd /d "%~dp0"
 
 REM Auto-elevate to Administrator if not already (unless --no-elevate)
+set "_HASARGS=0"
+if not "%~1"=="" set "_HASARGS=1"
 if not "%NO_ELEVATE%"=="1" (
   net session >NUL 2>&1
   if errorlevel 1 (
     echo [INFO] Elevating privileges ^(UAC^)...
-    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
+    if "%_HASARGS%"=="1" (
+      powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -ArgumentList '%*' -Verb RunAs"
+    ) else (
+      powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    )
     exit /b
   )
 )
@@ -106,9 +112,12 @@ REM Start UI (recommended entry point)
 echo [INFO] Starting UI (ChildGuard.UI)...
 if not "%UI_EXE%"=="" (
   if "%DIAGNOSE%"=="1" (
-    echo [DIAG] "%UI_EXE%" !UI_ARGS!
-    "%UI_EXE%" !UI_ARGS!
-    if errorlevel 1 echo [ERR] UI exited with code %errorlevel% && exit /b %errorlevel%
+    setlocal DisableDelayedExpansion
+    echo [DIAG] "%UI_EXE%" %UI_ARGS%
+    "%UI_EXE%" %UI_ARGS%
+    set ERR=%ERRORLEVEL%
+    endlocal & set ERR=%ERR%
+    if not "%ERR%"=="0" echo [ERR] UI exited with code %ERR% && exit /b %ERR%
   ) else (
     start "ChildGuard.UI" "%UI_EXE%" !UI_ARGS!
   )
