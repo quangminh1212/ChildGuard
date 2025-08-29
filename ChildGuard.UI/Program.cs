@@ -9,7 +9,7 @@ static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
-        string ui = "modern"; string? openSection = null;
+        string ui = "modern"; string? openSection = null; bool debugUi = false;
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
@@ -31,6 +31,10 @@ static class Program
                 ui = args[i+1].ToLowerInvariant();
                 i++;
             }
+            else if (string.Equals(args[i], "--debug-ui", StringComparison.OrdinalIgnoreCase))
+            {
+                debugUi = true;
+            }
         }
         if (ui == "classic")
         {
@@ -40,6 +44,7 @@ static class Program
         else
         {
             var f = new ModernMainForm();
+            f.Tag = debugUi ? "DEBUG_UI" : null;
             f.Shown += (s, e) =>
             {
                 try

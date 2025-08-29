@@ -77,18 +77,21 @@ namespace ChildGuard.UI
             // Normalize and ensure DataDirectory exists after config is loaded
             NormalizeDataDirectory();
 #if DEBUG
-            ChildGuard.UI.Diagnostics.OverlapDiagnostics.Attach(contentPanel, this, msg =>
+            if (object.Equals(this.Tag, "DEBUG_UI"))
             {
-                try
+                ChildGuard.UI.Diagnostics.OverlapDiagnostics.Attach(contentPanel, this, msg =>
                 {
-                    var baseTitle = this.Text;
-                    var diagIndex = baseTitle.IndexOf(" [DIAG]", StringComparison.OrdinalIgnoreCase);
-                    if (diagIndex >= 0) baseTitle = baseTitle.Substring(0, diagIndex);
-                    this.Text = $"{baseTitle}  [DIAG] {msg}";
-                    if (debugStatusLabel != null) debugStatusLabel.Text = msg;
-                }
-                catch { }
-            });
+                    try
+                    {
+                        var baseTitle = this.Text;
+                        var diagIndex = baseTitle.IndexOf(" [DIAG]", StringComparison.OrdinalIgnoreCase);
+                        if (diagIndex >= 0) baseTitle = baseTitle.Substring(0, diagIndex);
+                        this.Text = $"{baseTitle}  [DIAG] {msg}";
+                        if (debugStatusLabel != null) debugStatusLabel.Text = msg;
+                    }
+                    catch { }
+                });
+            }
 #endif
         }
 
@@ -184,7 +187,10 @@ namespace ChildGuard.UI
             CreateSidebarPanel();
 
 #if DEBUG
-            CreateDebugStatusBar();
+            if (object.Equals(this.Tag, "DEBUG_UI"))
+            {
+                CreateDebugStatusBar();
+            }
 #endif
 
             // Initialize timers
