@@ -136,7 +136,11 @@ if not "%UI_EXE%"=="" (
     endlocal & set ERR=%ERR%
     if not "%ERR%"=="0" echo [ERR] UI exited with code %ERR% && exit /b %ERR%
   ) else (
-    powershell -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath '%UI_EXE%' -ArgumentList '%UI_ARGS%' -WorkingDirectory '%cd%'"
+    setlocal DisableDelayedExpansion
+    set "ARGS=%UI_ARGS%"
+    echo [RUN] "%UI_EXE%" %ARGS%
+    "%UI_EXE%" %ARGS%
+    endlocal
   )
 ) else (
   if "%DIAGNOSE%"=="1" (
