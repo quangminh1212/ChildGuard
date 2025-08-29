@@ -95,6 +95,25 @@ public class AudioMonitor
                                 AudioFilePath = audioFile
                             });
                         }
+
+                        // Trigger speech detected event
+                        OnSpeechDetected?.Invoke(this, new SpeechDetectedEventArgs
+                        {
+                            Text = text,
+                            Confidence = 0.8f, // Placeholder confidence
+                            Timestamp = DateTime.Now
+                        });
+                    }
+
+                    // Check audio level for loud noise detection
+                    var audioLevel = GetAudioLevel(audioFile);
+                    if (audioLevel > 0.8f) // Threshold for loud noise
+                    {
+                        OnLoudNoiseDetected?.Invoke(this, new AudioLevelEventArgs
+                        {
+                            Level = audioLevel,
+                            Timestamp = DateTime.Now
+                        });
                     }
                     
                     // Clean up old audio file
@@ -194,6 +213,57 @@ public class AudioMonitor
             return "Audio captured successfully";
         }
         return string.Empty;
+    }
+
+    private float GetAudioLevel(string audioFile)
+    {
+        try
+        {
+            // Use FFmpeg to analyze audio level
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = _ffmpegPath,
+                Arguments = $"-i \"{audioFile}\" -af \"volumedetect\" -f null -",
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(startInfo))
+            {
+                if (process == null)
+                    return 0.0f;
+                var output = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+
+                // Parse volume from FFmpeg output
+                // Look for "max_volume: -X.X dB"
+                var lines = output.Split('\n');
+                foreach (var line in lines)
+                {
+                    if (line.Contains("max_volume:"))
+                    {
+                        var parts = line.Split(':');
+                        if (parts.Length > 1)
+                        {
+                            var volumeStr = parts[1].Trim().Replace(" dB", "");
+                            if (float.TryParse(volumeStr, out var volume))
+                            {
+                                // Convert dB to 0-1 scale (rough approximation)
+                                return Math.Max(0, Math.Min(1, (volume + 60) / 60));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Audio level analysis error: {ex.Message}");
+        }
+
+        return 0.0f;
     }
     
     public void SetCustomBadWords(string[] words)

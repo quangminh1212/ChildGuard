@@ -70,6 +70,7 @@ public static class UIStrings
         ["Settings.Theme.Light"] = ("Light", "Sáng"),
         ["Settings.Theme.Dark"] = ("Dark", "Tối"),
         ["Settings.Section.General"] = ("General", "Chung"),
+        ["Settings.Section.Protection"] = ("Protection Features", "Tính năng bảo vệ"),
         ["Settings.Section.Blocked"] = ("Blocked processes", "Chặn tiến trình"),
         ["Settings.Section.AllowedQuiet"] = ("Allowed during Quiet Hours", "Được phép trong Giờ yên lặng"),
         ["Settings.Section.QuietHours"] = ("Quiet Hours", "Khung giờ yên lặng"),
@@ -77,6 +78,10 @@ public static class UIStrings
         ["Settings.Section.AdditionalQuiet"] = ("Additional quiet windows", "Khung giờ bổ sung"),
         ["Settings.Section.Config"] = ("Configuration", "Cấu hình"),
         ["Settings.UseSidebarNav"] = ("Use sidebar navigation", "Dùng thanh điều hướng bên trái"),
+        ["Settings.EnableAudioMonitoring"] = ("Enable audio monitoring", "Bật theo dõi âm thanh"),
+        ["Settings.BlockScreenshots"] = ("Block screenshots", "Chặn chụp màn hình"),
+        ["Settings.CheckUrls"] = ("Check URL safety", "Kiểm tra an toàn URL"),
+        ["Settings.BlockInappropriateContent"] = ("Block inappropriate content", "Chặn nội dung không phù hợp"),
 
         // Reports
         ["Reports.Title"] = ("Reports", "Báo cáo"),

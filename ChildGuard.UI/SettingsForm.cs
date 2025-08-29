@@ -54,6 +54,12 @@ InitializeComponent();
             : string.Empty;
         // Retention
         numRetention.Value = Math.Max(1, _config.LogRetentionDays);
+        // Protection features
+        EnsureProtectionControls();
+        chkAudioMonitoring!.Checked = _config.EnableAudioMonitoring;
+        chkBlockScreenshots!.Checked = _config.BlockScreenshots;
+        chkCheckUrls!.Checked = _config.CheckUrls;
+        chkBlockContent!.Checked = _config.BlockInappropriateContent;
         // Block close warning seconds
         numCloseWarn.Value = Math.Max(0, _config.BlockCloseWarningSeconds);
         // Max log size MB
@@ -123,6 +129,11 @@ InitializeComponent();
         _config.AllowedProcessesDuringQuietHours = allowLines;
         // Retention
         _config.LogRetentionDays = (int)numRetention.Value;
+        // Protection features
+        _config.EnableAudioMonitoring = chkAudioMonitoring?.Checked ?? false;
+        _config.BlockScreenshots = chkBlockScreenshots?.Checked ?? false;
+        _config.CheckUrls = chkCheckUrls?.Checked ?? true;
+        _config.BlockInappropriateContent = chkBlockContent?.Checked ?? true;
         // Warning seconds and max size
         _config.BlockCloseWarningSeconds = (int)numCloseWarn.Value;
         _config.LogMaxSizeMB = (int)numMaxSize.Value;
@@ -168,6 +179,12 @@ InitializeComponent();
     private Label? lblTheme;
     private CheckBox? chkSidebar;
 
+    // Protection feature controls
+    private CheckBox? chkAudioMonitoring;
+    private CheckBox? chkBlockScreenshots;
+    private CheckBox? chkCheckUrls;
+    private CheckBox? chkBlockContent;
+
     private void EnsureThemeControls()
     {
         if (cmbTheme == null)
@@ -190,6 +207,32 @@ InitializeComponent();
         }
         chkSidebar.Text = UIStrings.Get("Settings.UseSidebarNav");
         chkSidebar.Checked = _config.UseSidebarNavigation;
+    }
+
+    private void EnsureProtectionControls()
+    {
+        if (chkAudioMonitoring == null)
+        {
+            chkAudioMonitoring = new CheckBox { Name = "chkAudioMonitoring", AutoSize = true };
+        }
+        if (chkBlockScreenshots == null)
+        {
+            chkBlockScreenshots = new CheckBox { Name = "chkBlockScreenshots", AutoSize = true };
+        }
+        if (chkCheckUrls == null)
+        {
+            chkCheckUrls = new CheckBox { Name = "chkCheckUrls", AutoSize = true };
+        }
+        if (chkBlockContent == null)
+        {
+            chkBlockContent = new CheckBox { Name = "chkBlockContent", AutoSize = true };
+        }
+
+        // Update localized text
+        chkAudioMonitoring.Text = UIStrings.Get("Settings.EnableAudioMonitoring");
+        chkBlockScreenshots.Text = UIStrings.Get("Settings.BlockScreenshots");
+        chkCheckUrls.Text = UIStrings.Get("Settings.CheckUrls");
+        chkBlockContent.Text = UIStrings.Get("Settings.BlockInappropriateContent");
     }
 
     private static ThemeMode ParseTheme(string? s)
@@ -257,6 +300,20 @@ InitializeComponent();
         flGeneral.Controls.Add(flToggles);
         secGeneral.Controls.Add(flGeneral);
         root.Controls.Add(secGeneral);
+        root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+        // Protection section
+        var secProtection = MakeSection(UIStrings.Get("Settings.Section.Protection"));
+        var flProtection = new FlowLayoutPanel { Dock = DockStyle.Top, FlowDirection = FlowDirection.LeftToRight, AutoSize = true, WrapContents = true, Padding = new Padding(8, 32, 8, 8) };
+        flProtection.Controls.Add(chkAudioMonitoring!);
+        flProtection.Controls.Add(new Label { Width = 16 });
+        flProtection.Controls.Add(chkBlockScreenshots!);
+        flProtection.Controls.Add(new Label { Width = 16 });
+        flProtection.Controls.Add(chkCheckUrls!);
+        flProtection.Controls.Add(new Label { Width = 16 });
+        flProtection.Controls.Add(chkBlockContent!);
+        secProtection.Controls.Add(flProtection);
+        root.Controls.Add(secProtection);
         root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         // Blocked section

@@ -117,6 +117,13 @@ public class EnhancedHookManager : IDisposable
         {
             if (wParam == (IntPtr)WM_LBUTTONDOWN || wParam == (IntPtr)WM_RBUTTONDOWN)
             {
+                // Log mouse activity
+                OnActivity?.Invoke(this, new ChildGuard.Core.Models.ActivityEvent(
+                    DateTimeOffset.Now,
+                    ChildGuard.Core.Models.ActivityEventType.Mouse,
+                    new { ButtonType = wParam == (IntPtr)WM_LBUTTONDOWN ? "Left" : "Right" }
+                ));
+
                 // Get clicked element text if possible
                 Task.Run(async () =>
                 {
@@ -149,7 +156,14 @@ public class EnhancedHookManager : IDisposable
                 Source = "Keyboard"
             });
         }
-        
+
+        // Log activity event
+        OnActivity?.Invoke(this, new ChildGuard.Core.Models.ActivityEvent(
+            DateTimeOffset.Now,
+            ChildGuard.Core.Models.ActivityEventType.Keyboard,
+            new { TextLength = text.Length, HasDetections = !result.IsClean }
+        ));
+
         _keyBuffer.Clear();
     }
     
