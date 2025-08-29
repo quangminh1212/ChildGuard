@@ -52,6 +52,12 @@ namespace ChildGuard.UI
         private System.Windows.Forms.Timer updateTimer = default!;
         private System.Windows.Forms.Timer animationTimer = default!;
 
+#if DEBUG
+        // Debug status strip for visual overlap diagnostics
+        private StatusStrip? debugStatusStrip;
+        private ToolStripStatusLabel? debugStatusLabel;
+#endif
+
         // Activity log
         private ListBox? activityListBox;
         private readonly ConcurrentQueue<string> _logQueue = new();
@@ -73,7 +79,15 @@ namespace ChildGuard.UI
 #if DEBUG
             ChildGuard.UI.Diagnostics.OverlapDiagnostics.Attach(contentPanel, this, msg =>
             {
-                try { this.Text = $"ChildGuard • Dashboard  [DIAG] {msg}"; } catch { }
+                try
+                {
+                    var baseTitle = this.Text;
+                    var diagIndex = baseTitle.IndexOf(" [DIAG]", StringComparison.OrdinalIgnoreCase);
+                    if (diagIndex >= 0) baseTitle = baseTitle.Substring(0, diagIndex);
+                    this.Text = $"{baseTitle}  [DIAG] {msg}";
+                    if (debugStatusLabel != null) debugStatusLabel.Text = msg;
+                }
+                catch { }
             });
 #endif
         }
@@ -105,6 +119,26 @@ namespace ChildGuard.UI
                 try
                 {
                     updateTimer?.Stop();
+#if DEBUG
+        private void CreateDebugStatusBar()
+        {
+            try
+            {
+                debugStatusStrip = new StatusStrip
+                {
+                    SizingGrip = false,
+                    Dock = DockStyle.Bottom,
+                    Visible = true
+                };
+                debugStatusLabel = new ToolStripStatusLabel { Text = "[DIAG] Ready" };
+                debugStatusStrip.Items.Add(debugStatusLabel);
+                this.Controls.Add(debugStatusStrip);
+                debugStatusStrip.BringToFront();
+            }
+            catch { }
+        }
+#endif
+
                     animationTimer?.Stop();
                     _protectionManager.OnActivity -= OnActivity;
                     _protectionManager.OnStatisticsUpdated -= OnStatisticsUpdated;
@@ -148,6 +182,10 @@ namespace ChildGuard.UI
             CreateHeaderPanel();
             CreateContentPanel();
             CreateSidebarPanel();
+
+#if DEBUG
+            CreateDebugStatusBar();
+#endif
 
             // Initialize timers
             updateTimer = new System.Windows.Forms.Timer();
