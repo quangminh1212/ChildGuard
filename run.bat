@@ -129,7 +129,7 @@ if /I "%~1"=="--diagnose" set "DIAGNOSE=1"
 REM Launch UI via PowerShell helper (single path to avoid cmd parser issues)
 set "PS_DIAG="
 if "%DIAGNOSE%"=="1" set "PS_DIAG=-Diagnose"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run.ps1" %PS_DIAG% -Ui %UI% -Open %OPEN%
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0run.ps1" %PS_DIAG% -Ui "%UI%" -Open "%OPEN%"
 goto after_ui
 
 REM Start UI (no nested parentheses; use labels to avoid cmd parser issues)
