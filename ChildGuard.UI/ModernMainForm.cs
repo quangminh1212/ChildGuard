@@ -988,10 +988,6 @@ namespace ChildGuard.UI
                     var text = "C";
                     var size = g.MeasureString(text, font);
                     g.DrawString(text, font, brush, (40 - size.Width) / 2, (40 - size.Height) / 2);
-        private static Control Spacer(int height)
-        {
-            return new Panel { Dock = DockStyle.Top, Height = height, AutoSize = false };
-        }
 
                 }
             }
