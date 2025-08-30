@@ -98,11 +98,11 @@ namespace ChildGuard.UI
             };
             sidebarPanel.Controls.Add(flow);
 
-            btnDashboard = CreateNavButton("Dashboard");
-            btnMonitoring = CreateNavButton("Monitoring");
-            btnProtection = CreateNavButton("Protection");
-            btnReports = CreateNavButton("Reports");
-            btnSettings = CreateNavButton("Settings");
+            btnDashboard = CreateNavButton("🏠  Dashboard");
+            btnMonitoring = CreateNavButton("👁️  Monitoring");
+            btnProtection = CreateNavButton("🛡️  Protection");
+            btnReports = CreateNavButton("📊  Reports");
+            btnSettings = CreateNavButton("⚙️  Settings");
 
             flow.Controls.AddRange(new Control[] { btnDashboard, btnMonitoring, btnProtection, btnReports, btnSettings });
 
