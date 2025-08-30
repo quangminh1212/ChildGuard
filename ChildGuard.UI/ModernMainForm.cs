@@ -33,6 +33,7 @@ namespace ChildGuard.UI
         private Label titleLabel = default!;
         private PictureBox logoImage = default!;
         private ModernButton profileButton = default!;
+        private MaterialButton themeToggleButton = default!;
 
         // Sidebar items
         private List<SidebarItem> sidebarItems = default!;
@@ -227,7 +228,7 @@ namespace ChildGuard.UI
             var rightPanel = new Panel
             {
                 Dock = DockStyle.Right,
-                Width = 140,
+                Width = 220,
                 BackColor = Color.Transparent
             };
 
@@ -240,11 +241,19 @@ namespace ChildGuard.UI
                 Anchor = AnchorStyles.Top | AnchorStyles.Right
             };
             profileButton.Click += ProfileButton_Click;
+
+            // Theme toggle button (Light/Dark/System)
+            themeToggleButton = new MaterialButton { Text = "Theme", Style = MaterialButton.ButtonStyle.Secondary, Size = new Size(90, 36), Margin = new Padding(0, 0, 10, 0), Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            themeToggleButton.Click += (s, e) => ToggleTheme();
+
+            rightPanel.Controls.Add(themeToggleButton);
             rightPanel.Controls.Add(profileButton);
             rightPanel.Resize += (s, e) =>
             {
                 // Center vertically, stick to right inside the rightPanel
-                profileButton.Location = new Point(rightPanel.Width - profileButton.Width - 12, (rightPanel.Height - profileButton.Height) / 2);
+                int pad = 12;
+                profileButton.Location = new Point(rightPanel.Width - profileButton.Width - pad, (rightPanel.Height - profileButton.Height) / 2);
+                themeToggleButton.Location = new Point(profileButton.Left - themeToggleButton.Width - 8, (rightPanel.Height - themeToggleButton.Height) / 2);
             };
 
             // Left container hosts logo + title
@@ -779,6 +788,27 @@ namespace ChildGuard.UI
 
             // Apply broader modern style (fonts, menu, etc.)
             ModernStyle.Apply(this, ParseTheme(_config.Theme));
+        }
+
+        private void ToggleTheme()
+        {
+            try
+            {
+                // Cycle: System -> Light -> Dark -> System
+                var current = ParseTheme(_config.Theme);
+                ThemeMode next = current switch
+                {
+                    ThemeMode.System => ThemeMode.Light,
+                    ThemeMode.Light => ThemeMode.Dark,
+                    _ => ThemeMode.System
+                };
+                _config.Theme = next switch { ThemeMode.Dark => "Dark", ThemeMode.Light => "Light", _ => "System" };
+                ConfigManager.Save(_config, out _);
+                ApplyTheme();
+                // Reload current section to apply colors to new controls
+                LoadContent(activeSidebarItem?.Text ?? "Dashboard");
+            }
+            catch { }
         }
 
         private static ThemeMode ParseTheme(string? s)
