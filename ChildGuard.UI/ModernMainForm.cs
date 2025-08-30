@@ -162,10 +162,11 @@ namespace ChildGuard.UI
 
         private void InitializeComponents()
         {
-            // Create main layout panels (content before sidebar because sidebar selects default section)
+            // Add in proper dock order: header (Top), sidebar (Left), then content (Fill) LAST
+            // Docking uses z-order; adding Fill last ensures it occupies the remaining space below/after others.
             CreateHeaderPanel();
-            CreateContentPanel();
             CreateSidebarPanel();
+            CreateContentPanel();
 
 #if DEBUG
             if (object.Equals(this.Tag, "DEBUG_UI"))
