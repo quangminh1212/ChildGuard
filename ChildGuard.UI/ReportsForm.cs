@@ -12,6 +12,9 @@ public partial class ReportsForm : Form
     private Dictionary<string,int> _lastCounts = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<DateTime,int> _trendCounts = new();
 
+        private readonly System.Windows.Forms.Timer _liveTimer = new() { Interval = 1500 };
+        private bool _liveEnabled = false;
+
 public ReportsForm()
     {
         InitializeComponent();
@@ -44,6 +47,11 @@ public ReportsForm()
         // default time filter window 00:00 - 23:59
         try
         {
+            // Live refresh setup
+            _liveTimer.Tick += (s, ev) => { if (_liveEnabled) btnLoad_Click(null, EventArgs.Empty); };
+            // Toggle live mode by double-click summary
+            lblSummary.DoubleClick += (s, ev) => { _liveEnabled = !_liveEnabled; lblSummary.Text = (_liveEnabled ? "[LIVE] " : "") + lblSummary.Text; };
+
             dtpTimeFrom.Value = DateTime.Today.AddHours(0);
             dtpTimeTo.Value = DateTime.Today.AddHours(23).AddMinutes(59);
         }

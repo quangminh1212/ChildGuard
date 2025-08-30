@@ -253,6 +253,8 @@ namespace ChildGuard.UI
             tlp.Controls.Add(new Label { Text = "Quick Actions", Font = new Font("Segoe UI", 14, FontStyle.Bold), AutoSize = true, Margin = new Padding(0, 0, 0, 6) });
             tlp.Controls.Add(actions, 0, 1);
 
+            // If Monitoring has a desired filter, wire from settings in the future (placeholder)
+
             contentPanel.Controls.Add(tlp);
         }
 
