@@ -12,7 +12,8 @@ static class Program
     {
         ApplicationConfiguration.Initialize();
         SimpleLogger.Info("UI starting with args: {0}", string.Join(" ", Environment.GetCommandLineArgs().Skip(1)));
-        string ui = "windows"; string? openSection = null; bool debugUi = false;
+        // Default to Modern UI for a more polished, Fluent/Win11 experience
+        string ui = "modern"; string? openSection = null; bool debugUi = false;
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
         {
