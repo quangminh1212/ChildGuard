@@ -104,11 +104,28 @@ namespace ChildGuard.UI
             btnReports = CreateNavButton("Reports");
             btnSettings = CreateNavButton("Settings");
 
-            flow.Controls.Add(btnDashboard);
-            flow.Controls.Add(btnMonitoring);
-            flow.Controls.Add(btnProtection);
-            flow.Controls.Add(btnReports);
-            flow.Controls.Add(btnSettings);
+            flow.Controls.AddRange(new Control[] { btnDashboard, btnMonitoring, btnProtection, btnReports, btnSettings });
+
+            // Active highlight behavior
+            void SetActive(Button b)
+            {
+                foreach (var ctrl in flow.Controls.OfType<Button>())
+                {
+                    ctrl.BackColor = SystemColors.Control;
+                    ctrl.Font = new Font(ctrl.Font, FontStyle.Regular);
+                }
+                b.BackColor = Color.FromArgb(210, 225, 255);
+                b.Font = new Font(b.Font, FontStyle.Bold);
+            }
+
+            btnDashboard.Click += (s, e) => SetActive(btnDashboard);
+            btnMonitoring.Click += (s, e) => SetActive(btnMonitoring);
+            btnProtection.Click += (s, e) => SetActive(btnProtection);
+            btnReports.Click += (s, e) => SetActive(btnReports);
+            btnSettings.Click += (s, e) => SetActive(btnSettings);
+
+            // Default highlight
+            SetActive(btnDashboard);
         }
 
         private Button CreateNavButton(string text)
@@ -224,37 +241,18 @@ namespace ChildGuard.UI
 
         private void LoadMonitoring()
         {
-            // Lightweight monitoring view: quick links + tip to run Agent
-            var tlp = new TableLayoutPanel
+            // Live log viewer + quick link to reports
+            var live = new Controls.LiveLogViewer { Dock = DockStyle.Fill };
+            live.OnOpenReports += (s, e) => NavigateTo("Reports");
+            // Try to start with current config
+            try
             {
-                Dock = DockStyle.Top,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                ColumnCount = 1
-            };
-            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+                var cfg = ChildGuard.Core.Configuration.ConfigManager.Load(out _);
+                live.Start(cfg);
+            }
+            catch { live.Start(); }
 
-            tlp.Controls.Add(new Label
-            {
-                Text = "Monitoring",
-                Font = new Font("Segoe UI", 14, FontStyle.Bold),
-                AutoSize = true,
-                Margin = new Padding(0, 0, 0, 6)
-            }, 0, 0);
-
-            var info = new Label
-            {
-                Text = "Xem hoạt động theo thời gian thực và nhật ký đã ghi. Để ghi sự kiện nền, hãy chạy ChildGuard Agent.",
-                AutoSize = true,
-                MaximumSize = new Size(contentPanel.Width - 40, 0)
-            };
-            tlp.Controls.Add(info, 0, 1);
-
-            var btnOpenReports = new Button { Text = "Mở Reports", AutoSize = true, Margin = new Padding(0, 10, 0, 0) };
-            btnOpenReports.Click += (s, e) => NavigateTo("Reports");
-            tlp.Controls.Add(btnOpenReports, 0, 2);
-
-            contentPanel.Controls.Add(tlp);
+            contentPanel.Controls.Add(live);
         }
         private void LoadProtection()
         {
