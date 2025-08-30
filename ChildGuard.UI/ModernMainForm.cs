@@ -58,6 +58,8 @@ namespace ChildGuard.UI
         private Label? _reportsSummary;
         private bool _reportsLive = false;
         private long _reportsLastSize = 0;
+        private ComboBox? _reportsTypeFilter;
+        private DateTimePicker? _reportsDatePicker;
 
         // Timers
         private System.Windows.Forms.Timer updateTimer = default!;
@@ -698,9 +700,19 @@ namespace ChildGuard.UI
 
             var actions = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
             var btnRefresh = new MaterialButton { Text = "Refresh", Style = MaterialButton.ButtonStyle.Secondary, Size = new Size(120, 36), Margin = new Padding(0, 0, 8, 0) };
-            var btnLive = new MaterialButton { Text = "Live: Off", Style = MaterialButton.ButtonStyle.Text, Size = new Size(100, 36) };
+            var btnLive = new MaterialButton { Text = "Live: Off", Style = MaterialButton.ButtonStyle.Text, Size = new Size(100, 36), Margin = new Padding(0, 0, 8, 0) };
+            var btnExport = new MaterialButton { Text = "Export CSV", Style = MaterialButton.ButtonStyle.Secondary, Size = new Size(120, 36), Margin = new Padding(0, 0, 8, 0) };
+            _reportsTypeFilter = new ComboBox { Width = 140, DropDownStyle = ComboBoxStyle.DropDownList };
+            _reportsTypeFilter.Items.AddRange(new object[] { "All", "Key", "Mouse", "Threat" });
+            _reportsTypeFilter.SelectedIndex = 0;
+            _reportsDatePicker = new DateTimePicker { Width = 140, Format = DateTimePickerFormat.Short };
             actions.Controls.Add(btnRefresh);
             actions.Controls.Add(btnLive);
+            actions.Controls.Add(btnExport);
+            actions.Controls.Add(new Label { Text = "Type:", AutoSize = true, Margin = new Padding(8, 8, 4, 0) });
+            actions.Controls.Add(_reportsTypeFilter);
+            actions.Controls.Add(new Label { Text = "Date:", AutoSize = true, Margin = new Padding(8, 8, 4, 0) });
+            actions.Controls.Add(_reportsDatePicker);
 
             // Summary card
             var summaryCard = new ModernCard { Size = new Size(520, 100), Margin = new Padding(0, 0, 20, 10) };
@@ -730,6 +742,9 @@ namespace ChildGuard.UI
             // Wire actions
             btnRefresh.Click += (s, e) => LoadReportsData(force: true);
             btnLive.Click += (s, e) => { _reportsLive = !_reportsLive; btnLive.Text = _reportsLive ? "Live: On" : "Live: Off"; };
+            btnExport.Click += (s, e) => ExportReportsCsv();
+            _reportsTypeFilter.SelectedIndexChanged += (s, e) => LoadReportsData(force: true);
+            _reportsDatePicker.ValueChanged += (s, e) => LoadReportsData(force: true);
 
             // Initial load
             LoadReportsData(force: true);
@@ -742,8 +757,9 @@ namespace ChildGuard.UI
                 if (_reportsGrid == null || _reportsSummary == null) return;
                 var cfg = _config;
                 // Pick today's file
+                var date = _reportsDatePicker?.Value.Date ?? DateTime.Now.Date;
                 var dir = System.IO.Path.Combine(cfg.DataDirectory ?? ChildGuard.Core.Configuration.ConfigManager.GetLocalAppDataDir(), "logs");
-                var file = System.IO.Path.Combine(dir, $"events-{DateTime.UtcNow:yyyyMMdd}.jsonl");
+                var file = System.IO.Path.Combine(dir, $"events-{date:yyyyMMdd}.jsonl");
                 long size = 0;
                 try { size = new System.IO.FileInfo(file).Length; } catch { }
                 if (!force && !_reportsLive && size == _reportsLastSize) return;
@@ -754,6 +770,13 @@ namespace ChildGuard.UI
                 {
                     using var fs = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
                     using var sr = new System.IO.StreamReader(fs);
+                // Filter
+                string selType = (_reportsTypeFilter?.SelectedItem as string) ?? "All";
+                if (!string.Equals(selType, "All", StringComparison.OrdinalIgnoreCase))
+                {
+                    rows = rows.Where(r => r.type.Equals(selType, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
                     string? line;
                     while ((line = sr.ReadLine()) != null)
                     {
@@ -777,6 +800,40 @@ namespace ChildGuard.UI
                 var counts = rows.GroupBy(r => r.type).ToDictionary(g => g.Key, g => g.Count());
                 var parts = counts.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key}:{kv.Value}");
                 _reportsSummary.Text = $"Today: {total} • {string.Join(" | ", parts)}";
+            }
+            catch { }
+        }
+
+        private static string FastExtract(string s, string key)
+        {
+            int i = s.IndexOf(key, StringComparison.Ordinal);
+            if (i < 0) return string.Empty;
+            i += key.Length;
+            if (key.EndsWith("\\\"")) { int j = s.IndexOf('"', i); return j > i ? s.Substring(i, j - i) : string.Empty; }
+            else { int j = s.IndexOf(',', i); if (j < 0) j = s.IndexOf('}', i); return j > i ? s.Substring(i, j - i) : string.Empty; }
+        }
+        private void ExportReportsCsv()
+        {
+            try
+            {
+                if (_reportsGrid == null || _reportsGrid.Rows.Count == 0) return;
+                using var sfd = new SaveFileDialog { Filter = "CSV Files (*.csv)|*.csv", FileName = $"reports-{DateTime.Now:yyyyMMdd-HHmm}.csv" };
+                if (sfd.ShowDialog(this) != DialogResult.OK) return;
+                using var sw = new System.IO.StreamWriter(sfd.FileName, false, Encoding.UTF8);
+                // header
+                sw.WriteLine("Time,Type,Data");
+                foreach (DataGridViewRow row in _reportsGrid.Rows)
+                {
+                    if (row.IsNewRow) continue;
+                    string time = Convert.ToString(row.Cells[0].Value) ?? string.Empty;
+                    string type = Convert.ToString(row.Cells[1].Value) ?? string.Empty;
+                    string data = Convert.ToString(row.Cells[2].Value) ?? string.Empty;
+                    time = time.Replace(",", " ");
+                    type = type.Replace(",", " ");
+                    data = data.Replace("\r", " ").Replace("\n", " ").Replace(",", ";");
+                    sw.WriteLine($"{time},{type},{data}");
+                }
+                sw.Flush();
             }
             catch { }
         }
