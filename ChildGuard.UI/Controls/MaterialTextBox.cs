@@ -24,6 +24,7 @@ namespace ChildGuard.UI.Controls
             set { _labelString = value; _labelText.Text = value; }
         }
 
+        [System.Diagnostics.CodeAnalysis.AllowNull]
         public override string Text
         {
             get => _textBox.Text;

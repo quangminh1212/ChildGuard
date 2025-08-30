@@ -11,12 +11,10 @@ namespace ChildGuard.UI.ModernUI
     /// </summary>
     public class ModernForm : Form
     {
-        private Panel titleBar;
-        private Label titleLabel;
-        private Panel buttonPanel;
-        private Button minimizeButton, maximizeButton, closeButton;
-        private bool isDragging = false;
-        private Point dragOffset;
+        private Panel titleBar = null!;
+        private Label titleLabel = null!;
+        private Panel buttonPanel = null!;
+        private Button minimizeButton = null!, maximizeButton = null!, closeButton = null!;
 
         // Windows API for window manipulation
         [DllImport("user32.dll")]
@@ -138,7 +136,7 @@ namespace ChildGuard.UI.ModernUI
             return button;
         }
 
-        private void TitleBar_MouseDown(object sender, MouseEventArgs e)
+        private void TitleBar_MouseDown(object? sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -169,8 +167,6 @@ namespace ChildGuard.UI.ModernUI
         protected override void WndProc(ref Message m)
         {
             const int WM_NCHITTEST = 0x84;
-            const int HTCLIENT = 1;
-            const int HTCAPTION = 2;
             const int HTBOTTOMRIGHT = 17;
             const int HTRIGHT = 11;
             const int HTBOTTOM = 15;
