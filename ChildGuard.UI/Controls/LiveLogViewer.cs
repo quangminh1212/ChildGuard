@@ -23,6 +23,7 @@ public class LiveLogViewer : Panel
     private long _lastLength = 0;
     private bool _paused = false;
     private AppConfig _config = new();
+    private string? _typeFilter = null; // null/empty = All
 
     private Button _btnPause = default!;
     private Button _btnOpenFolder = default!;
@@ -47,6 +48,12 @@ public class LiveLogViewer : Panel
         Controls.Add(_pathLabel);
 
         _timer.Tick += (s, e) => Tick();
+    }
+
+    public void SetTypeFilter(string? type)
+    {
+        _typeFilter = string.IsNullOrWhiteSpace(type) || string.Equals(type, "All", StringComparison.OrdinalIgnoreCase)
+            ? null : type;
     }
 
     public event EventHandler? OnOpenReports;
@@ -90,6 +97,7 @@ public class LiveLogViewer : Panel
             int added = 0;
             while ((line = sr.ReadLine()) != null)
             {
+                if (ShouldSkipByType(line)) continue;
                 added++;
                 var text = FormatLine(line);
                 _list.Items.Add(text);
@@ -151,11 +159,22 @@ public class LiveLogViewer : Panel
         }
         else
         {
-            // naive object/string after key
             int j = s.IndexOf(',', i);
             if (j < 0) j = s.IndexOf('}', i);
             return j > i ? s.Substring(i, j - i) : string.Empty;
         }
     }
+
+    private bool ShouldSkipByType(string json)
+    {
+        if (_typeFilter == null) return false;
+        try
+        {
+            string type = TryExtract(json, "\"type\":\"");
+            return !string.Equals(type, _typeFilter, StringComparison.OrdinalIgnoreCase);
+        }
+        catch { return false; }
+    }
+
 }
 

@@ -30,8 +30,14 @@ namespace ChildGuard.UI
             BuildLayout();
             WireEvents();
 
-            // Default section
-            NavigateTo("Dashboard");
+            // Default section (restore last section from config if available)
+            try
+            {
+                var cfg = ChildGuard.Core.Configuration.ConfigManager.Load(out _);
+                var sec = string.IsNullOrWhiteSpace(cfg.LastOpenUISection) ? "Dashboard" : cfg.LastOpenUISection;
+                NavigateTo(sec);
+            }
+            catch { NavigateTo("Dashboard"); }
         }
 
         private void BuildLayout()
@@ -162,6 +168,15 @@ namespace ChildGuard.UI
             contentPanel.SuspendLayout();
             try
             {
+                // Persist last opened section
+                try
+                {
+                    var cfg = ChildGuard.Core.Configuration.ConfigManager.Load(out _);
+                    cfg.LastOpenUISection = section;
+                    ChildGuard.Core.Configuration.ConfigManager.Save(cfg, out _);
+                }
+                catch { }
+
                 // Dispose previously embedded forms/controls to avoid leaks
                 foreach (Control c in contentPanel.Controls)
                 {
@@ -214,6 +229,8 @@ namespace ChildGuard.UI
                 Dock = DockStyle.Top,
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            // If navigating to Monitoring, propagate type filter from Reports combo when available later
+
                 FlowDirection = FlowDirection.LeftToRight,
                 WrapContents = true,
                 Padding = new Padding(0),

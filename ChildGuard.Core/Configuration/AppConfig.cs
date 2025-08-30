@@ -12,6 +12,9 @@ public class AppConfig
     // UI theme preference: "System" (default), "Light", or "Dark"
     public string Theme { get; set; } = "System";
 
+    // Remember last opened UI section (e.g., Dashboard/Monitoring/Protection/Reports/Settings)
+    public string LastOpenUISection { get; set; } = "Dashboard";
+
     // Use sidebar navigation in main UI (Form1)
     public bool UseSidebarNavigation { get; set; } = false;
 
