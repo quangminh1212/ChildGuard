@@ -350,11 +350,14 @@ namespace ChildGuard.UI.GlassUI
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-            ApplyGlassStyling(e.Control);
+            if (e.Control != null)
+                ApplyGlassStyling(e.Control);
         }
 
-        private void ApplyGlassStyling(Control control)
+        private void ApplyGlassStyling(Control? control)
         {
+            if (control == null) return;
+
             if (control is Label label)
             {
                 label.Font = new Font("Segoe UI", label.Font.Size, label.Font.Style);
@@ -372,8 +375,7 @@ namespace ChildGuard.UI.GlassUI
             // Recursively apply to child controls
             foreach (Control child in control.Controls)
             {
-                if (child != null)
-                    ApplyGlassStyling(child);
+                ApplyGlassStyling(child);
             }
         }
 

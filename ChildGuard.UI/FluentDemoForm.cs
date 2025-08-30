@@ -11,9 +11,9 @@ namespace ChildGuard.UI
     /// </summary>
     public partial class FluentDemoForm : Form
     {
-        private Panel titleBar;
-        private Panel sidebar;
-        private Panel mainContent;
+        private Panel titleBar = null!;
+        private Panel sidebar = null!;
+        private Panel mainContent = null!;
 
         public FluentDemoForm()
         {

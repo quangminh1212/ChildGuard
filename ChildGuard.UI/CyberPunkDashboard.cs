@@ -12,10 +12,10 @@ namespace ChildGuard.UI
     /// </summary>
     public partial class CyberPunkDashboard : Form
     {
-        private Panel titleBar;
-        private Panel sidebar;
-        private Panel mainContent;
-        private System.Windows.Forms.Timer backgroundAnimationTimer;
+        private Panel titleBar = null!;
+        private Panel sidebar = null!;
+        private Panel mainContent = null!;
+        private System.Windows.Forms.Timer backgroundAnimationTimer = null!;
         private float animationPhase = 0f;
 
         public CyberPunkDashboard()

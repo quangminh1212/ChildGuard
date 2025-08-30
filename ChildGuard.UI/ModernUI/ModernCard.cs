@@ -148,11 +148,14 @@ namespace ChildGuard.UI.ModernUI
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-            ApplyModernStyling(e.Control);
+            if (e.Control != null)
+                ApplyModernStyling(e.Control);
         }
 
-        private void ApplyModernStyling(Control control)
+        private void ApplyModernStyling(Control? control)
         {
+            if (control == null) return;
+
             if (control is Label label)
             {
                 label.Font = new Font("Segoe UI", label.Font.Size, label.Font.Style);

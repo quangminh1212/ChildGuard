@@ -9,8 +9,8 @@ namespace ChildGuard.UI;
 public partial class Form1 : Form
 {
     private readonly AdvancedProtectionManager _protectionManager = new();
-    private long _lastKeys;
-    private long _lastMouse;
+    private long _lastKeys = 0;
+    private long _lastMouse = 0;
     private volatile bool _running;
     private AppConfig _cfg = new();
 
