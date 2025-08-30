@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChildGuard.Service")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad3b8d3b0511f71e2c53f210bcb399b05bb1eb13")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2747cfaa89d3d0d664596a825da84d849e00173c")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChildGuard.Service")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChildGuard.Service")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
