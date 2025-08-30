@@ -145,6 +145,24 @@ namespace ChildGuard.UI
             contentPanel.SuspendLayout();
             try
             {
+                // Dispose previously embedded forms/controls to avoid leaks
+                foreach (Control c in contentPanel.Controls)
+                {
+                    try
+                    {
+                        if (c is Form f)
+                        {
+                            f.Close();
+                            f.Dispose();
+                        }
+                        else
+                        {
+                            c.Dispose();
+                        }
+                    }
+                    catch { }
+                }
+
                 contentPanel.Controls.Clear();
                 switch (section)
                 {
@@ -206,19 +224,62 @@ namespace ChildGuard.UI
 
         private void LoadMonitoring()
         {
-            AddPlaceholder("Monitoring content goes here.");
+            // Lightweight monitoring view: quick links + tip to run Agent
+            var tlp = new TableLayoutPanel
+            {
+                Dock = DockStyle.Top,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                ColumnCount = 1
+            };
+            tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+            tlp.Controls.Add(new Label
+            {
+                Text = "Monitoring",
+                Font = new Font("Segoe UI", 14, FontStyle.Bold),
+                AutoSize = true,
+                Margin = new Padding(0, 0, 0, 6)
+            }, 0, 0);
+
+            var info = new Label
+            {
+                Text = "Xem hoạt động theo thời gian thực và nhật ký đã ghi. Để ghi sự kiện nền, hãy chạy ChildGuard Agent.",
+                AutoSize = true,
+                MaximumSize = new Size(contentPanel.Width - 40, 0)
+            };
+            tlp.Controls.Add(info, 0, 1);
+
+            var btnOpenReports = new Button { Text = "Mở Reports", AutoSize = true, Margin = new Padding(0, 10, 0, 0) };
+            btnOpenReports.Click += (s, e) => NavigateTo("Reports");
+            tlp.Controls.Add(btnOpenReports, 0, 2);
+
+            contentPanel.Controls.Add(tlp);
         }
         private void LoadProtection()
         {
-            AddPlaceholder("Protection options go here.");
+            // Reuse the advanced protection UI inside the content panel
+            EmbedFormInContent(new EnhancedForm1());
         }
         private void LoadReports()
         {
-            AddPlaceholder("Reports & analytics go here.");
+            EmbedFormInContent(new ReportsForm());
         }
         private void LoadSettings()
         {
-            AddPlaceholder("Settings go here.");
+            EmbedFormInContent(new SettingsForm());
+        }
+
+        private void EmbedFormInContent(Form form)
+        {
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
+            form.StartPosition = FormStartPosition.Manual;
+            // Ensure consistent background
+            try { form.BackColor = contentPanel.BackColor; } catch { }
+            contentPanel.Controls.Add(form);
+            form.Show();
         }
 
         private void AddPlaceholder(string text)
