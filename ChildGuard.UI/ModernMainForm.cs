@@ -16,6 +16,8 @@ using System.ComponentModel;
 
 using System.IO;
 
+using System.Text;
+
 namespace ChildGuard.UI
 {
     /// <summary>
@@ -838,14 +840,6 @@ namespace ChildGuard.UI
             catch { }
         }
 
-        private static string FastExtract(string s, string key)
-        {
-            int i = s.IndexOf(key, StringComparison.Ordinal);
-            if (i < 0) return string.Empty;
-            i += key.Length;
-            if (key.EndsWith("\\\"")) { int j = s.IndexOf('"', i); return j > i ? s.Substring(i, j - i) : string.Empty; }
-            else { int j = s.IndexOf(',', i); if (j < 0) j = s.IndexOf('}', i); return j > i ? s.Substring(i, j - i) : string.Empty; }
-        }
 
         private void LoadSettingsContent()
         {
