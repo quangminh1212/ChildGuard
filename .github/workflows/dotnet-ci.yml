@@ -80,6 +80,8 @@ jobs:
   enforce-coverage:
     needs: build-and-test
     runs-on: windows-latest
+    env:
+      MIN_COVERAGE: '70'
     steps:
       - name: Download coverage artifact
         uses: actions/download-artifact@v4
@@ -96,13 +98,20 @@ jobs:
           [xml]$doc = Get-Content $cov.FullName
           $lineRate = [double]$doc.coverage."line-rate"
           $pct = [math]::Round($lineRate * 100, 2)
-          Write-Host "Line coverage: $pct%"
-          $min = 60
+          $min = [double]$env:MIN_COVERAGE
+          Write-Host "Line coverage: $pct% (min required: $min%)"
           if ($pct -lt $min) {
             Write-Error "Coverage $pct% is below threshold $min%"
             exit 2
           }
           Write-Host "Coverage OK (>= $min%)"
+
+  ci-success:
+    needs: [build-and-test, enforce-coverage]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All checks passed
+        run: echo "All checks passed"
 
       - name: Upload Test Results
         if: always()
