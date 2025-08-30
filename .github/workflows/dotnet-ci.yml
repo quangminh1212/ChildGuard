@@ -46,12 +46,27 @@ jobs:
           --logger "trx;LogFileName=TestResults.trx" -m:1
           --results-directory TestResults
           --collect "XPlat Code Coverage"
+          /p:CollectCoverage=true
+          /p:CoverletOutputFormat=cobertura
+          /p:Exclude="[xunit.*]*;[*.Tests]*"
 
       - name: Generate HTML Coverage
         if: always()
         shell: pwsh
         run: |
           ./scripts/report_coverage.ps1 -ResultsDir "TestResults" -ReportDir "CoverageReport"
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.dotnet-version }}
+          path: |
+            **/TestResults/*.trx
+            **/TestResults/**/*.trx
+            **/TestResults/**/coverage.cobertura.xml
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Upload Coverage HTML
         if: always()
@@ -62,11 +77,38 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+  enforce-coverage:
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          # Use a fixed name (single matrix entry). If later we test multiple versions, switch to a matrix here too.
+          name: test-results-9.0.x
+          path: TestResults
+
+      - name: Check minimum coverage threshold
+        shell: pwsh
+        run: |
+          $cov = Get-ChildItem -Recurse -Filter coverage.cobertura.xml -Path TestResults | Select-Object -First 1
+          if (-not $cov) { Write-Error "coverage.cobertura.xml not found"; exit 1 }
+          [xml]$doc = Get-Content $cov.FullName
+          $lineRate = [double]$doc.coverage."line-rate"
+          $pct = [math]::Round($lineRate * 100, 2)
+          Write-Host "Line coverage: $pct%"
+          $min = 60
+          if ($pct -lt $min) {
+            Write-Error "Coverage $pct% is below threshold $min%"
+            exit 2
+          }
+          Write-Host "Coverage OK (>= $min%)"
+
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.dotnet-version }}
+          name: test-results-9.0.x
           path: |
             **/TestResults/*.trx
             **/TestResults/**/*.trx
