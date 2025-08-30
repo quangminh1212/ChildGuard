@@ -168,6 +168,13 @@ namespace ChildGuard.UI
             CreateSidebarPanel();
             CreateContentPanel();
 
+            // After contentPanel created, ensure default section selected if none
+            if (activeSidebarItem == null && sidebarItems != null && sidebarItems.Count > 0)
+            {
+                var defaultItem = sidebarItems.FirstOrDefault(i => i.Text == "Dashboard") ?? sidebarItems[0];
+                SetActiveSidebarItem(defaultItem);
+            }
+
 #if DEBUG
             if (object.Equals(this.Tag, "DEBUG_UI"))
             {
@@ -319,8 +326,11 @@ namespace ChildGuard.UI
             var reportsItem = CreateSidebarItem("Reports", "📊", 3);
             var settingsItem = CreateSidebarItem("Settings", "⚙", 4);
 
-            // Set dashboard as active by default
-            SetActiveSidebarItem(dashboardItem);
+            // Set dashboard as active by default (only if contentPanel already exists)
+            if (contentPanel != null)
+            {
+                SetActiveSidebarItem(dashboardItem);
+            }
 
             this.Controls.Add(sidebarPanel);
         }
