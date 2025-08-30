@@ -394,7 +394,11 @@ namespace ChildGuard.UI
             contentPanel.SuspendLayout();
             try
             {
-                // Clear current content
+                // Dispose old controls to avoid timers/events firing on disposed objects
+                foreach (Control c in contentPanel.Controls)
+                {
+                    try { c.Dispose(); } catch { }
+                }
                 contentPanel.Controls.Clear();
 
                 switch (section)

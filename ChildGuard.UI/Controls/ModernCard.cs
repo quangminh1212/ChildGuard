@@ -272,6 +272,13 @@ namespace ChildGuard.UI.Controls
 
         private void AnimationTimer_Tick(object? sender, EventArgs e)
         {
+            // Guard against ticks after disposal or before handle creation
+            if (IsDisposed || Disposing || !IsHandleCreated)
+            {
+                try { animationTimer?.Stop(); } catch { }
+                return;
+            }
+
             if (isHovered && animationStep < 10)
             {
                 animationStep++;
@@ -283,17 +290,22 @@ namespace ChildGuard.UI.Controls
 
             if (animationStep == 0 || animationStep == 10)
             {
-                animationTimer.Stop();
+                try { animationTimer.Stop(); } catch { }
             }
 
-            Invalidate();
+            try { Invalidate(); } catch { }
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                animationTimer?.Dispose();
+                if (animationTimer != null)
+                {
+                    try { animationTimer.Stop(); } catch { }
+                    try { animationTimer.Tick -= AnimationTimer_Tick; } catch { }
+                    try { animationTimer.Dispose(); } catch { }
+                }
             }
             base.Dispose(disposing);
         }
