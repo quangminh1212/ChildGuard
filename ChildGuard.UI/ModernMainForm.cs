@@ -535,7 +535,17 @@ namespace ChildGuard.UI
             var statusCard = new ModernHeaderCard { Title = "Protection Status", Subtitle = _running ? "Active" : "Inactive", Size = new Size(250, 100), Margin = new Padding(0, 0, 20, 10) };
             var threatsCard = new ModernHeaderCard { Title = "Threats Detected", Subtitle = _threatsDetected.ToString(), Size = new Size(250, 100), Margin = new Padding(0, 0, 20, 10) };
             var activityCard = new ModernHeaderCard { Title = "System Activity", Subtitle = "Normal", Size = new Size(250, 100), Margin = new Padding(0, 0, 20, 10) };
-            var dashboardCards = new List<Control> { statusCard, threatsCard, activityCard };
+
+            // Trend card with sparklines
+            var trendsCard = new ModernCard { Size = new Size(520, 140), Margin = new Padding(0, 0, 20, 10) };
+            var trendsHeader = new Label { Text = "Today Trends", Font = new Font("Segoe UI", 12, FontStyle.Bold), Location = new Point(16, 12), AutoSize = true, ForeColor = ColorScheme.Modern.TextPrimary };
+            var sparkKeys = new Controls.Sparkline { Name = "sparkKeys", Size = new Size(480, 40), Location = new Point(20, 46), LineColor = ColorScheme.Modern.Primary };
+            var sparkMouse = new Controls.Sparkline { Name = "sparkMouse", Size = new Size(480, 40), Location = new Point(20, 92), LineColor = ColorScheme.MaterialFluent.Success, FillColor = Color.FromArgb(40, ColorScheme.MaterialFluent.Success) };
+            trendsCard.Controls.Add(trendsHeader);
+            trendsCard.Controls.Add(sparkKeys);
+            trendsCard.Controls.Add(sparkMouse);
+
+            var dashboardCards = new List<Control> { statusCard, threatsCard, activityCard, trendsCard };
 
             // Actions
             var actionsLabel = new Label { Text = "Quick Actions", Font = new Font("Segoe UI", 16, FontStyle.Bold), ForeColor = ColorScheme.MaterialFluent.TextPrimary, AutoSize = true, Margin = new Padding(0, 8, 0, 4) };
@@ -894,6 +904,12 @@ namespace ChildGuard.UI
                         }
                     }
                 }
+
+                // Update sparklines on dashboard if present
+                var sparkKeys = contentPanel?.Controls.Find("sparkKeys", true).FirstOrDefault() as Controls.Sparkline;
+                var sparkMouse = contentPanel?.Controls.Find("sparkMouse", true).FirstOrDefault() as Controls.Sparkline;
+                if (sparkKeys != null && !sparkKeys.IsDisposed) sparkKeys.Push(_lastKeys % 100); // simple delta visualization
+                if (sparkMouse != null && !sparkMouse.IsDisposed) sparkMouse.Push(_lastMouse % 100);
             }
             catch { }
         }
