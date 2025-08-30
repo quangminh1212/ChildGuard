@@ -37,6 +37,10 @@ namespace ChildGuard.UI
 
         // Sidebar items
         private List<SidebarItem> sidebarItems = default!;
+        // Sidebar references for dynamic badges
+        private SidebarItem? reportsSidebarItem;
+        private SidebarItem? protectionSidebarItem;
+
         private SidebarItem? activeSidebarItem;
 
         // Protection
@@ -333,6 +337,7 @@ namespace ChildGuard.UI
             var monitoringItem = CreateSidebarItem("Monitoring", "👁", 1);
             var protectionItem = CreateSidebarItem("Protection", "🛡", 2);
             var reportsItem = CreateSidebarItem("Reports", "📊", 3);
+            reportsSidebarItem = reportsItem;
             var settingsItem = CreateSidebarItem("Settings", "⚙", 4);
 
             // Set dashboard as active by default (only if contentPanel already exists)
@@ -891,6 +896,13 @@ namespace ChildGuard.UI
             menu.Items.Add("Account");
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("Sign Out");
+            // Update Reports badge with recent threat counts (demo)
+            if (reportsSidebarItem != null)
+            {
+                reportsSidebarItem.BadgeCount = (int)Math.Min(99, Math.Max(0, _threatsDetected % 10));
+                reportsSidebarItem.Invalidate();
+            }
+
             menu.Show(profileButton, new Point(0, profileButton.Height));
         }
 
@@ -1050,6 +1062,8 @@ namespace ChildGuard.UI
                 UpdateAppearance();
             }
         }
+        public int BadgeCount { get; set; } = 0;
+
 
         public SidebarItem()
         {
@@ -1102,6 +1116,31 @@ namespace ChildGuard.UI
             {
                 g.DrawString(Text, font, brush, 55, 15);
             }
+
+            // Badge count (e.g., threats or new reports)
+            if (BadgeCount > 0)
+            {
+                string s = BadgeCount > 99 ? "99+" : BadgeCount.ToString();
+                using var bg = new SolidBrush(ColorScheme.MaterialFluent.Error);
+                using var fg = new SolidBrush(Color.White);
+                using var font2 = new Font("Segoe UI", 8, FontStyle.Bold);
+                var size2 = g.MeasureString(s, font2);
+                int w = (int)Math.Max(18, size2.Width + 8);
+                int h = 18;
+                int x = Width - w - 14;
+                int y = (Height - h) / 2;
+                var rect = new Rectangle(x, y, w, h);
+                using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+                {
+                    int r = h / 2;
+                    path.AddArc(rect.Left, rect.Top, h, h, 90, 180);
+                    path.AddArc(rect.Right - h, rect.Top, h, h, 270, 180);
+                    path.CloseFigure();
+                    g.FillPath(bg, path);
+                }
+                g.DrawString(s, font2, fg, x + (w - size2.Width) / 2, y + (h - size2.Height) / 2);
+            }
+
         }
 
         protected override void OnMouseEnter(EventArgs e)
