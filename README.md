@@ -1,5 +1,7 @@
 # ChildGuard
 
+[![.NET CI](https://github.com/quangminh1212/ChildGuard/actions/workflows/dotnet-ci.yml/badge.svg)](https://github.com/quangminh1212/ChildGuard/actions/workflows/dotnet-ci.yml)
+
 [![Release](https://github.com/quangminh1212/ChildGuard/actions/workflows/release.yml/badge.svg)](https://github.com/quangminh1212/ChildGuard/actions/workflows/release.yml)
 
 ChildGuard là ứng dụng Windows (.NET 8, WinForms) giúp giám sát hoạt động và áp dụng chính sách bảo vệ trẻ em trên máy tính. Hỗ trợ Khung giờ yên lặng (Quiet Hours), chặn/cho phép ứng dụng theo lịch, ghi log JSONL, báo cáo trực quan, tự khởi động linh hoạt, và giao diện hiện đại hỗ trợ song ngữ Anh/Việt với theme Sáng/Tối.

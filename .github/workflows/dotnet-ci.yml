@@ -47,6 +47,21 @@ jobs:
           --results-directory TestResults
           --collect "XPlat Code Coverage"
 
+      - name: Generate HTML Coverage
+        if: always()
+        shell: pwsh
+        run: |
+          ./scripts/report_coverage.ps1 -ResultsDir "TestResults" -ReportDir "CoverageReport"
+
+      - name: Upload Coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-${{ matrix.dotnet-version }}
+          path: CoverageReport
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
