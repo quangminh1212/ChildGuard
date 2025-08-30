@@ -112,6 +112,8 @@ namespace ChildGuard.UI.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            if (IsDisposed || Disposing) return;
+
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;

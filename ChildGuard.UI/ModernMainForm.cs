@@ -183,6 +183,7 @@ namespace ChildGuard.UI
             animationTimer = new System.Windows.Forms.Timer();
             animationTimer.Interval = 10;
             animationTimer.Tick += AnimationTimer_Tick;
+            animationTimer.Start();
         }
 
 #if DEBUG
@@ -836,40 +837,46 @@ namespace ChildGuard.UI
 
         private void UpdateTimer_Tick(object? sender, EventArgs e)
         {
-            // Update monitoring values
-            var keyLabel = contentPanel.Controls.Find("keyValueLabel", true).FirstOrDefault() as Label;
-            if (keyLabel != null)
-                keyLabel.Text = _lastKeys.ToString("N0");
-
-            var mouseLabel = contentPanel.Controls.Find("mouseValueLabel", true).FirstOrDefault() as Label;
-            if (mouseLabel != null)
-                mouseLabel.Text = _lastMouse.ToString("N0");
-
-            // Flush queued activity logs in batches to reduce UI thrash
-            if (activityListBox != null && !activityListBox.IsDisposed)
+            try
             {
-                int maxItems = 500;
-                if (!_logQueue.IsEmpty)
+                if (IsDisposed || Disposing) return;
+
+                // Update monitoring values (guard against disposed controls)
+                var keyLabel = contentPanel?.IsDisposed == false ? contentPanel.Controls.Find("keyValueLabel", true).FirstOrDefault() as Label : null;
+                if (keyLabel != null && !keyLabel.IsDisposed)
+                    keyLabel.Text = _lastKeys.ToString("N0");
+
+                var mouseLabel = contentPanel?.IsDisposed == false ? contentPanel.Controls.Find("mouseValueLabel", true).FirstOrDefault() as Label : null;
+                if (mouseLabel != null && !mouseLabel.IsDisposed)
+                    mouseLabel.Text = _lastMouse.ToString("N0");
+
+                // Flush queued activity logs in batches to reduce UI thrash
+                if (activityListBox != null && !activityListBox.IsDisposed)
                 {
-                    activityListBox.BeginUpdate();
-                    try
+                    int maxItems = 500;
+                    if (!_logQueue.IsEmpty)
                     {
-                        while (_logQueue.TryDequeue(out var line))
+                        activityListBox.BeginUpdate();
+                        try
                         {
-                            // Insert newest on top
-                            activityListBox.Items.Insert(0, line);
+                            while (_logQueue.TryDequeue(out var line))
+                            {
+                                // Insert newest on top
+                                activityListBox.Items.Insert(0, line);
+                            }
+                            while (activityListBox.Items.Count > maxItems)
+                            {
+                                activityListBox.Items.RemoveAt(activityListBox.Items.Count - 1);
+                            }
                         }
-                        while (activityListBox.Items.Count > maxItems)
+                        finally
                         {
-                            activityListBox.Items.RemoveAt(activityListBox.Items.Count - 1);
+                            activityListBox.EndUpdate();
                         }
-                    }
-                    finally
-                    {
-                        activityListBox.EndUpdate();
                     }
                 }
             }
+            catch { }
         }
 
         private void AnimationTimer_Tick(object? sender, EventArgs e)
