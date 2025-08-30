@@ -37,6 +37,12 @@ static class Program
             }
             else if (string.Equals(args[i], "--demo", StringComparison.OrdinalIgnoreCase))
             {
+                // Show CyberPunk Gaming Demo
+                Application.Run(new CyberPunkDashboard());
+                return;
+            }
+            else if (string.Equals(args[i], "--fluent-demo", StringComparison.OrdinalIgnoreCase))
+            {
                 // Show Fluent Design Demo
                 Application.Run(new FluentDemoForm());
                 return;
