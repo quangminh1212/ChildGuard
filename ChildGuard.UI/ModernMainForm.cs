@@ -364,6 +364,7 @@ namespace ChildGuard.UI
         public void NavigateTo(string section)
         {
             if (string.IsNullOrWhiteSpace(section)) return;
+            ChildGuard.Core.Diagnostics.SimpleLogger.Info("ModernMainForm.NavigateTo: {0}", section);
             var target = sidebarItems?.FirstOrDefault(i => string.Equals(i.Text, section, StringComparison.OrdinalIgnoreCase));
             if (target != null)
             {

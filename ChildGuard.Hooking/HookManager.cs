@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using ChildGuard.Core.Configuration;
 using ChildGuard.Core.Models;
+using ChildGuard.Core.Diagnostics;
 
 namespace ChildGuard.Hooking;
 
@@ -20,6 +21,7 @@ public sealed class HookManager : IDisposable
     {
         if (_running) return true;
         _running = true;
+        SimpleLogger.Info("HookManager.Start called; EnableInputMonitoring={0}", config.EnableInputMonitoring);
 
         _hookThread = new Thread(() => HookThreadProc(config))
         {
@@ -34,6 +36,7 @@ public sealed class HookManager : IDisposable
     public void Stop()
     {
         _running = false;
+        SimpleLogger.Info("HookManager.Stop called");
         if (_kbHook != IntPtr.Zero)
         {
             Native.UnhookWindowsHookEx(_kbHook);
@@ -56,6 +59,11 @@ public sealed class HookManager : IDisposable
         {
             _kbHook = Native.SetWindowsHookEx(Native.WH_KEYBOARD_LL, KeyboardProc, hInstance, 0);
             _mouseHook = Native.SetWindowsHookEx(Native.WH_MOUSE_LL, MouseProc, hInstance, 0);
+            SimpleLogger.Info("Low-level KB/Mouse hooks installed");
+        }
+        else
+        {
+            SimpleLogger.Info("Input monitoring disabled; hooks not installed");
         }
 
         // Simple message loop to keep hooks alive

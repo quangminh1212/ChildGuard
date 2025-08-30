@@ -45,7 +45,7 @@ public static class SimpleLogger
 
             var line = $"{now:O} [{level}] {Format(message, args)}";
             // Debug output for dev
-            Debug.WriteLine(line);
+            System.Diagnostics.Debug.WriteLine(line);
 
             // Console when available
             try { Console.WriteLine(line); } catch { }

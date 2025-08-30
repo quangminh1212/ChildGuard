@@ -138,6 +138,7 @@ namespace ChildGuard.UI
         {
             if (string.IsNullOrWhiteSpace(section)) return;
             section = section.Trim();
+            ChildGuard.Core.Diagnostics.SimpleLogger.Info("WindowsMainForm.NavigateTo: {0}", section);
             headerLabel.Text = section;
             Text = $"ChildGuard • {section}";
 
