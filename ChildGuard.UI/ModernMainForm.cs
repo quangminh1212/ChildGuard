@@ -53,6 +53,12 @@ namespace ChildGuard.UI
         private long _lastMouse;
         private long _threatsDetected;
 
+        // Reports state
+        private DataGridView? _reportsGrid;
+        private Label? _reportsSummary;
+        private bool _reportsLive = false;
+        private long _reportsLastSize = 0;
+
         // Timers
         private System.Windows.Forms.Timer updateTimer = default!;
         private System.Windows.Forms.Timer animationTimer = default!;
@@ -197,6 +203,9 @@ namespace ChildGuard.UI
             animationTimer.Interval = 10;
             animationTimer.Tick += AnimationTimer_Tick;
             animationTimer.Start();
+
+            // Lightweight live refresh for Reports
+            updateTimer.Tick += (s, e) => { if (_reportsLive) LoadReportsData(force: false); };
         }
 
 #if DEBUG
@@ -687,26 +696,98 @@ namespace ChildGuard.UI
             // Header
             var hdr = new Label { Text = "Reports & Analytics", Font = new Font("Segoe UI", 24, FontStyle.Bold), ForeColor = ColorScheme.Modern.TextPrimary, AutoSize = true, Margin = new Padding(0, 0, 0, 8) };
 
-            // Placeholder for charts/table filters
-            var filters = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
-            filters.Controls.Add(new Label { Text = "Date Range:", AutoSize = true, Margin = new Padding(0, 0, 8, 0) });
-            filters.Controls.Add(new ComboBox { Width = 160, DropDownStyle = ComboBoxStyle.DropDownList });
+            var actions = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, FlowDirection = FlowDirection.LeftToRight, WrapContents = true };
+            var btnRefresh = new MaterialButton { Text = "Refresh", Style = MaterialButton.ButtonStyle.Secondary, Size = new Size(120, 36), Margin = new Padding(0, 0, 8, 0) };
+            var btnLive = new MaterialButton { Text = "Live: Off", Style = MaterialButton.ButtonStyle.Text, Size = new Size(100, 36) };
+            actions.Controls.Add(btnRefresh);
+            actions.Controls.Add(btnLive);
 
-            var chartsHost = new Panel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Dock = DockStyle.Top };
+            // Summary card
+            var summaryCard = new ModernCard { Size = new Size(520, 100), Margin = new Padding(0, 0, 20, 10) };
+            _reportsSummary = new Label { Text = "Today: 0 events", AutoSize = true, Location = new Point(16, 16), ForeColor = ColorScheme.Modern.TextPrimary };
+            summaryCard.Controls.Add(_reportsSummary);
 
-            // Vertical TLP
+            // Grid card
+            var gridCard = new ModernCard { Dock = DockStyle.Top, Padding = new Padding(8), AutoSize = true };
+            _reportsGrid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill, Height = 380 };
+            gridCard.Controls.Add(_reportsGrid);
+
+            // Layout
             var tlp = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, Margin = new Padding(0) };
             tlp.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // header
-            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // filters
-            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // charts
-
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // actions
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // summary
+            tlp.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // grid
             tlp.Controls.Add(hdr, 0, 0);
-            tlp.Controls.Add(filters, 0, 1);
-            tlp.Controls.Add(chartsHost, 0, 2);
+            tlp.Controls.Add(actions, 0, 1);
+            tlp.Controls.Add(summaryCard, 0, 2);
+            tlp.Controls.Add(gridCard, 0, 3);
 
             reportsPanel.Controls.Add(tlp);
             contentPanel.Controls.Add(reportsPanel);
+
+            // Wire actions
+            btnRefresh.Click += (s, e) => LoadReportsData(force: true);
+            btnLive.Click += (s, e) => { _reportsLive = !_reportsLive; btnLive.Text = _reportsLive ? "Live: On" : "Live: Off"; };
+
+            // Initial load
+            LoadReportsData(force: true);
+        }
+
+        private void LoadReportsData(bool force)
+        {
+            try
+            {
+                if (_reportsGrid == null || _reportsSummary == null) return;
+                var cfg = _config;
+                // Pick today's file
+                var dir = System.IO.Path.Combine(cfg.DataDirectory ?? ChildGuard.Core.Configuration.ConfigManager.GetLocalAppDataDir(), "logs");
+                var file = System.IO.Path.Combine(dir, $"events-{DateTime.UtcNow:yyyyMMdd}.jsonl");
+                long size = 0;
+                try { size = new System.IO.FileInfo(file).Length; } catch { }
+                if (!force && !_reportsLive && size == _reportsLastSize) return;
+                _reportsLastSize = size;
+
+                var rows = new List<(DateTime ts, string type, string data)>();
+                if (System.IO.File.Exists(file))
+                {
+                    using var fs = new System.IO.FileStream(file, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+                    using var sr = new System.IO.StreamReader(fs);
+                    string? line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        var t = FastExtract(line, "\"timestamp\":\"");
+                        var type = FastExtract(line, "\"type\":\"");
+                        var data = FastExtract(line, "\"data\":");
+                        if (DateTimeOffset.TryParse(t, out var dto)) rows.Add((dto.ToLocalTime().DateTime, type, data));
+                    }
+                }
+
+                // Bind
+                _reportsGrid.Columns.Clear();
+                _reportsGrid.Rows.Clear();
+                _reportsGrid.Columns.Add("ts", "Time");
+                _reportsGrid.Columns.Add("type", "Type");
+                _reportsGrid.Columns.Add("data", "Data");
+                foreach (var r in rows.TakeLast(1000)) _reportsGrid.Rows.Add(r.ts.ToString("HH:mm:ss"), r.type, r.data);
+
+                // Summary
+                var total = rows.Count;
+                var counts = rows.GroupBy(r => r.type).ToDictionary(g => g.Key, g => g.Count());
+                var parts = counts.OrderBy(kv => kv.Key).Select(kv => $"{kv.Key}:{kv.Value}");
+                _reportsSummary.Text = $"Today: {total} • {string.Join(" | ", parts)}";
+            }
+            catch { }
+        }
+
+        private static string FastExtract(string s, string key)
+        {
+            int i = s.IndexOf(key, StringComparison.Ordinal);
+            if (i < 0) return string.Empty;
+            i += key.Length;
+            if (key.EndsWith("\\\"")) { int j = s.IndexOf('"', i); return j > i ? s.Substring(i, j - i) : string.Empty; }
+            else { int j = s.IndexOf(',', i); if (j < 0) j = s.IndexOf('}', i); return j > i ? s.Substring(i, j - i) : string.Empty; }
         }
 
         private void LoadSettingsContent()
