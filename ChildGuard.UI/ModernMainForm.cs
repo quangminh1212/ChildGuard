@@ -392,6 +392,11 @@ namespace ChildGuard.UI
 
         private void LoadContent(string section)
         {
+            // Temporarily stop periodic UI updates while switching content to avoid
+            // touching disposed controls mid-transition
+            bool wasUpdating = false;
+            try { wasUpdating = updateTimer?.Enabled ?? false; updateTimer?.Stop(); } catch { }
+
             contentPanel.SuspendLayout();
             try
             {
@@ -401,6 +406,7 @@ namespace ChildGuard.UI
                     try { c.Dispose(); } catch { }
                 }
                 contentPanel.Controls.Clear();
+                activityListBox = null; // drop reference to old listbox if any
 
                 switch (section)
                 {
@@ -424,6 +430,8 @@ namespace ChildGuard.UI
             finally
             {
                 contentPanel.ResumeLayout(true);
+                // Resume timer if it was running
+                try { if (wasUpdating) updateTimer?.Start(); } catch { }
             }
 
             // Also update header title if sidebar not used (external navigate)

@@ -84,7 +84,7 @@ namespace ChildGuard.UI.Controls
 
             BackColor = ColorScheme.Modern.Surface;
             Size = new Size(300, 200);
-            
+
             UpdatePadding();
 
             // Animation timer
@@ -201,7 +201,7 @@ namespace ChildGuard.UI.Controls
         {
             // Elevation effect on hover
             int elevationAlpha = (int)(animationStep * 2.5f);
-            
+
             using (SolidBrush hoverBrush = new SolidBrush(Color.FromArgb(elevationAlpha, ColorScheme.Modern.Primary)))
             {
                 g.FillPath(hoverBrush, path);
@@ -210,7 +210,7 @@ namespace ChildGuard.UI.Controls
             // Glow effect
             Rectangle glowRect = GetCardRectangle();
             glowRect.Inflate(2, 2);
-            
+
             using (GraphicsPath glowPath = CreateRoundedRectangle(glowRect, cornerRadius))
             using (PathGradientBrush glowBrush = new PathGradientBrush(glowPath))
             {
@@ -251,24 +251,26 @@ namespace ChildGuard.UI.Controls
 
         protected override void OnMouseEnter(EventArgs e)
         {
+            if (IsDisposed || Disposing) return;
             base.OnMouseEnter(e);
             if (EnableHoverEffect)
             {
                 isHovered = true;
                 animationStep = 0;
-                animationTimer.Start();
+                try { animationTimer?.Start(); } catch { }
             }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
+            if (IsDisposed || Disposing) return;
             base.OnMouseLeave(e);
             if (EnableHoverEffect)
             {
                 isHovered = false;
-                animationTimer.Stop();
+                try { animationTimer?.Stop(); } catch { }
                 animationStep = 0;
-                Invalidate();
+                try { Invalidate(); } catch { }
             }
         }
 
@@ -294,8 +296,23 @@ namespace ChildGuard.UI.Controls
             {
                 try { animationTimer.Stop(); } catch { }
             }
-
             try { Invalidate(); } catch { }
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            try { animationTimer?.Stop(); } catch { }
+            base.OnHandleDestroyed(e);
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            try
+            {
+                if (!Visible) animationTimer?.Stop();
+            }
+            catch { }
         }
 
         protected override void Dispose(bool disposing)
