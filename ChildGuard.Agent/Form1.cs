@@ -5,6 +5,7 @@ using System.Text;
 using System.Globalization;
 using ChildGuard.Core.Abstractions;
 using ChildGuard.Core.Configuration;
+using ChildGuard.Core.Diagnostics;
 using ChildGuard.Core.Models;
 using ChildGuard.Core.Sinks;
 using ChildGuard.Hooking;
@@ -35,8 +36,10 @@ public partial class Form1 : Form
         // Ẩn cửa sổ, chỉ chạy dưới khay hệ thống
         this.Hide();
         this.ShowInTaskbar = false;
+        SimpleLogger.Info("Agent UI loaded; initializing config and timers");
         LoadOrInitConfig();
         activeWindowTimer.Start();
+        SimpleLogger.Info("Active window timer started");
     }
 
     private AppConfig _config = new();
@@ -47,11 +50,17 @@ public partial class Form1 : Form
     private void LoadOrInitConfig()
     {
         _config = ConfigManager.Load(out _configPath);
-        // Ensure DataDirectory aligns with chosen config root if empty
         if (string.IsNullOrWhiteSpace(_config.DataDirectory))
         {
             _config.DataDirectory = Path.GetDirectoryName(_configPath) ?? ConfigManager.GetLocalAppDataDir();
         }
+        try
+        {
+            var baseDir = Path.Combine(_config.DataDirectory, "logs");
+            SimpleLogger.SetBaseDirectory(baseDir);
+            SimpleLogger.Info("Config loaded from {0}; DataDirectory={1}", _configPath, _config.DataDirectory);
+        }
+        catch { }
         EnsureConfigWatcher();
     }
 
@@ -98,21 +107,27 @@ public partial class Form1 : Form
             }
             // Re-arm watcher if path changed
             EnsureConfigWatcher();
+            SimpleLogger.Info("Config reloaded from {0}; EnableInputMonitoring={1}", _configPath, _config.EnableInputMonitoring);
 
             // Apply runtime changes for input monitoring
             if (old.EnableInputMonitoring != _config.EnableInputMonitoring)
             {
                 if (_config.EnableInputMonitoring)
                 {
+                    SimpleLogger.Info("Input monitoring ENABLED (runtime)");
                     _hookManager.Start(_config);
                 }
                 else
                 {
+                    SimpleLogger.Info("Input monitoring DISABLED (runtime)");
                     _hookManager.Stop();
                 }
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            SimpleLogger.Error(ex, "Error handling config change");
+        }
     }
 
     private string GetLogPath()
@@ -161,17 +176,20 @@ public partial class Form1 : Form
     private void StartMonitoring()
     {
         if (_cts != null) return;
+        SimpleLogger.Info("StartMonitoring called");
         _cts = new CancellationTokenSource();
         _sink = new JsonlFileEventSink(GetLogPath());
         // Refresh config on start (in case changed)
         LoadOrInitConfig();
         // Clean old logs according to retention policy
-        try { CleanOldLogs(); } catch { }
+        try { CleanOldLogs(); SimpleLogger.Debug("Old logs cleaned"); } catch (Exception ex) { SimpleLogger.Error(ex, "CleanOldLogs failed"); }
         _writerTask = Task.Run(() => WriterLoopAsync(_cts.Token));
+        SimpleLogger.Debug("Writer loop started");
 
         // Hooking
         _hookManager.OnEvent += evt => _queue.Writer.TryWrite(evt);
         _hookManager.Start(_config);
+        SimpleLogger.Info("Hook manager started");
 
         // Process WMI watchers
         try
@@ -185,7 +203,7 @@ public partial class Form1 : Form
                     var pid = Convert.ToInt32(e.NewEvent.Properties["ProcessID"].Value);
                     _queue.Writer.TryWrite(new ActivityEvent(DateTimeOffset.Now, ActivityEventType.ProcessStart, new { ProcessName = name, ProcessId = pid }));
                 }
-                catch { }
+                catch (Exception ex) { SimpleLogger.Error(ex, "ProcessStartTrace handler failed"); }
             };
             _procStart.Start();
 
@@ -198,15 +216,17 @@ public partial class Form1 : Form
                     var pid = Convert.ToInt32(e.NewEvent.Properties["ProcessID"].Value);
                     _queue.Writer.TryWrite(new ActivityEvent(DateTimeOffset.Now, ActivityEventType.ProcessStop, new { ProcessName = name, ProcessId = pid }));
                 }
-                catch { }
+                catch (Exception ex) { SimpleLogger.Error(ex, "ProcessStopTrace handler failed"); }
             };
             _procStop.Start();
+            SimpleLogger.Debug("WMI watchers started");
         }
-        catch { /* WMI có thể bị hạn chế trong một số môi trường */ }
+        catch (Exception ex) { SimpleLogger.Error(ex, "Failed to start WMI watchers"); }
 
         notifyIcon.BalloonTipTitle = "ChildGuard Agent";
         notifyIcon.BalloonTipText = "Monitoring started";
         notifyIcon.ShowBalloonTip(2000);
+        SimpleLogger.Info("Monitoring started");
     }
 
     private async Task WriterLoopAsync(CancellationToken ct)
@@ -225,10 +245,11 @@ public partial class Form1 : Form
     private async Task StopMonitoringAsync()
     {
         if (_cts == null) return;
+        SimpleLogger.Info("StopMonitoring called");
         _hookManager.Stop();
 
-        try { _procStart?.Stop(); } catch { }
-        try { _procStop?.Stop(); } catch { }
+        try { _procStart?.Stop(); } catch (Exception ex) { SimpleLogger.Error(ex, "Stop _procStart failed"); }
+        try { _procStop?.Stop(); } catch (Exception ex) { SimpleLogger.Error(ex, "Stop _procStop failed"); }
 
         // cancel pending closes
         foreach (var kv in _pendingClose.ToArray())
@@ -238,8 +259,8 @@ public partial class Form1 : Form
         _pendingClose.Clear();
 
         _cts.Cancel();
-        try { if (_writerTask != null) await _writerTask; } catch { }
-        try { if (_sink != null) await _sink.DisposeAsync(); } catch { }
+        try { if (_writerTask != null) await _writerTask; } catch (Exception ex) { SimpleLogger.Error(ex, "WriterTask await failed"); }
+        try { if (_sink != null) await _sink.DisposeAsync(); } catch (Exception ex) { SimpleLogger.Error(ex, "Sink dispose failed"); }
         _sink = null;
         _writerTask = null;
         _cts.Dispose();
@@ -248,6 +269,7 @@ public partial class Form1 : Form
         notifyIcon.BalloonTipTitle = "ChildGuard Agent";
         notifyIcon.BalloonTipText = "Monitoring stopped";
         notifyIcon.ShowBalloonTip(2000);
+        SimpleLogger.Info("Monitoring stopped");
     }
 
     private void mnuStart_Click(object? sender, EventArgs e) => StartMonitoring();

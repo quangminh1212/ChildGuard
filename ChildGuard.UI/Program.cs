@@ -1,3 +1,5 @@
+using ChildGuard.Core.Diagnostics;
+
 namespace ChildGuard.UI;
 
 static class Program
@@ -9,6 +11,7 @@ static class Program
     static void Main()
     {
         ApplicationConfiguration.Initialize();
+        SimpleLogger.Info("UI starting with args: {0}", string.Join(" ", Environment.GetCommandLineArgs().Skip(1)));
         string ui = "windows"; string? openSection = null; bool debugUi = false;
         var args = Environment.GetCommandLineArgs();
         for (int i = 0; i < args.Length; i++)
@@ -60,37 +63,48 @@ static class Program
                 return;
             }
         }
-        if (ui == "classic")
+        try
         {
-            var f = new Form1();
-            Application.Run(f);
-        }
-        else if (ui == "modern")
-        {
-            var f = new ModernMainForm();
-            f.Tag = debugUi ? "DEBUG_UI" : null;
-            f.Shown += (s, e) =>
+            if (ui == "classic")
             {
-                try
-                {
-                    if (!string.IsNullOrWhiteSpace(openSection)) f.NavigateTo(openSection);
-                }
-                catch { }
-            };
-            Application.Run(f);
-        }
-        else // windows (default)
-        {
-            var f = new WindowsMainForm();
-            f.Shown += (s, e) =>
+                SimpleLogger.Info("Launching classic UI");
+                var f = new Form1();
+                Application.Run(f);
+            }
+            else if (ui == "modern")
             {
-                try
+                SimpleLogger.Info("Launching modern UI; openSection={0}", openSection ?? "<none>");
+                var f = new ModernMainForm();
+                f.Tag = debugUi ? "DEBUG_UI" : null;
+                f.Shown += (s, e) =>
                 {
-                    if (!string.IsNullOrWhiteSpace(openSection)) f.NavigateTo(openSection);
-                }
-                catch { }
-            };
-            Application.Run(f);
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(openSection)) f.NavigateTo(openSection);
+                    }
+                    catch (Exception ex) { SimpleLogger.Error(ex, "NavigateTo failed"); }
+                };
+                Application.Run(f);
+            }
+            else // windows (default)
+            {
+                SimpleLogger.Info("Launching windows UI; openSection={0}", openSection ?? "<none>");
+                var f = new WindowsMainForm();
+                f.Shown += (s, e) =>
+                {
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(openSection)) f.NavigateTo(openSection);
+                    }
+                    catch (Exception ex) { SimpleLogger.Error(ex, "NavigateTo failed"); }
+                };
+                Application.Run(f);
+            }
+        }
+        catch (Exception ex)
+        {
+            SimpleLogger.Error(ex, "Unhandled exception in UI");
+            throw;
         }
     }
 }
