@@ -11,7 +11,10 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock x:Name="TitleText" Text="ChildGuard" FontWeight="Bold" Foreground="White"/>
+            <StackPanel Orientation="Horizontal">
+                <Ellipse Width="10" Height="10" Fill="#FFC29400" Margin="0,2,8,0" x:Name="IconDot"/>
+                <TextBlock x:Name="TitleText" Text="ChildGuard" FontWeight="Bold" Foreground="White"/>
+            </StackPanel>
             <StackPanel Grid.Row="1" Margin="0,8,0,8">
                 <TextBlock x:Name="MessageText" TextWrapping="Wrap" Foreground="#FFDADADA"/>
                 <TextBlock x:Name="DetailsText" TextWrapping="Wrap" Foreground="#FF9FA0A0" Margin="0,6,0,0"/>

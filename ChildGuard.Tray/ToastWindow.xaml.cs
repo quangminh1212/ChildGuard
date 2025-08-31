@@ -14,6 +14,17 @@ public partial class ToastWindow : Window
 {
     private readonly DispatcherTimer _timer;
     private DateTime _end;
+    // Icon color tweak per severity
+    private void SetIcon(string? severity)
+    {
+        var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFC29400"); // default (warning-like)
+        if (string.Equals(severity, "error", StringComparison.OrdinalIgnoreCase))
+            color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFD9534F");
+        else if (string.Equals(severity, "info", StringComparison.OrdinalIgnoreCase))
+            color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FF5BC0DE");
+        IconDot.Fill = new SolidColorBrush(color);
+    }
+
 
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
@@ -28,19 +39,35 @@ public partial class ToastWindow : Window
         CloseBtn.Click += (_, __) => Close();
     }
 
-    public void ShowToast(string message, int countdownSeconds, DateTime? deadlineUtc = null, string? url = null, string? process = null, string? rule = null, string? severity = null, string? primaryAction = null, string? primaryActionLabel = null)
+    public void ShowToast(string title, string message, int countdownSeconds, DateTime? deadlineUtc = null, string? url = null, string? process = null, string? rule = null, string? severity = null, string? primaryAction = null, string? primaryActionLabel = null)
     {
-        TitleText.Text = "ChildGuard";
+        TitleText.Text = string.IsNullOrWhiteSpace(title) ? "ChildGuard" : title;
         _end = deadlineUtc ?? DateTime.UtcNow.AddSeconds(countdownSeconds);
         var remain = Math.Max(0, (int)(_end - DateTime.UtcNow).TotalSeconds);
         MessageText.Text = message + $"\nClosing in {remain}s...";
         DetailsText.Text = BuildDetails(url, process, rule);
         ApplySeverity(severity);
+        SetIcon(severity);
         ConfigurePrimaryAction(primaryAction, primaryActionLabel);
+        ConfigureUrlActions(url);
         _timer.Start();
         PositionBottomRight();
         Show();
         Activate();
+    }
+
+    private void ConfigureUrlActions(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return;
+        var copyBtn = new System.Windows.Controls.Button { Content = "Copy URL", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
+        copyBtn.Click += (_, __) => {
+            try { System.Windows.Clipboard.SetText(url); } catch { }
+        };
+        if (CloseBtn.Parent is System.Windows.Controls.Panel p)
+        {
+            var idx = Math.Max(0, p.Children.IndexOf(CloseBtn));
+            p.Children.Insert(idx, copyBtn);
+        }
     }
 
     private void ApplySeverity(string? severity)
