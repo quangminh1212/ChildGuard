@@ -81,12 +81,10 @@ public class Worker : BackgroundService
         };
         _analyzer.OnUrlDetected += url =>
         {
-        string? lastUrl = null;
-
             if (_urlSafety.IsUnsafe(url, out var rule))
             {
                 _jsonl.Log(new { type = "url_alert", level = "warning", ts = DateTime.UtcNow, url, rule });
-                // future: emit IPC to Tray to show toast with URL details
+                // IPC to Tray already handled above
             }
         };
 
@@ -185,7 +183,7 @@ public class Worker : BackgroundService
             {
                 if (!_policy.CanWarn()) return;
                 _jsonl.Log(new { type = "enforce_warn", ts = DateTime.UtcNow, processName, pid, countdown = cfg.EnforcementCountdownSeconds });
-                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Enforcement countdown", $"{processName} will be closed", cfg.EnforcementCountdownSeconds, Process: processName))); } catch { }
+                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Enforcement countdown", $"{processName} will be closed", cfg.EnforcementCountdownSeconds, Process: processName, DeadlineUtc: DateTime.UtcNow.AddSeconds(cfg.EnforcementCountdownSeconds)))); } catch { }
                 _policy.MarkWarned();
                 var cts = new CancellationTokenSource();
                 _enforcementCts[pid] = cts;

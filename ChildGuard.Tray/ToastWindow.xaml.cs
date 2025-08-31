@@ -26,11 +26,12 @@ public partial class ToastWindow : Window
         CloseBtn.Click += (_, __) => Close();
     }
 
-    public void ShowToast(string message, int countdownSeconds)
+    public void ShowToast(string message, int countdownSeconds, DateTime? deadlineUtc = null)
     {
         TitleText.Text = "ChildGuard";
-        _end = DateTime.UtcNow.AddSeconds(countdownSeconds);
-        MessageText.Text = message + $"\nClosing in {countdownSeconds}s...";
+        _end = deadlineUtc ?? DateTime.UtcNow.AddSeconds(countdownSeconds);
+        var remain = Math.Max(0, (int)(_end - DateTime.UtcNow).TotalSeconds);
+        MessageText.Text = message + $"\nClosing in {remain}s...";
         _timer.Start();
         PositionBottomRight();
         Show();
