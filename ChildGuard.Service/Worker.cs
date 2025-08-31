@@ -45,7 +45,14 @@ public class Worker : BackgroundService
         };
         _hooks.OnMouse += e => _jsonl.Log(new { type = "mouse", ts = DateTime.UtcNow, e.Button, e.X, e.Y, e.Action });
         _active.OnActiveWindow += e => _jsonl.Log(new { type = "activeWindow", ts = DateTime.UtcNow, e.ProcessName, e.WindowTitle });
-        _proc.OnProcess += e => _jsonl.Log(new { type = "process", ts = DateTime.UtcNow, e.ProcessName, e.Pid, e.Action });
+        _proc.OnProcess += e =>
+        {
+            _jsonl.Log(new { type = "process", ts = DateTime.UtcNow, e.ProcessName, e.Pid, e.Action });
+            if (e.Action == "start")
+            {
+                TryEnforceProcess(e.ProcessName, e.Pid);
+            }
+        };
         _usb.OnUsb += e => _jsonl.Log(new { type = "usb", ts = DateTime.UtcNow, e.DriveLetter, e.Action });
 
         _analyzer.OnBadWord += word =>
@@ -90,6 +97,50 @@ public class Worker : BackgroundService
                 _audio = new AudioMonitor(c.Protection.FfmpegPath!);
                 _audio.OnLevel += lvl => _jsonl.Log(new { type = "audio", ts = DateTime.UtcNow, level = lvl });
                 _audio.Start();
+    private void TryEnforceProcess(string processName, int pid)
+    {
+        if (_policy.ShouldBlockProcess(processName))
+        {
+            var cfg = _config.Current.Policy;
+            if (cfg.SoftEnforce)
+            {
+                if (!_policy.CanWarn()) return;
+                _jsonl.Log(new { type = "enforce_warn", ts = DateTime.UtcNow, processName, pid, countdown = cfg.EnforcementCountdownSeconds });
+                _policy.MarkWarned();
+                var cts = new CancellationTokenSource();
+                _enforcementCts[pid] = cts;
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(cfg.EnforcementCountdownSeconds), cts.Token);
+                        SafeKillProcess(pid, processName);
+                    }
+                    catch (TaskCanceledException) { }
+                    finally { _enforcementCts.Remove(pid); }
+                });
+            }
+            else
+            {
+                SafeKillProcess(pid, processName);
+            }
+        }
+    }
+
+    private void SafeKillProcess(int pid, string processName)
+    {
+        try
+        {
+            var p = System.Diagnostics.Process.GetProcessById(pid);
+            p.Kill();
+            _jsonl.Log(new { type = "enforce_kill", ts = DateTime.UtcNow, processName, pid });
+        }
+        catch (Exception ex)
+        {
+            _jsonl.Log(new { type = "enforce_error", ts = DateTime.UtcNow, processName, pid, error = ex.Message });
+        }
+    }
+
             }
             else
             {
@@ -99,6 +150,16 @@ public class Worker : BackgroundService
         };
 
         _logger.LogInformation("ChildGuard service started");
+
+        // cancel pending enforcement when process stops
+        _proc.OnProcess += e =>
+        {
+            if (e.Action == "stop" && _enforcementCts.TryGetValue(e.Pid, out var cts))
+            {
+                cts.Cancel();
+            }
+        };
+
         try
         {
             while (!stoppingToken.IsCancellationRequested)
