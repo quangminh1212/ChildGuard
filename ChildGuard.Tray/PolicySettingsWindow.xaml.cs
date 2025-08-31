@@ -4,17 +4,20 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using ChildGuard.Core;
 using ChildGuard.Core.Config;
+using System.Windows.Threading;
+
 
 namespace ChildGuard.Tray;
 
 public partial class PolicySettingsWindow : Window
 {
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
-using System.Windows.Threading;
+
 
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     private readonly ConfigManager _cfg;
+    private readonly DispatcherTimer _autoTimer = new DispatcherTimer();
 
     public PolicySettingsWindow(ConfigManager cfg)
     {
@@ -22,6 +25,7 @@ using System.Windows.Threading;
         _cfg = cfg;
         LoadData();
         WireEvents();
+        InitAutoRefresh();
     }
 
     private static bool IsValidTime(string s)
@@ -39,6 +43,21 @@ using System.Windows.Threading;
         LbBlocked.ItemsSource = c.Policy.BlockedProcesses.ToList();
         LbAllowedQH.ItemsSource = c.Policy.AllowedProcessesDuringQuietHours.ToList();
         ReloadRunning();
+    }
+
+    private void InitAutoRefresh()
+    {
+        _autoTimer.Interval = TimeSpan.FromSeconds(10);
+        _autoTimer.Tick += (_, __) => { if (CbAutoRefresh.IsChecked == true) ReloadRunning(); };
+        _autoTimer.Start();
+        CbAutoInterval.SelectedIndex = 1;
+        CbAutoInterval.SelectionChanged += (_, __) =>
+        {
+            if (CbAutoInterval.SelectedItem is System.Windows.Controls.ComboBoxItem ci && int.TryParse(ci.Content.ToString(), out var sec) && sec > 0)
+            {
+                _autoTimer.Interval = TimeSpan.FromSeconds(sec);
+            }
+        };
     }
 
     private void WireEvents()
@@ -80,17 +99,18 @@ using System.Windows.Threading;
 
         BtnRunRefresh.Click += (_, __) => ReloadRunning();
         BtnRunAddBlocked.Click += (_, __) => { AddSelectedRunning(true); };
+
         BtnRunAddAllowed.Click += (_, __) => { AddSelectedRunning(false); };
         BtnQuietClose.Click += (_, __) => Close();
 
         BtnBlockedAdd.Click += (_, __) => { AddToList(TbBlocked.Text, true); };
-        BtnBlockedRemove.Click += (_, __) => { RemoveSelected(LbBlocked, true); };
+        BtnBlockedRemove.Click += (_, __) => { if (LbBlocked.SelectedItem is string n && Confirm($"Remove '{n}' from Blocked?")) RemoveSelected(LbBlocked, true); };
         BtnBlockedAddActive.Click += (_, __) => { AddActive(true); };
         BtnBlockedImport.Click += (_, __) => ImportList(true);
         BtnBlockedExport.Click += (_, __) => ExportList(true);
 
         BtnAllowedAdd.Click += (_, __) => { AddToList(TbAllowedQH.Text, false); };
-        BtnAllowedRemove.Click += (_, __) => { RemoveSelected(LbAllowedQH, false); };
+        BtnAllowedRemove.Click += (_, __) => { if (LbAllowedQH.SelectedItem is string n && Confirm($"Remove '{n}' from Allowed (Quiet Hours)?")) RemoveSelected(LbAllowedQH, false); };
         BtnAllowedAddActive.Click += (_, __) => { AddActive(false); };
         BtnAllowedImport.Click += (_, __) => ImportList(false);
         BtnAllowedExport.Click += (_, __) => ExportList(false);
@@ -100,6 +120,7 @@ using System.Windows.Threading;
     {
         var name = text?.Trim();
         if (string.IsNullOrWhiteSpace(name)) return;
+
         var c = _cfg.Current;
         var list = blocked ? c.Policy.BlockedProcesses : c.Policy.AllowedProcessesDuringQuietHours;
         if (!list.Contains(name, StringComparer.OrdinalIgnoreCase))
@@ -123,6 +144,12 @@ using System.Windows.Threading;
                 _cfg.Save(c);
                 ReloadLists();
             }
+    private bool Confirm(string msg)
+    {
+        var r = System.Windows.MessageBox.Show(msg, "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        return r == MessageBoxResult.Yes;
+    }
+
         }
     }
 
