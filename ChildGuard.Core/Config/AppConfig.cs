@@ -40,6 +40,7 @@ public class PolicyConfig
     public List<PolicyRule> PolicyRules { get; set; } = new();
     public bool SoftEnforce { get; set; } = true;
     public int WarningCooldownSeconds { get; set; } = 60;
+    public int EnforcementCountdownSeconds { get; set; } = 10;
 }
 
 public class QuietWindow
