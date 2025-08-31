@@ -18,6 +18,8 @@ public class Worker : BackgroundService
     private readonly PolicyEngine _policy;
     private readonly EnhancedHookAnalyzer _analyzer;
     private readonly UrlSafetyChecker _urlSafety;
+    private AudioMonitor? _audio;
+    private readonly Dictionary<int, CancellationTokenSource> _enforcementCts = new();
 
     public Worker(ILogger<Worker> logger, ConfigManager config, JsonlLogger jsonl, HookManager hooks, ActiveWindowTracker active, ProcessWatcher proc, UsbWatcher usb, PolicyEngine policy, EnhancedHookAnalyzer analyzer, UrlSafetyChecker urlSafety)
     {
@@ -68,14 +70,32 @@ public class Worker : BackgroundService
         if (cfg.Monitoring.EnableActiveWindow) _active.Start();
         if (cfg.Monitoring.EnableProcessWatcher) _proc.Start();
         if (cfg.Monitoring.EnableUsbWatcher) _usb.Start();
+        if (cfg.Protection.EnableAudioMonitor && !string.IsNullOrWhiteSpace(cfg.Protection.FfmpegPath))
+        {
+            _audio = new AudioMonitor(cfg.Protection.FfmpegPath!);
+            _audio.OnLevel += lvl => _jsonl.Log(new { type = "audio", ts = DateTime.UtcNow, level = lvl });
+            _audio.Start();
+        }
 
         _config.OnConfigChanged += c =>
         {
             _hooks.Stop();
             _hooks.Start(c.Monitoring.EnableKeyboardHook, c.Monitoring.EnableMouseHook);
-            if (c.Monitoring.EnableActiveWindow && _active != null) _active.Start(); else _active.Stop();
+            if (c.Monitoring.EnableActiveWindow) _active.Start(); else _active.Stop();
             if (c.Monitoring.EnableProcessWatcher) _proc.Start(); else _proc.Stop();
             if (c.Monitoring.EnableUsbWatcher) _usb.Start(); else _usb.Stop();
+            if (c.Protection.EnableAudioMonitor && !string.IsNullOrWhiteSpace(c.Protection.FfmpegPath))
+            {
+                _audio?.Stop();
+                _audio = new AudioMonitor(c.Protection.FfmpegPath!);
+                _audio.OnLevel += lvl => _jsonl.Log(new { type = "audio", ts = DateTime.UtcNow, level = lvl });
+                _audio.Start();
+            }
+            else
+            {
+                _audio?.Stop();
+                _audio = null;
+            }
         };
 
         _logger.LogInformation("ChildGuard service started");
