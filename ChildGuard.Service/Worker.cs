@@ -185,6 +185,7 @@ public class Worker : BackgroundService
             {
                 if (!_policy.CanWarn()) return;
                 _jsonl.Log(new { type = "enforce_warn", ts = DateTime.UtcNow, processName, pid, countdown = cfg.EnforcementCountdownSeconds });
+                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Enforcement countdown", $"{processName} will be closed", cfg.EnforcementCountdownSeconds, Process: processName))); } catch { }
                 _policy.MarkWarned();
                 var cts = new CancellationTokenSource();
                 _enforcementCts[pid] = cts;
