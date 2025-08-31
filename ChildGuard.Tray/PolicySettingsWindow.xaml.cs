@@ -6,6 +6,8 @@ using ChildGuard.Core;
 using ChildGuard.Core.Config;
 using System.Windows.Threading;
 
+using System.Collections.Generic;
+
 
 namespace ChildGuard.Tray;
 
@@ -177,6 +179,15 @@ public partial class PolicySettingsWindow : Window
                 .Select(p => p.ProcessName)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(n => n)
+    private sealed class RunningProc
+    {
+        public string Name { get; }
+        public bool IsBlocked { get; }
+        public bool IsAllowed { get; }
+        public string Display => IsBlocked ? $"{Name} (blocked)" : (IsAllowed ? $"{Name} (allowed)" : Name);
+        public RunningProc(string name, bool blocked, bool allowed) { Name = name; IsBlocked = blocked; IsAllowed = allowed; }
+    }
+
                 .ToList();
             LbRunning.ItemsSource = null;
             LbRunning.ItemsSource = procs;

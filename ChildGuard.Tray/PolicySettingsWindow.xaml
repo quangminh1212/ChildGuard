@@ -84,7 +84,27 @@
                     <!-- Running Processes -->
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Running Processes" FontWeight="Bold"/>
-                        <ListBox x:Name="LbRunning" Height="220" Margin="0,6,0,6" DisplayMemberPath="Display"/>
+                        <ListBox x:Name="LbRunning" Height="220" Margin="0,6,0,6">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Display}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="Black"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBlocked}" Value="True">
+                                                        <Setter Property="Foreground" Value="Tomato"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsAllowed}" Value="True">
+                                                        <Setter Property="Foreground" Value="ForestGreen"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                         <StackPanel Orientation="Horizontal">
                             <Button x:Name="BtnRunRefresh" Content="Refresh" Width="80"/>
                             <Button x:Name="BtnRunAddBlocked" Content="Add to Blocked" Width="110" Margin="6,0,0,0"/>
