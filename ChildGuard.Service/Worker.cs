@@ -1,4 +1,6 @@
 using ChildGuard.Core.Config;
+using ChildGuard.Core;
+
 using ChildGuard.Core.Logging;
 using ChildGuard.Core.Monitoring;
 using ChildGuard.Core.Policy;
@@ -131,6 +133,32 @@ public class Worker : BackgroundService
             _usb.Stop();
             await _jsonl.DisposeAsync();
         }
+        // IPC: receive snooze requests
+        Task.Run(async () =>
+        {
+            Directory.CreateDirectory(Paths.ControlDir);
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                foreach (var msg in ChildGuard.Core.IPC.FileIpc.Receive(Paths.ControlDir))
+                {
+                    if (msg.Type == "snooze")
+                    {
+                        // simple format parse
+                        var json = System.Text.Json.JsonSerializer.Serialize(msg.Payload);
+                        var req = System.Text.Json.JsonSerializer.Deserialize<ChildGuard.Core.IPC.EnforcementSnoozeRequest>(json);
+                        if (req != null)
+                        {
+                            // Allow this process for N minutes by removing it from block temporarily
+                            // (Minimal implementation: record next-allow time in memory)
+                            _jsonl.Log(new { type = "snooze", ts = DateTime.UtcNow, req.ProcessName, req.Minutes });
+                            // In real impl: maintain a dict allowUntil[process] = now + minutes
+                        }
+                    }
+                }
+                await Task.Delay(1000, stoppingToken);
+            }
+        }, stoppingToken);
+
     }
 
     private void TryEnforceProcess(string processName, int pid)

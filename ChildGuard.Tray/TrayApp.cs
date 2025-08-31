@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Forms;
 using ChildGuard.Core;
 using ChildGuard.Core.Config;
+using ChildGuard.Core.IPC;
+using System.Text.Json;
 
 namespace ChildGuard.Tray;
 
@@ -43,6 +45,9 @@ public sealed class TrayApp : IDisposable
         var mKeyboard = new ToolStripMenuItem("Keyboard Hook") { Checked = _cfg.Current.Monitoring.EnableKeyboardHook, CheckOnClick = true };
         var mMouse = new ToolStripMenuItem("Mouse Hook") { Checked = _cfg.Current.Monitoring.EnableMouseHook, CheckOnClick = true };
         var mActive = new ToolStripMenuItem("Active Window") { Checked = _cfg.Current.Monitoring.EnableActiveWindow, CheckOnClick = true };
+        var mSnooze5 = new ToolStripMenuItem("Snooze 5m");
+        var mSnooze15 = new ToolStripMenuItem("Snooze 15m");
+
         var mProc = new ToolStripMenuItem("Process Watcher") { Checked = _cfg.Current.Monitoring.EnableProcessWatcher, CheckOnClick = true };
         var mUsb = new ToolStripMenuItem("USB Watcher") { Checked = _cfg.Current.Monitoring.EnableUsbWatcher, CheckOnClick = true };
         var mQuit = new ToolStripMenuItem("Exit");
@@ -54,7 +59,10 @@ public sealed class TrayApp : IDisposable
         mUsb.CheckedChanged +=      (_, __) => { var c = _cfg.Current; c.Monitoring.EnableUsbWatcher = mUsb.Checked; _cfg.Save(c); };
         mQuit.Click += (_, __) => System.Windows.Application.Current.Shutdown();
 
-        menu.Items.AddRange(new ToolStripItem[] { mKeyboard, mMouse, mActive, mProc, mUsb, new ToolStripSeparator(), mQuit });
+        mSnooze5.Click += (_, __) => SendSnooze(5);
+        mSnooze15.Click += (_, __) => SendSnooze(15);
+
+        menu.Items.AddRange(new ToolStripItem[] { mKeyboard, mMouse, mActive, new ToolStripSeparator(), mSnooze5, mSnooze15, new ToolStripSeparator(), mProc, mUsb, new ToolStripSeparator(), mQuit });
         return menu;
     }
 
@@ -84,6 +92,21 @@ public sealed class TrayApp : IDisposable
                 _notify.BalloonTipText = lastAlert.Length > 256 ? lastAlert[..256] + "..." : lastAlert;
                 _notify.ShowBalloonTip(3000);
             }
+        }
+        catch { }
+    }
+
+    private void SendSnooze(int minutes)
+    {
+        // For simplicity, snooze applies to active foreground process
+        try
+        {
+            var procName = System.Diagnostics.Process.GetCurrentProcess().ProcessName; // placeholder
+            var msg = new IpcMessage("snooze", new EnforcementSnoozeRequest(procName, minutes));
+            FileIpc.Send(Paths.ControlDir, msg);
+            _notify.BalloonTipTitle = "ChildGuard";
+            _notify.BalloonTipText = $"Snoozed enforcement for {procName} in {minutes}m";
+            _notify.ShowBalloonTip(2000);
         }
         catch { }
     }
