@@ -84,10 +84,14 @@ public partial class PolicySettingsWindow : Window
         BtnBlockedAdd.Click += (_, __) => { AddToList(TbBlocked.Text, true); };
         BtnBlockedRemove.Click += (_, __) => { RemoveSelected(LbBlocked, true); };
         BtnBlockedAddActive.Click += (_, __) => { AddActive(true); };
+        BtnBlockedImport.Click += (_, __) => ImportList(true);
+        BtnBlockedExport.Click += (_, __) => ExportList(true);
 
         BtnAllowedAdd.Click += (_, __) => { AddToList(TbAllowedQH.Text, false); };
         BtnAllowedRemove.Click += (_, __) => { RemoveSelected(LbAllowedQH, false); };
         BtnAllowedAddActive.Click += (_, __) => { AddActive(false); };
+        BtnAllowedImport.Click += (_, __) => ImportList(false);
+        BtnAllowedExport.Click += (_, __) => ExportList(false);
     }
 
     private void AddToList(string text, bool blocked)
@@ -156,6 +160,48 @@ public partial class PolicySettingsWindow : Window
         catch { }
     }
 
+    private void ImportList(bool blocked)
+    {
+        try
+        {
+            var ofd = new Microsoft.Win32.OpenFileDialog { Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*" };
+            if (ofd.ShowDialog() == true)
+            {
+                var lines = System.IO.File.ReadAllLines(ofd.FileName)
+                    .Select(l => l.Trim())
+                    .Where(l => !string.IsNullOrWhiteSpace(l))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                var c = _cfg.Current;
+                var list = blocked ? c.Policy.BlockedProcesses : c.Policy.AllowedProcessesDuringQuietHours;
+                foreach (var name in lines)
+                {
+                    if (!list.Contains(name, StringComparer.OrdinalIgnoreCase)) list.Add(name);
+                }
+                _cfg.Save(c);
+                ReloadLists();
+                System.Windows.MessageBox.Show("Imported.");
+            }
+        }
+        catch { }
+    }
+
+    private void ExportList(bool blocked)
+    {
+        try
+        {
+            var sfd = new Microsoft.Win32.SaveFileDialog { Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*" };
+            if (sfd.ShowDialog() == true)
+            {
+                var c = _cfg.Current;
+                var list = blocked ? c.Policy.BlockedProcesses : c.Policy.AllowedProcessesDuringQuietHours;
+                System.IO.File.WriteAllLines(sfd.FileName, list);
+                System.Windows.MessageBox.Show("Exported.");
+            }
+        }
+        catch { }
+    }
+
     private void AddSelectedRunning(bool toBlocked)
     {
         if (LbRunning.SelectedItem is string name)
@@ -163,5 +209,7 @@ public partial class PolicySettingsWindow : Window
             AddToList(name, toBlocked);
         }
     }
+
+    // Optional: simple auto-refresh toggle every 10s could be added later
 }
 
