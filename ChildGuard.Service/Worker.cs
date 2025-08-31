@@ -68,6 +68,16 @@ public class Worker : BackgroundService
                 _jsonl.Log(new { type = "alert", level = "warning", ts = DateTime.UtcNow, message = $"Bad word detected: {word}" });
                 _policy.MarkWarned();
             }
+        // Emit IPC to Tray for URL alerts
+        _analyzer.OnUrlDetected += url =>
+        {
+            if (_urlSafety.IsUnsafe(url, out var rule))
+            {
+                _jsonl.Log(new { type = "url_alert", level = "warning", ts = DateTime.UtcNow, url, rule });
+                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Unsafe URL", url, _config.Current.Policy.EnforcementCountdownSeconds, Url: url, Rule: rule))); } catch { }
+            }
+        };
+
         };
         _analyzer.OnUrlDetected += url =>
         {

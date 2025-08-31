@@ -9,4 +9,6 @@ public static class Paths
     public static string LogsDir => Path.Combine(AppDataRoot, "logs");
     public static string ConfigFile => Path.Combine(AppDataRoot, "config.json");
     public static string ControlDir => Path.Combine(AppDataRoot, "control");
+    public static string ControlServiceInbox => Path.Combine(ControlDir, "service_inbox");
+    public static string ControlTrayInbox => Path.Combine(ControlDir, "tray_inbox");
 }

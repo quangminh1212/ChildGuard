@@ -41,6 +41,36 @@ public sealed class TrayApp : IDisposable
         };
         _logWatcher.Changed += (_, __) => TryReadLatestForAlerts();
         _logWatcher.EnableRaisingEvents = true;
+        // IPC listener: show rich toast from Service
+        Task.Run(async () =>
+        {
+            Directory.CreateDirectory(Paths.ControlTrayInbox);
+            while (true)
+            {
+                foreach (var msg in FileIpc.Receive(Paths.ControlTrayInbox))
+                {
+                    if (msg.Type == "toast")
+                    {
+                        try
+                        {
+                            var json = System.Text.Json.JsonSerializer.Serialize(msg.Payload);
+                            var toast = System.Text.Json.JsonSerializer.Deserialize<ChildGuard.Core.IPC.ToastAlert>(json);
+                            if (toast != null)
+                            {
+                                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    var tw = new ToastWindow();
+                                    tw.ShowToast(toast.Message, toast.CountdownSeconds);
+                                });
+                            }
+                        }
+                        catch { }
+                    }
+                }
+                await Task.Delay(500);
+            }
+        });
+
     }
 
     private ContextMenuStrip BuildMenu()

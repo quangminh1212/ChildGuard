@@ -11,6 +11,9 @@ public static class FileIpc
         File.WriteAllText(file, JsonSerializer.Serialize(msg));
     }
 
+    public static void SendToService(IpcMessage msg) => Send(Paths.ControlServiceInbox, msg);
+    public static void SendToTray(IpcMessage msg) => Send(Paths.ControlTrayInbox, msg);
+
     public static IEnumerable<IpcMessage> Receive(string controlDir)
     {
         if (!Directory.Exists(controlDir)) yield break;
