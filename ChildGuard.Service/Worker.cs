@@ -154,7 +154,7 @@ public class Worker : BackgroundService
             Directory.CreateDirectory(Paths.ControlDir);
             while (!stoppingToken.IsCancellationRequested)
             {
-                foreach (var msg in FileIpc.Receive(Paths.ControlDir))
+                foreach (var msg in FileIpc.Receive(Paths.ControlServiceInbox))
                 {
                     if (msg.Type == "snooze")
                     {
@@ -168,6 +168,17 @@ public class Worker : BackgroundService
                         }
                     }
                 }
+                    else if (msg.Type == "whitelist_temp")
+                    {
+                        var json = System.Text.Json.JsonSerializer.Serialize(msg.Payload);
+                        var req = System.Text.Json.JsonSerializer.Deserialize<ChildGuard.Core.IPC.WhitelistTempRequest>(json);
+                        if (req != null)
+                        {
+                            _enforcement.Snooze(req.ProcessName, req.Minutes);
+                            _jsonl.Log(new { type = "whitelist_temp", ts = DateTime.UtcNow, req.ProcessName, req.Minutes });
+                        }
+                    }
+
                 await Task.Delay(1000, stoppingToken);
             }
         }, stoppingToken);

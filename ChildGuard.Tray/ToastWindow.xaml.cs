@@ -50,6 +50,7 @@ public partial class ToastWindow : Window
         SetIcon(severity);
         ConfigurePrimaryAction(primaryAction, primaryActionLabel);
         ConfigureUrlActions(url);
+        ConfigureWhitelistAction(process);
         _timer.Start();
         PositionBottomRight();
         Show();
@@ -83,6 +84,21 @@ public partial class ToastWindow : Window
     private void ConfigurePrimaryAction(string? primaryAction, string? label)
     {
         if (string.IsNullOrWhiteSpace(primaryAction)) return;
+    private void ConfigureWhitelistAction(string? process)
+    {
+        if (string.IsNullOrWhiteSpace(process)) return;
+        var wlBtn = new System.Windows.Controls.Button { Content = "Whitelist 30m", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
+        wlBtn.Click += (_, __) => {
+            try { FileIpc.SendToService(new IpcMessage("whitelist_temp", new WhitelistTempRequest(process, 30))); } catch { }
+            Close();
+        };
+        if (CloseBtn.Parent is System.Windows.Controls.Panel p)
+        {
+            var idx = Math.Max(0, p.Children.IndexOf(CloseBtn));
+            p.Children.Insert(idx, wlBtn);
+        }
+    }
+
         var btn = new System.Windows.Controls.Button { Content = label ?? "Open", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
         btn.Click += (_, __) => HandlePrimaryAction(primaryAction);
         // Insert before CloseBtn
