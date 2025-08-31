@@ -170,24 +170,31 @@ public partial class PolicySettingsWindow : Window
         LbAllowedQH.ItemsSource = null;
         LbAllowedQH.ItemsSource = c.Policy.AllowedProcessesDuringQuietHours.ToList();
     }
-
-    private void ReloadRunning()
-    {
-        try
-        {
-            var procs = System.Diagnostics.Process.GetProcesses()
-                .Select(p => p.ProcessName)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(n => n)
     private sealed class RunningProc
     {
         public string Name { get; }
         public bool IsBlocked { get; }
         public bool IsAllowed { get; }
         public string Display => IsBlocked ? $"{Name} (blocked)" : (IsAllowed ? $"{Name} (allowed)" : Name);
-        public RunningProc(string name, bool blocked, bool allowed) { Name = name; IsBlocked = blocked; IsAllowed = allowed; }
+        public RunningProc(string name, bool blocked, bool allowed)
+        {
+            Name = name; IsBlocked = blocked; IsAllowed = allowed;
+        }
     }
 
+
+    private void ReloadRunning()
+    {
+        try
+        {
+            var c = _cfg.Current;
+            var blocked = new HashSet<string>(c.Policy.BlockedProcesses, StringComparer.OrdinalIgnoreCase);
+            var allowed = new HashSet<string>(c.Policy.AllowedProcessesDuringQuietHours, StringComparer.OrdinalIgnoreCase);
+            var procs = System.Diagnostics.Process.GetProcesses()
+                .Select(p => p.ProcessName)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n)
+                .Select(n => new RunningProc(n, blocked.Contains(n), allowed.Contains(n)))
                 .ToList();
             LbRunning.ItemsSource = null;
             LbRunning.ItemsSource = procs;
