@@ -5,6 +5,7 @@ using ChildGuard.Core.Logging;
 using ChildGuard.Core.Monitoring;
 using ChildGuard.Core.Policy;
 using ChildGuard.Core.Protection;
+using ChildGuard.Core.IPC;
 
 namespace ChildGuard.Service;
 
@@ -19,11 +20,13 @@ public class Worker : BackgroundService
     private readonly UsbWatcher _usb;
     private readonly PolicyEngine _policy;
     private readonly EnhancedHookAnalyzer _analyzer;
+    private readonly EnforcementManager _enforcement;
+
     private readonly UrlSafetyChecker _urlSafety;
     private AudioMonitor? _audio;
     private readonly Dictionary<int, CancellationTokenSource> _enforcementCts = new();
 
-    public Worker(ILogger<Worker> logger, ConfigManager config, JsonlLogger jsonl, HookManager hooks, ActiveWindowTracker active, ProcessWatcher proc, UsbWatcher usb, PolicyEngine policy, EnhancedHookAnalyzer analyzer, UrlSafetyChecker urlSafety)
+    public Worker(ILogger<Worker> logger, ConfigManager config, JsonlLogger jsonl, HookManager hooks, ActiveWindowTracker active, ProcessWatcher proc, UsbWatcher usb, PolicyEngine policy, EnhancedHookAnalyzer analyzer, UrlSafetyChecker urlSafety, EnforcementManager enforcement)
     {
         _logger = logger;
         _config = config;
@@ -35,6 +38,7 @@ public class Worker : BackgroundService
         _policy = policy;
         _analyzer = analyzer;
         _urlSafety = urlSafety;
+        _enforcement = enforcement;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -139,7 +143,7 @@ public class Worker : BackgroundService
             Directory.CreateDirectory(Paths.ControlDir);
             while (!stoppingToken.IsCancellationRequested)
             {
-                foreach (var msg in ChildGuard.Core.IPC.FileIpc.Receive(Paths.ControlDir))
+                foreach (var msg in FileIpc.Receive(Paths.ControlDir))
                 {
                     if (msg.Type == "snooze")
                     {
@@ -148,10 +152,8 @@ public class Worker : BackgroundService
                         var req = System.Text.Json.JsonSerializer.Deserialize<ChildGuard.Core.IPC.EnforcementSnoozeRequest>(json);
                         if (req != null)
                         {
-                            // Allow this process for N minutes by removing it from block temporarily
-                            // (Minimal implementation: record next-allow time in memory)
+                            _enforcement.Snooze(req.ProcessName, req.Minutes);
                             _jsonl.Log(new { type = "snooze", ts = DateTime.UtcNow, req.ProcessName, req.Minutes });
-                            // In real impl: maintain a dict allowUntil[process] = now + minutes
                         }
                     }
                 }

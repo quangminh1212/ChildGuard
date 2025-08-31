@@ -7,11 +7,13 @@ namespace ChildGuard.Core.Policy;
 public sealed class PolicyEngine
 {
     private readonly ConfigManager _config;
+    private readonly EnforcementManager _enforcement;
     private DateTime _lastWarned = DateTime.MinValue;
 
-    public PolicyEngine(ConfigManager cfg)
+    public PolicyEngine(ConfigManager cfg, EnforcementManager enforcement)
     {
         _config = cfg;
+        _enforcement = enforcement;
     }
 
     public bool IsQuietNow(DateTime? now = null)
@@ -34,6 +36,7 @@ public sealed class PolicyEngine
 
     public bool ShouldBlockProcess(string processName)
     {
+        if (_enforcement.IsTemporarilyAllowed(processName)) return false;
         var blocked = _config.Current.Policy.BlockedProcesses;
         var allowedDuring = _config.Current.Policy.AllowedProcessesDuringQuietHours;
         if (IsQuietNow() && allowedDuring.Contains(processName, StringComparer.OrdinalIgnoreCase)) return false;

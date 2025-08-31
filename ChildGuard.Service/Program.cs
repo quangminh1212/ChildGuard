@@ -28,6 +28,7 @@ builder.Services.AddSingleton<EnhancedHookAnalyzer>();
 // Audio monitor is created in worker when enabled (needs path)
 
 // Policy
+builder.Services.AddSingleton<EnforcementManager>();
 builder.Services.AddSingleton<PolicyEngine>();
 
 builder.Services.AddHostedService<Worker>();

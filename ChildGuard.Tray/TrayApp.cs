@@ -99,6 +99,10 @@ public sealed class TrayApp : IDisposable
     private void SendSnooze(int minutes)
     {
         // For simplicity, snooze applies to active foreground process
+            // TODO: Use real foreground process:
+            // IntPtr hWnd = GetForegroundWindow(); GetWindowThreadProcessId(hWnd, out uint pid);
+            // var procName = Process.GetProcessById((int)pid).ProcessName;
+
         try
         {
             var procName = System.Diagnostics.Process.GetCurrentProcess().ProcessName; // placeholder
