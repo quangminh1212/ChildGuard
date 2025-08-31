@@ -25,9 +25,29 @@
                     <TextBlock Grid.Row="2" Text="Tip: Choose Off in Tray -> Policy -> Quiet Hours for disabling quickly. Use this tab to set custom hours." Foreground="#666" TextWrapping="Wrap"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="Enforcement">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Countdown (s):" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox x:Name="TbCountdown" Width="100"/>
+                        <TextBlock Text="Warning Cooldown (s):" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                        <TextBox x:Name="TbWarnCooldown" Width="120"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,8">
+                        <Button x:Name="BtnEnfSave" Content="Save" Width="80"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="2" Text="Tip: You can also use Tray -> Policy presets for quick changes." Foreground="#666" TextWrapping="Wrap"/>
+                </Grid>
+            </TabItem>
             <TabItem Header="Processes">
                 <Grid Margin="10">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
@@ -51,6 +71,16 @@
                             <Button x:Name="BtnAllowedAdd" Content="Add" Width="60" Margin="6,0,0,0"/>
                             <Button x:Name="BtnAllowedRemove" Content="Remove" Width="70" Margin="6,0,0,0"/>
                             <Button x:Name="BtnAllowedAddActive" Content="Add Active" Width="90" Margin="6,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <!-- Running Processes -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Running Processes" FontWeight="Bold"/>
+                        <ListBox x:Name="LbRunning" Height="220" Margin="0,6,0,6"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="BtnRunRefresh" Content="Refresh" Width="80"/>
+                            <Button x:Name="BtnRunAddBlocked" Content="Add to Blocked" Width="110" Margin="6,0,0,0"/>
+                            <Button x:Name="BtnRunAddAllowed" Content="Add to Allowed (QH)" Width="150" Margin="6,0,0,0"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>

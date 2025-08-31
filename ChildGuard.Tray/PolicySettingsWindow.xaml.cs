@@ -22,25 +22,63 @@ public partial class PolicySettingsWindow : Window
         WireEvents();
     }
 
+    private static bool IsValidTime(string s)
+    {
+        return TimeSpan.TryParse(s, out _);
+    }
+
     private void LoadData()
     {
         var c = _cfg.Current;
         TbQuietStart.Text = c.Policy.QuietHoursStart;
         TbQuietEnd.Text = c.Policy.QuietHoursEnd;
+        TbCountdown.Text = c.Policy.EnforcementCountdownSeconds.ToString();
+        TbWarnCooldown.Text = c.Policy.WarningCooldownSeconds.ToString();
         LbBlocked.ItemsSource = c.Policy.BlockedProcesses.ToList();
         LbAllowedQH.ItemsSource = c.Policy.AllowedProcessesDuringQuietHours.ToList();
+        ReloadRunning();
     }
 
     private void WireEvents()
     {
         BtnQuietSave.Click += (_, __) =>
         {
+            var start = TbQuietStart.Text.Trim();
+            var end = TbQuietEnd.Text.Trim();
+            if (!IsValidTime(start) || !IsValidTime(end))
+            {
+                System.Windows.MessageBox.Show("Invalid time format. Use HH:mm (e.g., 21:30).", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             var c = _cfg.Current;
-            c.Policy.QuietHoursStart = TbQuietStart.Text.Trim();
-            c.Policy.QuietHoursEnd = TbQuietEnd.Text.Trim();
+            c.Policy.QuietHoursStart = start;
+            c.Policy.QuietHoursEnd = end;
             _cfg.Save(c);
             System.Windows.MessageBox.Show("Saved Quiet Hours.");
         };
+
+        BtnEnfSave.Click += (_, __) =>
+        {
+            if (!int.TryParse(TbCountdown.Text.Trim(), out var cd) || cd < 0)
+            {
+                System.Windows.MessageBox.Show("Countdown must be a non-negative integer (seconds).", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (!int.TryParse(TbWarnCooldown.Text.Trim(), out var wc) || wc < 0)
+            {
+                System.Windows.MessageBox.Show("Warning Cooldown must be a non-negative integer (seconds).", "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var c = _cfg.Current;
+            c.Policy.EnforcementCountdownSeconds = cd;
+            c.Policy.WarningCooldownSeconds = wc;
+            _cfg.Save(c);
+            System.Windows.MessageBox.Show("Saved Enforcement settings.");
+        };
+
+        BtnRunRefresh.Click += (_, __) => ReloadRunning();
+        BtnRunAddBlocked.Click += (_, __) => { AddSelectedRunning(true); };
+        BtnRunAddAllowed.Click += (_, __) => { AddSelectedRunning(false); };
         BtnQuietClose.Click += (_, __) => Close();
 
         BtnBlockedAdd.Click += (_, __) => { AddToList(TbBlocked.Text, true); };
@@ -101,6 +139,29 @@ public partial class PolicySettingsWindow : Window
         LbBlocked.ItemsSource = c.Policy.BlockedProcesses.ToList();
         LbAllowedQH.ItemsSource = null;
         LbAllowedQH.ItemsSource = c.Policy.AllowedProcessesDuringQuietHours.ToList();
+    }
+
+    private void ReloadRunning()
+    {
+        try
+        {
+            var procs = System.Diagnostics.Process.GetProcesses()
+                .Select(p => p.ProcessName)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n)
+                .ToList();
+            LbRunning.ItemsSource = null;
+            LbRunning.ItemsSource = procs;
+        }
+        catch { }
+    }
+
+    private void AddSelectedRunning(bool toBlocked)
+    {
+        if (LbRunning.SelectedItem is string name)
+        {
+            AddToList(name, toBlocked);
+        }
     }
 }
 
