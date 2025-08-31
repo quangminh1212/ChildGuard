@@ -20,6 +20,7 @@ public partial class PolicySettingsWindow : Window
 
     private readonly ConfigManager _cfg;
     private readonly DispatcherTimer _autoTimer = new DispatcherTimer();
+    private List<RunningProc> _allRunning = new List<RunningProc>();
 
     public PolicySettingsWindow(ConfigManager cfg)
     {
@@ -59,6 +60,8 @@ public partial class PolicySettingsWindow : Window
             {
                 _autoTimer.Interval = TimeSpan.FromSeconds(sec);
             }
+        TbRunSearch.TextChanged += (_, __) => ApplyRunningFilter();
+
         };
     }
 
@@ -110,6 +113,8 @@ public partial class PolicySettingsWindow : Window
         BtnBlockedAddActive.Click += (_, __) => { AddActive(true); };
         BtnBlockedImport.Click += (_, __) => ImportList(true);
         BtnBlockedExport.Click += (_, __) => ExportList(true);
+        LbRunning.SelectionChanged += (_, __) => UpdateRunningButtonsState();
+
 
         BtnAllowedAdd.Click += (_, __) => { AddToList(TbAllowedQH.Text, false); };
         BtnAllowedRemove.Click += (_, __) => { if (LbAllowedQH.SelectedItem is string n && Confirm($"Remove '{n}' from Allowed (Quiet Hours)?")) RemoveSelected(LbAllowedQH, false); };
@@ -130,6 +135,8 @@ public partial class PolicySettingsWindow : Window
             list.Add(name);
             _cfg.Save(c);
             ReloadLists();
+            ReloadRunning();
+            ApplyRunningFilter();
         }
     }
 
@@ -145,6 +152,8 @@ public partial class PolicySettingsWindow : Window
                 list.RemoveAt(idx);
                 _cfg.Save(c);
                 ReloadLists();
+                ReloadRunning();
+                ApplyRunningFilter();
             }
 
         }
@@ -190,16 +199,42 @@ public partial class PolicySettingsWindow : Window
             var c = _cfg.Current;
             var blocked = new HashSet<string>(c.Policy.BlockedProcesses, StringComparer.OrdinalIgnoreCase);
             var allowed = new HashSet<string>(c.Policy.AllowedProcessesDuringQuietHours, StringComparer.OrdinalIgnoreCase);
-            var procs = System.Diagnostics.Process.GetProcesses()
+            _allRunning = System.Diagnostics.Process.GetProcesses()
                 .Select(p => p.ProcessName)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(n => n)
                 .Select(n => new RunningProc(n, blocked.Contains(n), allowed.Contains(n)))
                 .ToList();
-            LbRunning.ItemsSource = null;
-            LbRunning.ItemsSource = procs;
+            ApplyRunningFilter();
         }
         catch { }
+    }
+
+    private void ApplyRunningFilter()
+    {
+        var q = TbRunSearch.Text?.Trim() ?? string.Empty;
+        IEnumerable<RunningProc> list = _allRunning;
+        if (!string.IsNullOrEmpty(q))
+        {
+            list = list.Where(x => x.Name.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+        LbRunning.ItemsSource = null;
+        LbRunning.ItemsSource = list.ToList();
+        UpdateRunningButtonsState();
+    }
+
+    private void UpdateRunningButtonsState()
+    {
+        if (LbRunning.SelectedItem is RunningProc sel)
+        {
+            BtnRunAddBlocked.IsEnabled = !sel.IsBlocked;
+            BtnRunAddAllowed.IsEnabled = !sel.IsAllowed;
+        }
+        else
+        {
+            BtnRunAddBlocked.IsEnabled = false;
+            BtnRunAddAllowed.IsEnabled = false;
+        }
     }
 
     private void ImportList(bool blocked)

@@ -111,6 +111,10 @@
                             <Button x:Name="BtnRunAddAllowed" Content="Add to Allowed (QH)" Width="150" Margin="6,0,0,0"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="Filter:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="TbRunSearch" Width="160"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                             <CheckBox x:Name="CbAutoRefresh" Content="Auto Refresh" VerticalAlignment="Center"/>
                             <TextBlock Text="Interval (s):" VerticalAlignment="Center" Margin="12,0,6,0"/>
                             <ComboBox x:Name="CbAutoInterval" Width="80">
