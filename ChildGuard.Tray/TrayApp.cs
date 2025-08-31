@@ -4,15 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using ChildGuard.Core;
 using ChildGuard.Core.Config;
 using ChildGuard.Core.IPC;
-using System.Text.Json;
 
 namespace ChildGuard.Tray;
 
 public sealed class TrayApp : IDisposable
 {
+    [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
     private readonly NotifyIcon _notify;
     private readonly ConfigManager _cfg;
     private readonly FileSystemWatcher _logWatcher;
@@ -99,13 +103,12 @@ public sealed class TrayApp : IDisposable
     private void SendSnooze(int minutes)
     {
         // For simplicity, snooze applies to active foreground process
-            // TODO: Use real foreground process:
-            // IntPtr hWnd = GetForegroundWindow(); GetWindowThreadProcessId(hWnd, out uint pid);
-            // var procName = Process.GetProcessById((int)pid).ProcessName;
-
         try
         {
-            var procName = System.Diagnostics.Process.GetCurrentProcess().ProcessName; // placeholder
+            // Get real foreground process
+            var hWnd = GetForegroundWindow();
+            GetWindowThreadProcessId(hWnd, out uint pid);
+            var procName = Process.GetProcessById((int)pid).ProcessName;
             var msg = new IpcMessage("snooze", new EnforcementSnoozeRequest(procName, minutes));
             FileIpc.Send(Paths.ControlDir, msg);
             _notify.BalloonTipTitle = "ChildGuard";
