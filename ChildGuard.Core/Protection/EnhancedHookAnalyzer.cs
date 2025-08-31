@@ -9,7 +9,7 @@ public sealed class EnhancedHookAnalyzer
     private readonly StringBuilder _buffer = new();
     private readonly int _maxLen = 256;
     private readonly BadWordsDetector _badWords;
-    private readonly Regex _urlRegex = new("https?://[^\s]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private readonly Regex _urlRegex = new(@"https?://[^\s]+", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public event Action<string>? OnBadWord;
     public event Action<string>? OnUrlDetected;

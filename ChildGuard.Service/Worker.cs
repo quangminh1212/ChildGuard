@@ -2,6 +2,7 @@ using ChildGuard.Core.Config;
 using ChildGuard.Core.Logging;
 using ChildGuard.Core.Monitoring;
 using ChildGuard.Core.Policy;
+using ChildGuard.Core.Protection;
 
 namespace ChildGuard.Service;
 
@@ -15,8 +16,10 @@ public class Worker : BackgroundService
     private readonly ProcessWatcher _proc;
     private readonly UsbWatcher _usb;
     private readonly PolicyEngine _policy;
+    private readonly EnhancedHookAnalyzer _analyzer;
+    private readonly UrlSafetyChecker _urlSafety;
 
-    public Worker(ILogger<Worker> logger, ConfigManager config, JsonlLogger jsonl, HookManager hooks, ActiveWindowTracker active, ProcessWatcher proc, UsbWatcher usb, PolicyEngine policy)
+    public Worker(ILogger<Worker> logger, ConfigManager config, JsonlLogger jsonl, HookManager hooks, ActiveWindowTracker active, ProcessWatcher proc, UsbWatcher usb, PolicyEngine policy, EnhancedHookAnalyzer analyzer, UrlSafetyChecker urlSafety)
     {
         _logger = logger;
         _config = config;
@@ -26,16 +29,38 @@ public class Worker : BackgroundService
         _proc = proc;
         _usb = usb;
         _policy = policy;
+        _analyzer = analyzer;
+        _urlSafety = urlSafety;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // Wire events to logger
-        _hooks.OnKey += e => _jsonl.Log(new { type = "key", ts = DateTime.UtcNow, e.Key, e.IsDown });
+        _hooks.OnKey += e =>
+        {
+            _jsonl.Log(new { type = "key", ts = DateTime.UtcNow, e.Key, e.IsDown });
+            _analyzer.OnKey(e.Key, e.IsDown);
+        };
         _hooks.OnMouse += e => _jsonl.Log(new { type = "mouse", ts = DateTime.UtcNow, e.Button, e.X, e.Y, e.Action });
         _active.OnActiveWindow += e => _jsonl.Log(new { type = "activeWindow", ts = DateTime.UtcNow, e.ProcessName, e.WindowTitle });
         _proc.OnProcess += e => _jsonl.Log(new { type = "process", ts = DateTime.UtcNow, e.ProcessName, e.Pid, e.Action });
         _usb.OnUsb += e => _jsonl.Log(new { type = "usb", ts = DateTime.UtcNow, e.DriveLetter, e.Action });
+
+        _analyzer.OnBadWord += word =>
+        {
+            if (_policy.CanWarn())
+            {
+                _jsonl.Log(new { type = "alert", level = "warning", ts = DateTime.UtcNow, message = $"Bad word detected: {word}" });
+                _policy.MarkWarned();
+            }
+        };
+        _analyzer.OnUrlDetected += url =>
+        {
+            if (_urlSafety.IsUnsafe(url, out var rule))
+            {
+                _jsonl.Log(new { type = "url_alert", level = "warning", ts = DateTime.UtcNow, url, rule });
+            }
+        };
 
         // Start per config
         var cfg = _config.Current;

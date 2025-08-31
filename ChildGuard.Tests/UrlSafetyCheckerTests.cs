@@ -1,4 +1,5 @@
 using ChildGuard.Core.Protection;
+using Xunit;
 
 public class UrlSafetyCheckerTests
 {

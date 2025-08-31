@@ -4,6 +4,7 @@ using ChildGuard.Core.Config;
 using ChildGuard.Core.Logging;
 using ChildGuard.Core.Monitoring;
 using ChildGuard.Core.Policy;
+using ChildGuard.Core.Protection;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -18,6 +19,13 @@ builder.Services.AddSingleton<HookManager>();
 builder.Services.AddSingleton<ActiveWindowTracker>();
 builder.Services.AddSingleton<ProcessWatcher>();
 builder.Services.AddSingleton<UsbWatcher>();
+
+// Protection
+builder.Services.AddSingleton(sp => new BadWordsDetector(sp.GetRequiredService<ConfigManager>().Current.Protection.BadWords));
+builder.Services.AddSingleton(sp => new UrlSafetyChecker(sp.GetRequiredService<ConfigManager>().Current.Protection.UrlAllowList,
+                                                         sp.GetRequiredService<ConfigManager>().Current.Protection.UrlBlockList));
+builder.Services.AddSingleton<EnhancedHookAnalyzer>();
+// Audio monitor is created in worker when enabled (needs path)
 
 // Policy
 builder.Services.AddSingleton<PolicyEngine>();
