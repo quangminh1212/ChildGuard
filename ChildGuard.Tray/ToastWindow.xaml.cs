@@ -84,28 +84,44 @@ public partial class ToastWindow : Window
     private void ConfigurePrimaryAction(string? primaryAction, string? label)
     {
         if (string.IsNullOrWhiteSpace(primaryAction)) return;
-    private void ConfigureWhitelistAction(string? process)
-    {
-        if (string.IsNullOrWhiteSpace(process)) return;
-        var wlBtn = new System.Windows.Controls.Button { Content = "Whitelist 30m", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
-        wlBtn.Click += (_, __) => {
-            try { FileIpc.SendToService(new IpcMessage("whitelist_temp", new WhitelistTempRequest(process, 30))); } catch { }
-            Close();
-        };
-        if (CloseBtn.Parent is System.Windows.Controls.Panel p)
-        {
-            var idx = Math.Max(0, p.Children.IndexOf(CloseBtn));
-            p.Children.Insert(idx, wlBtn);
-        }
-    }
-
         var btn = new System.Windows.Controls.Button { Content = label ?? "Open", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
         btn.Click += (_, __) => HandlePrimaryAction(primaryAction);
-        // Insert before CloseBtn
         if (CloseBtn.Parent is System.Windows.Controls.Panel p)
         {
             var idx = Math.Max(0, p.Children.IndexOf(CloseBtn));
             p.Children.Insert(idx, btn);
+        }
+    }
+
+    private void ConfigureWhitelistAction(string? process)
+    {
+        if (string.IsNullOrWhiteSpace(process)) return;
+        var wlBtn = new System.Windows.Controls.Button { Content = "Whitelist…", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
+        // Build a dropdown menu for duration choices
+        var cm = new System.Windows.Controls.ContextMenu();
+        foreach (var minutes in new int[] { 5, 15, 30, 60 })
+        {
+            var mi = new System.Windows.Controls.MenuItem { Header = $"Whitelist {minutes}m" };
+            mi.Click += (_, __) =>
+            {
+                try { FileIpc.SendToService(new IpcMessage("whitelist_temp", new WhitelistTempRequest(process, minutes))); } catch { }
+                Close();
+            };
+            cm.Items.Add(mi);
+        }
+        wlBtn.ContextMenu = cm;
+        wlBtn.Click += (_, __) =>
+        {
+            if (wlBtn.ContextMenu != null)
+            {
+                wlBtn.ContextMenu.PlacementTarget = wlBtn;
+                wlBtn.ContextMenu.IsOpen = true;
+            }
+        };
+        if (CloseBtn.Parent is System.Windows.Controls.Panel p2)
+        {
+            var idx2 = Math.Max(0, p2.Children.IndexOf(CloseBtn));
+            p2.Children.Insert(idx2, wlBtn);
         }
     }
 

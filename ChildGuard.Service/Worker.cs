@@ -167,7 +167,6 @@ public class Worker : BackgroundService
                             _jsonl.Log(new { type = "snooze", ts = DateTime.UtcNow, req.ProcessName, req.Minutes });
                         }
                     }
-                }
                     else if (msg.Type == "whitelist_temp")
                     {
                         var json = System.Text.Json.JsonSerializer.Serialize(msg.Payload);
@@ -178,6 +177,7 @@ public class Worker : BackgroundService
                             _jsonl.Log(new { type = "whitelist_temp", ts = DateTime.UtcNow, req.ProcessName, req.Minutes });
                         }
                     }
+                }
 
                 await Task.Delay(1000, stoppingToken);
             }
