@@ -52,7 +52,7 @@ public sealed class TrayApp : IDisposable
         mActive.CheckedChanged +=   (_, __) => { var c = _cfg.Current; c.Monitoring.EnableActiveWindow = mActive.Checked; _cfg.Save(c); };
         mProc.CheckedChanged +=     (_, __) => { var c = _cfg.Current; c.Monitoring.EnableProcessWatcher = mProc.Checked; _cfg.Save(c); };
         mUsb.CheckedChanged +=      (_, __) => { var c = _cfg.Current; c.Monitoring.EnableUsbWatcher = mUsb.Checked; _cfg.Save(c); };
-        mQuit.Click += (_, __) => Application.Current.Shutdown();
+        mQuit.Click += (_, __) => System.Windows.Application.Current.Shutdown();
 
         menu.Items.AddRange(new ToolStripItem[] { mKeyboard, mMouse, mActive, mProc, mUsb, new ToolStripSeparator(), mQuit });
         return menu;

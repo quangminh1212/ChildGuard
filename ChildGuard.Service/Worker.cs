@@ -97,6 +97,42 @@ public class Worker : BackgroundService
                 _audio = new AudioMonitor(c.Protection.FfmpegPath!);
                 _audio.OnLevel += lvl => _jsonl.Log(new { type = "audio", ts = DateTime.UtcNow, level = lvl });
                 _audio.Start();
+            }
+            else
+            {
+                _audio?.Stop();
+                _audio = null;
+            }
+        };
+
+        _logger.LogInformation("ChildGuard service started");
+
+        // cancel pending enforcement when process stops
+        _proc.OnProcess += e =>
+        {
+            if (e.Action == "stop" && _enforcementCts.TryGetValue(e.Pid, out var cts))
+            {
+                cts.Cancel();
+            }
+        };
+
+        try
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(1000, stoppingToken);
+            }
+        }
+        finally
+        {
+            _hooks.Stop();
+            _active.Stop();
+            _proc.Stop();
+            _usb.Stop();
+            await _jsonl.DisposeAsync();
+        }
+    }
+
     private void TryEnforceProcess(string processName, int pid)
     {
         if (_policy.ShouldBlockProcess(processName))
@@ -140,40 +176,5 @@ public class Worker : BackgroundService
             _jsonl.Log(new { type = "enforce_error", ts = DateTime.UtcNow, processName, pid, error = ex.Message });
         }
     }
-
-            }
-            else
-            {
-                _audio?.Stop();
-                _audio = null;
-            }
-        };
-
-        _logger.LogInformation("ChildGuard service started");
-
-        // cancel pending enforcement when process stops
-        _proc.OnProcess += e =>
-        {
-            if (e.Action == "stop" && _enforcementCts.TryGetValue(e.Pid, out var cts))
-            {
-                cts.Cancel();
-            }
-        };
-
-        try
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(1000, stoppingToken);
-            }
-        }
-        finally
-        {
-            _hooks.Stop();
-            _active.Stop();
-            _proc.Stop();
-            _usb.Stop();
-            await _jsonl.DisposeAsync();
-        }
-    }
 }
+

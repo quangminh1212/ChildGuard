@@ -2,7 +2,7 @@
 
 namespace ChildGuard.Tray;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private TrayApp? _tray;
 
