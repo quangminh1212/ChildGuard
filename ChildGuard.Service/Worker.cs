@@ -71,9 +71,12 @@ public class Worker : BackgroundService
         };
         _analyzer.OnUrlDetected += url =>
         {
+        string? lastUrl = null;
+
             if (_urlSafety.IsUnsafe(url, out var rule))
             {
                 _jsonl.Log(new { type = "url_alert", level = "warning", ts = DateTime.UtcNow, url, rule });
+                // future: emit IPC to Tray to show toast with URL details
             }
         };
 
@@ -198,8 +201,21 @@ public class Worker : BackgroundService
         try
         {
             var p = System.Diagnostics.Process.GetProcessById(pid);
-            p.Kill();
-            _jsonl.Log(new { type = "enforce_kill", ts = DateTime.UtcNow, processName, pid });
+            if (!p.HasExited)
+            {
+                // Try graceful close first
+                if (p.CloseMainWindow())
+                {
+                    if (p.WaitForExit(5000))
+                    {
+                        _jsonl.Log(new { type = "enforce_close", ts = DateTime.UtcNow, processName, pid });
+                        return;
+                    }
+                }
+                // Fallback to kill
+                p.Kill();
+                _jsonl.Log(new { type = "enforce_kill", ts = DateTime.UtcNow, processName, pid });
+            }
         }
         catch (Exception ex)
         {
