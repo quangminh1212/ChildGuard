@@ -74,7 +74,7 @@ public class Worker : BackgroundService
             if (_urlSafety.IsUnsafe(url, out var rule))
             {
                 _jsonl.Log(new { type = "url_alert", level = "warning", ts = DateTime.UtcNow, url, rule });
-                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Unsafe URL", url, _config.Current.Policy.EnforcementCountdownSeconds, Url: url, Rule: rule, DeadlineUtc: DateTime.UtcNow.AddSeconds(_config.Current.Policy.EnforcementCountdownSeconds)))); } catch { }
+                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Unsafe URL", url, _config.Current.Policy.EnforcementCountdownSeconds, Url: url, Rule: rule, DeadlineUtc: DateTime.UtcNow.AddSeconds(_config.Current.Policy.EnforcementCountdownSeconds), Severity: "warning", PrimaryAction: "open_logs", PrimaryActionLabel: "Open Logs"))); } catch { }
             }
         };
 
@@ -183,7 +183,7 @@ public class Worker : BackgroundService
             {
                 if (!_policy.CanWarn()) return;
                 _jsonl.Log(new { type = "enforce_warn", ts = DateTime.UtcNow, processName, pid, countdown = cfg.EnforcementCountdownSeconds });
-                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Enforcement countdown", $"{processName} will be closed", cfg.EnforcementCountdownSeconds, Process: processName, DeadlineUtc: DateTime.UtcNow.AddSeconds(cfg.EnforcementCountdownSeconds)))); } catch { }
+                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Enforcement countdown", $"{processName} will be closed", cfg.EnforcementCountdownSeconds, Process: processName, DeadlineUtc: DateTime.UtcNow.AddSeconds(cfg.EnforcementCountdownSeconds), Severity: "warning", PrimaryAction: "open_config", PrimaryActionLabel: "Open Config"))); } catch { }
                 _policy.MarkWarned();
                 var cts = new CancellationTokenSource();
                 _enforcementCts[pid] = cts;

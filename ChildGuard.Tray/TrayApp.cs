@@ -60,7 +60,7 @@ public sealed class TrayApp : IDisposable
                                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                                 {
                                     var tw = new ToastWindow();
-                                    tw.ShowToast(toast.Message, toast.CountdownSeconds, toast.DeadlineUtc ?? null, toast.Url, toast.Process, toast.Rule);
+                                    tw.ShowToast(toast.Message, toast.CountdownSeconds, toast.DeadlineUtc ?? null, toast.Url, toast.Process, toast.Rule, toast.Severity, toast.PrimaryAction, toast.PrimaryActionLabel);
                                 });
                             }
                         }

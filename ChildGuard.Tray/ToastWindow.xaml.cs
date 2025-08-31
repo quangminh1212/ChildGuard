@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
 using ChildGuard.Core;
+using System.Windows.Media;
+
 using ChildGuard.Core.IPC;
 
 namespace ChildGuard.Tray;
@@ -26,17 +28,59 @@ public partial class ToastWindow : Window
         CloseBtn.Click += (_, __) => Close();
     }
 
-    public void ShowToast(string message, int countdownSeconds, DateTime? deadlineUtc = null, string? url = null, string? process = null, string? rule = null)
+    public void ShowToast(string message, int countdownSeconds, DateTime? deadlineUtc = null, string? url = null, string? process = null, string? rule = null, string? severity = null, string? primaryAction = null, string? primaryActionLabel = null)
     {
         TitleText.Text = "ChildGuard";
         _end = deadlineUtc ?? DateTime.UtcNow.AddSeconds(countdownSeconds);
         var remain = Math.Max(0, (int)(_end - DateTime.UtcNow).TotalSeconds);
         MessageText.Text = message + $"\nClosing in {remain}s...";
         DetailsText.Text = BuildDetails(url, process, rule);
+        ApplySeverity(severity);
+        ConfigurePrimaryAction(primaryAction, primaryActionLabel);
         _timer.Start();
         PositionBottomRight();
         Show();
         Activate();
+    }
+
+    private void ApplySeverity(string? severity)
+    {
+        var brush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#FF2D2D30");
+        if (string.Equals(severity, "warning", StringComparison.OrdinalIgnoreCase))
+            brush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#FF3B2F14");
+        else if (string.Equals(severity, "error", StringComparison.OrdinalIgnoreCase))
+            brush = (System.Windows.Media.Brush)new BrushConverter().ConvertFromString("#FF3A1F1F");
+        RootBorder.Background = brush;
+    }
+
+    private void ConfigurePrimaryAction(string? primaryAction, string? label)
+    {
+        if (string.IsNullOrWhiteSpace(primaryAction)) return;
+        var btn = new System.Windows.Controls.Button { Content = label ?? "Open", Padding = new Thickness(8,4,8,4), Margin = new Thickness(8,0,0,0) };
+        btn.Click += (_, __) => HandlePrimaryAction(primaryAction);
+        // Insert before CloseBtn
+        if (CloseBtn.Parent is System.Windows.Controls.Panel p)
+        {
+            var idx = Math.Max(0, p.Children.IndexOf(CloseBtn));
+            p.Children.Insert(idx, btn);
+        }
+    }
+
+    private void HandlePrimaryAction(string action)
+    {
+        try
+        {
+            if (string.Equals(action, "open_config", StringComparison.OrdinalIgnoreCase))
+            {
+                // Placeholder: open config file in notepad
+                Process.Start(new ProcessStartInfo { FileName = Paths.ConfigFile, UseShellExecute = true });
+            }
+            else if (string.Equals(action, "open_logs", StringComparison.OrdinalIgnoreCase))
+            {
+                Process.Start(new ProcessStartInfo { FileName = Paths.LogsDir, UseShellExecute = true });
+            }
+        }
+        catch { }
     }
 
     private static string BuildDetails(string? url, string? process, string? rule)
