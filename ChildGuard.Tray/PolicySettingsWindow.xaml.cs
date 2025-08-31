@@ -10,6 +10,8 @@ namespace ChildGuard.Tray;
 public partial class PolicySettingsWindow : Window
 {
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+using System.Windows.Threading;
+
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     private readonly ConfigManager _cfg;
