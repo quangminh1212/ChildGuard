@@ -26,16 +26,26 @@ public partial class ToastWindow : Window
         CloseBtn.Click += (_, __) => Close();
     }
 
-    public void ShowToast(string message, int countdownSeconds, DateTime? deadlineUtc = null)
+    public void ShowToast(string message, int countdownSeconds, DateTime? deadlineUtc = null, string? url = null, string? process = null, string? rule = null)
     {
         TitleText.Text = "ChildGuard";
         _end = deadlineUtc ?? DateTime.UtcNow.AddSeconds(countdownSeconds);
         var remain = Math.Max(0, (int)(_end - DateTime.UtcNow).TotalSeconds);
         MessageText.Text = message + $"\nClosing in {remain}s...";
+        DetailsText.Text = BuildDetails(url, process, rule);
         _timer.Start();
         PositionBottomRight();
         Show();
         Activate();
+    }
+
+    private static string BuildDetails(string? url, string? process, string? rule)
+    {
+        var lines = new System.Collections.Generic.List<string>();
+        if (!string.IsNullOrWhiteSpace(process)) lines.Add($"Process: {process}");
+        if (!string.IsNullOrWhiteSpace(url)) lines.Add($"URL: {url}");
+        if (!string.IsNullOrWhiteSpace(rule)) lines.Add($"Rule: {rule}");
+        return string.Join("\n", lines);
     }
 
     private void UpdateCountdown()

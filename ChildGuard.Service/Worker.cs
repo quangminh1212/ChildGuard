@@ -74,7 +74,7 @@ public class Worker : BackgroundService
             if (_urlSafety.IsUnsafe(url, out var rule))
             {
                 _jsonl.Log(new { type = "url_alert", level = "warning", ts = DateTime.UtcNow, url, rule });
-                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Unsafe URL", url, _config.Current.Policy.EnforcementCountdownSeconds, Url: url, Rule: rule))); } catch { }
+                try { FileIpc.SendToTray(new IpcMessage("toast", new ToastAlert("Unsafe URL", url, _config.Current.Policy.EnforcementCountdownSeconds, Url: url, Rule: rule, DeadlineUtc: DateTime.UtcNow.AddSeconds(_config.Current.Policy.EnforcementCountdownSeconds)))); } catch { }
             }
         };
 

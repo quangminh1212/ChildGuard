@@ -12,7 +12,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock x:Name="TitleText" Text="ChildGuard" FontWeight="Bold" Foreground="White"/>
-            <TextBlock x:Name="MessageText" Grid.Row="1" TextWrapping="Wrap" Margin="0,8,0,8" Foreground="#FFDADADA"/>
+            <StackPanel Grid.Row="1" Margin="0,8,0,8">
+                <TextBlock x:Name="MessageText" TextWrapping="Wrap" Foreground="#FFDADADA"/>
+                <TextBlock x:Name="DetailsText" TextWrapping="Wrap" Foreground="#FF9FA0A0" Margin="0,6,0,0"/>
+            </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,0,0">
                 <StackPanel.Resources>
                     <Style TargetType="Button">
