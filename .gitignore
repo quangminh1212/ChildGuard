@@ -1,0 +1,23 @@
+# Build artifacts
+bin/
+obj/
+
+# VS/VSCode
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Dotnet
+.project
+.nuget/
+packages/
+
+# Logs
+*.log
+
+# FFmpeg binaries (if placed locally)
+ffmpeg.exe
+ffprobe.exe
+
